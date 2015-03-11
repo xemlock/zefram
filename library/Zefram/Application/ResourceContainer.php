@@ -116,13 +116,13 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         // is removed
 
         if (isset($this->_definitions[$name])) {
-            $resource = $this->_resources[$name] = $this->_createInstance($this->_definitions[$resourceName]);
+            $resource = $this->_resources[$name] = $this->_createInstance($this->_definitions[$name]);
             unset($this->_definitions[$name]);
             return $resource;
         }
 
         if (isset($this->_aliases[$name])) {
-            $resource = $this->_resources[$name] = $this->getResource($this->_aliases[$resourceName]);
+            $resource = $this->_resources[$name] = $this->getResource($this->_aliases[$name]);
             unset($this->_aliases[$name]);
             return $resource;
         }
