@@ -3,11 +3,7 @@
 /**
  * Abstract base class for application services
  *
- * @uses       Zend_Application_Bootstrap_Bootstrapper
- * @category   Zefram
- * @package    Zefram_Application
- * @copyright  Copyright (c) 2013 xemlock
- * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @deprecated use Zend_Application_Resource_ResourceAbstract instead
  */
 abstract class Zefram_Application_Service
 {
