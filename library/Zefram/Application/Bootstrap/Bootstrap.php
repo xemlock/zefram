@@ -1,8 +1,11 @@
 <?php
 
 /**
- * @version 2014-07-20
- * @author xemlock
+ * @category   Zefram
+ * @package    Zefram_Application
+ * @subpackage Bootstrap
+ * @version    2015-03-11
+ * @author     xemlock
  */
 class Zefram_Application_Bootstrap_Bootstrap
     extends Zend_Application_Bootstrap_Bootstrap
@@ -99,5 +102,44 @@ class Zefram_Application_Bootstrap_Bootstrap
     public function hasClassResource($resource) // {{{
     {
         return method_exists($this, '_init' . $resource);
+    } // }}}
+
+    /**
+     * Loads a plugin resource.
+     *
+     * If resource name corresponds to a valid plugin resource, load it, unless
+     * a 'plugin' = false option is provided. If resource name is not a valid
+     * plugin resource and a 'class' option is provided, resource is treated
+     * as a resource definition and will be wrapped in a
+     * (@see Zefram_Application_Resource_ResourceDefinition) plugin instance.
+     *
+     * Resource defitions must be supported by resource container to work
+     * as intended.
+     *
+     * @param  string $resource
+     * @param  array|object|null $options
+     * @return string|false
+     */
+    protected function _loadPluginResource($resource, $options = null) // {{{
+    {
+        if (is_object($options) && method_exists($options, 'toArray')) {
+            $options = $options->toArray();
+        }
+        $options = (array) $options;
+
+        $resource = strtolower($resource);
+        $pluginClass = $this->getPluginLoader()->load($resource, false);
+
+        if ($pluginClass && (!isset($options['plugin']) || $options['plugin'])) {
+            unset($options['plugin']);
+            return parent::_loadPluginResource($resource, $options);
+        }
+
+        if (isset($options['class'])) {
+            $this->_pluginResources[$resource] = new Zefram_Application_Resource_ResourceDefinition($options);
+            return $resource;
+        }
+
+        return false;
     } // }}}
 }
