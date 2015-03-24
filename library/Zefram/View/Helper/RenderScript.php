@@ -147,7 +147,7 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
      * @param  array $viewState
      * @return void
      */
-    protected function _setViewState(Zend_View_Abstract $view, array $viewState)
+    protected function _setViewState(Zend_View_Abstract $view, array $viewState = null)
     {
         // set variables
         if (isset($viewState['vars'])) {
