@@ -3,7 +3,7 @@
 /**
  * Resource container with lazy object initialization.
  *
- * @version 2015-03-11
+ * @version 2015-03-30
  */
 class Zefram_Application_ResourceContainer implements ArrayAccess
 {
@@ -62,6 +62,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      */
     public function addResource($name, $resource) // {{{
     {
+        $name = $this->_foldCase($name);
+
         if (isset($this->_resources[$name])) {
             throw new Exception(sprintf(
                 "Resource '%s' is already registered", $name
@@ -69,20 +71,17 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         }
 
         if (is_string($resource)) {
-            if (!strncmp($resource, '@', 1)) {
-                $this->_aliases[$name] = substr($resource, 1);
-                return $this;
-            }
-
-            // backwards compatibility
             if (!strncasecmp($resource, 'resource:', 9)) {
                 $this->_aliases[$name] = substr($resource, 9);
                 return $this;
             }
 
             // string not begining with 'resource:' is considered to be
-            // a class name only definition
-            $resource = array('class' => $resource);
+            // a class name only definition - but this feature is deprecated
+            if (class_exists($resource)) {
+                trigger_error(sprintf('Using string values as resource class names is deprecated (%s)', $resource), E_USER_WARNING);
+                $resource = array('class' => $resource);
+            }
         }
 
         if (is_array($resource) && isset($resource['class'])) {
@@ -103,6 +102,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      */
     public function getResource($name) // {{{
     {
+        $name = $this->_foldCase($name);
+
         if (isset($this->_resources[$name]) ||
             array_key_exists($name, $this->_resources)
         ) {
@@ -138,6 +139,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      */
     public function removeResource($name) // {{{
     {
+        $name = $this->_foldCase($name);
         unset(
             $this->_resources[$name],
             $this->_definitions[$name],
@@ -153,9 +155,21 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      */
     public function hasResource($name) // {{{
     {
+        $name = $this->_foldCase($name);
         return isset($this->_resources[$name])
             || isset($this->_definitions[$name])
             || isset($this->_aliases[$name]);
+    } // }}}
+
+    /**
+     * Helper method to maintain case-insensitivity of resource names.
+     *
+     * @param  string $key
+     * @return $key
+     */
+    protected function _foldCase($key) // {{{
+    {
+        return strtolower($key);
     } // }}}
 
     /**
