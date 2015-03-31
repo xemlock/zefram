@@ -135,11 +135,7 @@ class Zefram_Application_Bootstrap_Bootstrap
             return parent::_loadPluginResource($resource, $options);
         }
 
-        if (isset($options['class'])) {
-            $this->_pluginResources[$resource] = new Zefram_Application_Resource_ResourceDefinition($options);
-            return $resource;
-        }
-
-        return false;
+        $this->_pluginResources[$resource] = new Zefram_Application_Resource_ResourceDefinition($options);
+        return $resource;
     } // }}}
 }

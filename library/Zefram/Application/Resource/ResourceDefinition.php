@@ -3,6 +3,7 @@
 /**
  * This class works as a wrapper for resource definition understood by
  * {@link Zefram_Application_ResourceContainer}.
+ * Actually it can work as a plugin wrapper for any value!!!
  *
  * @category   Zefram
  * @package    Zefram_Application
@@ -16,13 +17,7 @@ class Zefram_Application_Resource_ResourceDefinition
     /**
      * @var array
      */
-    protected $_options = array(
-        'class'   => null,
-        'args'    => null,
-        'params'  => null,
-        'options' => null,
-        'invoke'  => null,
-    );
+    protected $_options;
 
     /**
      * Sets lazy resource configuration.
@@ -33,8 +28,8 @@ class Zefram_Application_Resource_ResourceDefinition
     public function setOptions(array $options)
     {
         $this->_options = array_merge(
-            $this->_options,
-            array_intersect_key($options, $this->_options)
+            (array) $this->_options,
+            $options
         );
         return $this;
     }
@@ -47,11 +42,11 @@ class Zefram_Application_Resource_ResourceDefinition
      */
     public function init()
     {
-        if (empty($this->_options['class'])) {
+        /* if (empty($this->_options['class'])) {
             throw new Zend_Application_Resource_Exception(
                 'Resource definition requires a class name'
             );
-        }
+        } */
         return $this->_options;
     }
 }
