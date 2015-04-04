@@ -10,7 +10,7 @@
  * - TODO hidden input errors moved to general errors
  * - default form decorators -> show custom messages
  */
-class Zefram_Form extends Zend_Form
+class Zefram_Form extends Zefram_Form2
 {
     public function __construct($options = null)
     {
@@ -33,14 +33,6 @@ class Zefram_Form extends Zend_Form
             $options['elementDecorators'] = self::elementDecorators();
         }
         parent::__construct($options);
-    }
-
-    public function addSubForm(Zend_Form $form, $name = null, $order = null)
-    {
-        if ($name === null) {
-            $name = $form->getName();
-        }
-        return parent::addSubForm($form, $name, $order);
     }
 
     /**
@@ -298,49 +290,5 @@ class Zefram_Form extends Zend_Form
         return array(
             'ViewHelper',
         );
-    }
-
-    protected static $_defaultPrefixPaths = array();
-
-    /**
-     * Set default plugin loaders for use with decorators and elements.
-     *
-     * @param  Zend_Loader_PluginLoader_Interface $loader
-     * @param  string $type 'decorator' or 'element'
-     * @throws Zend_Form_Exception on invalid type
-     */
-    public static function addDefaultPrefixPath($prefix, $path, $type)
-    {
-        $type = strtoupper($type);
-
-        switch ($type) {
-            case self::DECORATOR:
-            case self::ELEMENT:
-                self::$_defaultPrefixPaths[$type][$prefix] = $path;
-                break;
-
-            default:
-                throw new Zend_Form_Exception(sprintf('Invalid type "%s" provided to addDefaultPrefixPath()', $type));
-        }
-    }
-
-    public function getPluginLoader($type = null)
-    {
-        $type = strtoupper($type);
-
-        if (!isset($this->_loaders[$type])) {
-            $loader = parent::getPluginLoader($type);
-
-            // add default prefix paths after creating loader
-            if (isset(self::$_defaultPrefixPaths[$type])) {
-                foreach (self::$_defaultPrefixPaths[$type] as $prefix => $path) {
-                    $loader->addPrefixPath($prefix, $path);
-                }
-            }
-
-            return $loader;
-        }
-
-        return $this->_loaders[$type];
     }
 }
