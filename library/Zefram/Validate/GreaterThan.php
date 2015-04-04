@@ -6,6 +6,7 @@
  *
  * @version 2014-02-25
  * @author xemlock
+ * @deprecated Use GreaterThanContext validator
  */
 class Zefram_Validate_GreaterThan extends Zend_Validate_GreaterThan
 {
