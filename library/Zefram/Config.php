@@ -45,7 +45,7 @@ class Zefram_Config extends Zend_Config
                         'Invalid configuration file provided; PHP file does not return array value'
                     );
                 }
-                return $config;
+                return new self($config);
 
             default:
                 throw new Zend_Config_Exception(sprintf(
