@@ -66,7 +66,8 @@ class Zefram_Log extends Zend_Log
                 'errno'   => $errno,
                 'file'    => $errfile,
                 'line'    => $errline,
-                'context' => $errcontext,
+                // context is skipped when rendering message from format
+                // 'context' => $errcontext,
             );
 
             if ($message) {
