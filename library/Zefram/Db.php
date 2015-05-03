@@ -69,6 +69,16 @@ class Zefram_Db implements Zefram_Db_TransactionManager
     } // }}}
 
     /**
+     * Creates a Zefram_Db_Select instance using the current adapter.
+     *
+     * @return Zefram_Db_Select
+     */
+    public function select() // {{{
+    {
+        return new Zefram_Db_Select($this->_adapter);
+    } // }}}
+
+    /**
      * Proxy to adapter's quote() method.
      * See {@link Zend_Db_Adapter_Abstract::quote()} for details.
      */
