@@ -1,10 +1,12 @@
 <?php
 
 /**
- * This class was adapted as a part of Maniple_Search package.
- * The original class name (StemmerPorter) was changed to match PSR-0
- * naming conventions. Staticness of the stem() method was removed to
- * match StemmerInterface. No other parts of code were modified.
+ * This class was adapted as a part of Zefram_Search package.
+ * The original class name (PorterStemmer) was changed to match PSR-0 naming
+ * conventions of the package. No other parts of the code were modified.
+ *
+ * @category   Zefram
+ * @package    Zefram_Search
  */
 
 /**
@@ -26,8 +28,7 @@
 * How easy is that?
 */
 
-class Zefram_Search_Stemmer_PorterStemmer
-    implements Zefram_Search_Stemmer_StemmerInterface
+class Zefram_Search_PorterStemmer
 {
     /**
     * Regex for matching a consonant
@@ -49,7 +50,7 @@ class Zefram_Search_Stemmer_PorterStemmer
     * @param  string $word Word to stem
     * @return string       Stemmed word
     */
-    public function stem($word)
+    public static function Stem($word)
     {
         if (strlen($word) <= 2) {
             return $word;

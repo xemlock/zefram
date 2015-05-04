@@ -1,7 +1,12 @@
 <?php
 
 /**
- * Provides more encapsulated Lucene implementation.
+ * Provides more encapsulated Lucene index implementation.
+ *
+ * @category   Zefram
+ * @package    Zefram_Search
+ * @author     xemlock
+ * @version    2015-05-04
  */
 class Zefram_Search_Lucene extends Zend_Search_Lucene
 {
@@ -11,24 +16,24 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
     protected $_analyzer;
 
     /**
+     * @param  string $directory
+     * @param  bool $create
+     */
+    public function __construct($directory = null, $create = false)
+    {
+        $this->_analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
+
+        parent::__construct($directory, $create);
+    }
+
+    /**
+     * Returns the Zend_Search_Lucene_Analysis_Analyzer instance for this index.
+     *
      * @return Zend_Search_Lucene_Analysis_Analyzer
      */
     public function getAnalyzer()
     {
-        if (empty($this->_analyzer)) {
-            $this->_analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
-        }
         return $this->_analyzer;
-    }
-
-    /**
-     * @param  Zend_Search_Lucene_Analysis_Analyzer|null $analyzer
-     * @return Zefram_Search_Lucene
-     */
-    public function setAnalyzer(Zend_Search_Lucene_Analysis_Analyzer $analyzer = null)
-    {
-        $this->_analyzer = $analyzer;
-        return $this;
     }
 
     /**
@@ -42,7 +47,7 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
     {
         // calling parent method using call_user_func via 'parent::method'
         // works since PHP 5.1.2
-        return $this->_withAnalyzer('parent::find', $query);
+        return $this->_runWithAnalyzer('parent::find', $query);
     }
 
     /**
@@ -52,15 +57,18 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
      */
     public function addDocument(Zend_Search_Lucene_Document $document)
     {
-        return $this->_withAnalyzer('parent::addDocument', $document);
+        return $this->_runWithAnalyzer('parent::addDocument', $document);
     }
 
     /**
      * @internal
+     * @param  string $method
+     * @return mixed
      */
-    protected function _withAnalyzer($method)
+    protected function _runWithAnalyzer($method)
     {
         $analyzer = $this->_analyzer;
+        $prevAnalyzer = null;
 
         if ($analyzer) {
             $prevAnalyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
@@ -87,7 +95,7 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
      */
     public static function open($directory)
     {
-        return new Zefram_Search_Lucene_Proxy(new Zefram_Search_Lucene($directory, false));
+        return new Zend_Search_Lucene_Proxy(new Zefram_Search_Lucene($directory, false));
     }
 
     /**
@@ -98,6 +106,6 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
      */
     public static function create($directory)
     {
-        return new Zefram_Search_Lucene_Proxy(new Zefram_Search_Lucene($directory, true));
+        return new Zend_Search_Lucene_Proxy(new Zefram_Search_Lucene($directory, true));
     }
 }

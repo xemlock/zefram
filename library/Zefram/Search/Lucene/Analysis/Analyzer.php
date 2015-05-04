@@ -1,20 +1,56 @@
 <?php
 
 /**
- * Built-in Zend_Search_Lucene analyzers are a joke - four classes with
- * copy-paste implementation?
+ * Base class for text analyzers offering the same functionality as all
+ * analyzers shipped with Zend_Search_Lucene, but without code duplication.
+ *
+ * Additionally filters can be provided as a definition array, similar to
+ * how elements can be provided to `Zend_Form`.
+ *
+ * @category   Zefram
+ * @package    Zefram_Search
+ * @author     xemlock
+ * @version    2015-05-04
  */
-class Zefram_Search_Lucene_Analysis_Analyzer
-    extends Zend_Search_Lucene_Analysis_Analyzer
+class Zefram_Search_Lucene_Analysis_Analyzer extends Zend_Search_Lucene_Analysis_Analyzer
 {
+    /**
+     * @var Zend_Loader_PluginLoader_Interface
+     */
     protected $_pluginLoader;
 
+    /**
+     * @var string
+     */
     protected $_encoding;
 
+    /**
+     * @var bool
+     */
     protected $_tokenizeNumbers;
 
+    /**
+     * @var array
+     */
     protected $_filters = array();
 
+    /**
+     * Current char position in a stream
+     *
+     * @var integer
+     */
+    private $_position;
+
+    /**
+     * Current binary position in a stream
+     *
+     * @var integer
+     */
+    private $_bytePosition;
+
+    /**
+     * @param  array $options
+     */
     public function __construct(array $options = null)
     {
         if ($options) {
@@ -22,6 +58,10 @@ class Zefram_Search_Lucene_Analysis_Analyzer
         }
     }
 
+    /**
+     * @param  array $options
+     * @return Zefram_Search_Lucene_Analysis_Analyzer
+     */
     public function setOptions(array $options)
     {
         foreach ($options as $key => $value) {
@@ -33,12 +73,21 @@ class Zefram_Search_Lucene_Analysis_Analyzer
         return $this;
     }
 
+    /**
+     * @param  boolean $flag
+     * @return Zefram_Search_Lucene_Analysis_Analyzer
+     */
     public function setTokenizeNumbers($flag)
     {
         $this->_tokenizeNumbers = (bool) $flag;
         return $this;
     }
 
+    /**
+     * @param  string $encoding
+     * @return bool
+     * @throws Zend_Search_Lucene_Exception
+     */
     public function setEncoding($encoding)
     {
         $this->_encoding = $this->_checkEncoding($encoding);
@@ -52,7 +101,7 @@ class Zefram_Search_Lucene_Analysis_Analyzer
     {
         if (null === $this->_pluginLoader) {
             $this->_pluginLoader = new Zend_Loader_PluginLoader(array(
-                'Zend_Search_Lucene_Analysis_TokenFilter_' => 'Zend/Search/Lucene/Analysis/TokenFilter/',
+                'Zend_Search_Lucene_Analysis_TokenFilter_'   => 'Zend/Search/Lucene/Analysis/TokenFilter/',
                 'Zefram_Search_Lucene_Analysis_TokenFilter_' => 'Zefram/Search/Lucene/Analysis/TokenFilter/',
             ));
         }
@@ -61,6 +110,7 @@ class Zefram_Search_Lucene_Analysis_Analyzer
 
     /**
      * @param  Zend_Loader_PluginLoader_Interface $loader
+     * @return Zefram_Search_Lucene_Analysis_Analyzer
      */
     public function setPluginLoader(Zend_Loader_PluginLoader_Interface $loader)
     {
@@ -69,45 +119,115 @@ class Zefram_Search_Lucene_Analysis_Analyzer
     }
 
     /**
-     * Add filters to anaylyzer.
+     * Retrieve all filters
+     *
+     * @return Zend_Search_Lucene_Analysis_TokenFilter[]
+     */
+    public function getFilters()
+    {
+        return $this->_filters;
+    }
+
+    /**
+     * Add filters to analyzer
+     *
+     * Each filter can be given in one of the following forms:
+     * <ul>
+     *   <li>Zend_Search_Lucene_Analysis_TokenFilter $filter
+     *   <li>string $name
+     *   <li>array('filter' => string $name, 'options' => array $options)
+     *   <li>array(string $name, array $options)
+     * </ul>
      *
      * @param  array $filters
      * @return Zefram_Search_Lucene_Analysis_Analyzer
      */
     public function addFilters(array $filters)
     {
-        foreach ($filters as $filter) {
-            $this->addFilter($filter);
+        foreach ($filters as $filterSpec) {
+            if ($filterSpec instanceof Zend_Search_Lucene_Analysis_TokenFilter) {
+                $this->addFilter($filterSpec);
+                continue;
+            }
+
+            if (is_array($filterSpec)) {
+                $options = array();
+
+                if (isset($filterSpec['filter'])) {
+                    $filter = $filterSpec['filter'];
+                    if (isset($filterSpec['options'])) {
+                        $options = $filterSpec['options'];
+                    }
+                } else {
+                    $filter = null;
+                    $argc = count($filterSpec);
+                    switch ($argc) {
+                        case 0:
+                            continue;
+
+                        /** @noinspection PhpMissingBreakStatementInspection */
+                        case (1 <= $argc):
+                            $filter = array_shift($filterSpec);
+
+                        /** @noinspection PhpMissingBreakStatementInspection */
+                        case (2 <= $argc):
+                            $options = array_shift($filterSpec);
+                    }
+                }
+                $this->addFilter($filter, (array) $options);
+
+            } else {
+                $this->addFilter($filterSpec);
+            }
         }
         return $this;
     }
 
+    /**
+     * Set multiple filters, overwriting previous filters
+     *
+     * @param  array $filters
+     * @return Zefram_Search_Lucene_Analysis_Analyzer
+     */
     public function setFilters(array $filters)
     {
         $this->_filters = array();
         return $this->addFilters($filters);
-    }    
+    }
 
     /**
-     * Add filter to anaylyzer.
+     * Add filter to analyzer
      *
-     * @param  Zend_Search_Lucene_Analysis_TokenFilter|array|string $filter
+     * @param  Zend_Search_Lucene_Analysis_TokenFilter|string $filter
+     * @param  array $options
      * @return Zefram_Search_Lucene_Analysis_Analyzer
      */
-    public function addFilter($filter)
+    public function addFilter($filter, array $options = null)
     {
         if (!$filter instanceof Zend_Search_Lucene_Analysis_TokenFilter) {
-            $args = (array) $filter;
-            $class = $this->getPluginLoader()->load(array_shift($args));
-            if ($args) {
+            $class = $this->getPluginLoader()->load($filter);
+            if (empty($options)) {
+                $filter = new $class();
+            } else {
                 $ref = new ReflectionClass($class);
                 if ($ref->hasMethod('__construct')) {
-                    $filter = $ref->newInstanceArgs($args);
+                    $numeric = false;
+                    $keys    = array_keys($options);
+                    foreach ($keys as $key) {
+                        if (is_numeric($key)) {
+                            $numeric = true;
+                            break;
+                        }
+                    }
+
+                    if ($numeric) {
+                        $filter = $ref->newInstanceArgs($options);
+                    } else {
+                        $filter = $ref->newInstance($options);
+                    }
                 } else {
                     $filter = $ref->newInstance();
                 }
-            } else {
-                $filter = new $class();
             }
         }
         $this->_filters[] = $filter;
@@ -121,7 +241,7 @@ class Zefram_Search_Lucene_Analysis_Analyzer
         if (!strcasecmp($encoding, 'utf8') || !strcasecmp($encoding, 'utf-8')) {
             if (@preg_match('/\pL/u', 'a') != 1) {
                 // PCRE unicode support is turned off
-                throw new Zend_Search_Lucene_Exception('Analyzer needs PCRE unicode support to be enabled.');
+                throw new Zend_Search_Lucene_Exception('Analyzer requires PCRE unicode support to be enabled.');
             }
             $encoding = 'UTF-8';
         }
