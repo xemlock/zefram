@@ -1,10 +1,29 @@
 <?php
 
+/**
+ * Zend_Mail_Transport_Smtp constructor signature differs from the other
+ * transports. This class aims to support any of these versions.
+ *
+ * @uses Zend_Mail
+ */
 class Zefram_Mail_Transport_Smtp extends Zend_Mail_Transport_Smtp
 {
-    public function __construct(array $config = array())
+    const LOCALHOST = '127.0.0.1';
+
+    /**
+     * Constructor.
+     *
+     * @param  string|array $host OPTIONAL
+     * @param  integer $port OPTIONAL
+     * @param  array $config OPTIONAL
+     * @return void Zend_Mail_Protocol_Exception
+     */
+    public function __construct($host = self::LOCALHOST, array $config = null)
     {
-        $host = isset($config['host']) ? $config['host'] : '127.0.0.1';
-        parent::__construct($host, $config);
+        if (is_array($host)) {
+            $config = $host;
+            $host = isset($config['host']) ? $config['host'] : self::LOCALHOST;
+        }
+        parent::__construct($host, (array) $config);
     }
 }
