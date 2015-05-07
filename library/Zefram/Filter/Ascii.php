@@ -557,13 +557,18 @@ class Zefram_Filter_Ascii implements Zend_Filter_Interface
         'Į' => 'I', 'Ų' => 'U',
     );
 
+    public function filter($string)
+    {
+        return self::filterStatic($string);
+    }
+
     /**
      * Reliably transliterate given string to ASCII-only characters.
      *
      * @param string $string
      * @return string
      */
-    public function filter($string)
+    public static function filterStatic($string)
     {
         // iconv() is heavily dependent on its implementation on the user
         // system and in its current form has a lot of inconsistencies.
