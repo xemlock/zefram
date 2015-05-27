@@ -38,7 +38,7 @@ abstract class Zefram_Db_Traits
      * @param  mixed
      * @return mixed
      */
-    public function normalizeValue($value)
+    public static function normalizeValue($value)
     {
         if (is_int($value) || is_bool($value) || is_null($value)) {
             return $value;
