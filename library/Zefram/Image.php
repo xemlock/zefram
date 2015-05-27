@@ -36,6 +36,10 @@ class Zefram_Image
      */
     public function __construct($image) // {{{
     {
+        if (!extension_loaded('gd')) {
+            throw new Zefram_Image_Exception('Zefram_Image requires GD extension to be enabled.');
+        }
+
         if (is_resource($image)) {
             $this->_initFromResource($image);
             return;
