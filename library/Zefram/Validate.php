@@ -9,11 +9,15 @@
  * Validator can be used in Zend_Form_Element in conjunction with
  * allowEmpty=FALSE, required=FALSE and NotEmptyIf validator.
  *
+ * isValid() call can accept context parameter that will be passed
+ * to validators.
+ *
  * @uses      Zend_Validate
  * @uses      Zend_Loader
  * @author    xemlock
- * @version   2014-12-13 / 2013-10-18
+ * @version   2015-06-27 / 2014-12-13 / 2013-10-18
  *
+ * 2015-06-27: added context parameter to isValid()
  * 2014-12-13: added allowEmpty feature
  */
 class Zefram_Validate extends Zend_Validate
@@ -58,11 +62,6 @@ class Zefram_Validate extends Zend_Validate
 
             // add prefix paths before loading any validators
 
-            if (isset($options['prefixPath'])) {
-                $this->addPrefixPath($options['prefixPath']);
-                unset($options['prefixPath']);
-            }
-
             if (isset($options['prefixPaths'])) {
                 $this->addPrefixPaths($options['prefixPaths']);
                 unset($options['prefixPaths']);
@@ -88,22 +87,46 @@ class Zefram_Validate extends Zend_Validate
     }
 
     /**
-     * {@inheritDoc}
+     * Returns true if and only if $value passes all validations in the chain.
+     *
+     * Validators are run in the order in which they were added to the chain
+     * (FIFO).
      *
      * Additionally, if 'allow empty' flag is set, an empty value automatically
      * passes validation.
      *
      * @param  mixed $value
+     * @param  array $context OPTIONAL
      * @return bool
      */
-    public function isValid($value)
+    public function isValid($value, array $context = array())
     {
+        $this->_messages = array();
+        $this->_errors   = array();
+
         if ($this->_allowEmpty && ($value === '' || $value === null)) {
-            $this->_messages = array();
-            $this->_errors   = array();
             return true;
         }
-        return parent::isValid($value);
+
+        // this is a copy-paste from parent::isValid() with context parameter
+        // added to isValid() calls, as the original implementation didn't
+        // support it
+        $result = true;
+        foreach ($this->_validators as $element) {
+            /** @var Zend_Validate_Interface $validator */
+            $validator = $element['instance'];
+            if ($validator->isValid($value, $context)) {
+                continue;
+            }
+            $result = false;
+            $messages = $validator->getMessages();
+            $this->_messages = array_merge($this->_messages, $messages);
+            $this->_errors   = array_merge($this->_errors,   array_keys($messages));
+            if ($element['breakChainOnFailure']) {
+                break;
+            }
+        }
+        return $result;
     }
 
     /**
@@ -142,9 +165,11 @@ class Zefram_Validate extends Zend_Validate
             $count = count($validator);
 
             switch (true) {
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case $count >= 3:
                     $options = (array) array_pop($validator);
 
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case $count >= 2:
                     $breakChainOnFailure = array_pop($validator);
 
@@ -286,6 +311,7 @@ class Zefram_Validate extends Zend_Validate
     {
         foreach ($this->_validators as $validator) {
             if (method_exists($validator, 'setTranslator')) {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $validator->setTranslator($translator);
             }
         }
@@ -352,13 +378,21 @@ class Zefram_Validate extends Zend_Validate
     }
 
     /**
-     * This allows method chaining after object instantitation.
+     * This allows method chaining after object instantiation.
      *
      * @param  array|Zend_Config $options
      * @return Zefram_Validate
      */
-    public static function create($options = null)
+    public static function factory($options = null)
     {
         return new self($options);
+    }
+
+    /**
+     * @deprecated
+     */
+    public static function create($options = null)
+    {
+        return self::factory($options);
     }
 }
