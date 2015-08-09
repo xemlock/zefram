@@ -7,16 +7,34 @@
  */
 abstract class Zefram_Controller_Action_Standalone
 {
+    /**
+     * @var string
+     */
     protected $_actionControllerClass;
 
+    /**
+     * @var Zend_Controller_Action
+     */
     protected $_actionController;
 
+    /**
+     * @var Zefram_Controller_Action_Standalone_HelperBroker
+     */
     protected $_helper;
 
+    /**
+     * @var Zend_Controller_Request_Abstract
+     */
     protected $_request;
 
+    /**
+     * @var Zend_Controller_Response_Abstract
+     */
     protected $_response;
 
+    /**
+     * @var Zend_View_Interface
+     */
     public $view;
 
     /**
@@ -47,6 +65,9 @@ abstract class Zefram_Controller_Action_Standalone
     protected function _init()
     {}
 
+    /**
+     * @return Zend_Controller_Action
+     */
     public function getActionController()
     {
         return $this->_actionController;
@@ -61,6 +82,9 @@ abstract class Zefram_Controller_Action_Standalone
         return $this->getActionController();
     }
 
+    /**
+     * @return Zend_View_Interface
+     */
     public function getView()
     {
         return $this->_actionController->initView();
@@ -94,6 +118,12 @@ abstract class Zefram_Controller_Action_Standalone
         return call_user_func_array($callback, $arguments);
     }
 
+    /**
+     * @param $name
+     * @param null $default
+     * @return mixed|null
+     * @deprecated
+     */
     protected function _getParam($name, $default = null)
     {
         $value = $this->_request->getParam($name, $default);
