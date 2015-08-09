@@ -4,6 +4,9 @@
  * Class for encapsulation of a standalone action logic.
  *
  * @version 2013-06-30 / 2013-05-02
+ * @method Zend_Controller_Front getFrontController()
+ * @method Zend_Controller_Request_Abstract getRequest()
+ * @method Zend_Controller_Response_Abstract getResponse()
  */
 abstract class Zefram_Controller_Action_Standalone
 {
@@ -75,7 +78,7 @@ abstract class Zefram_Controller_Action_Standalone
 
     /**
      * Proxies to {@link getActionController()}.
-     * @deprecated
+     * @deprecated Use getActionController() instead
      */
     public function getController()
     {

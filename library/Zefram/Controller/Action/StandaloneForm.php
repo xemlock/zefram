@@ -192,7 +192,7 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
      */
     public function renderForm()
     {
-        $controller = $this->getController();
+        $controller = $this->getActionController();
         $view = $controller->initView();
 
         $form = $this->getForm()->setView($view);
@@ -224,6 +224,11 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
     {
         $this->_prepare();
 
+        // check for redirect
+        if ($this->getResponse()->isRedirect()) {
+            return;
+        }
+
         $form = $this->getForm();
         $data = self::getSentData($form->getMethod(), $this->_request);
 
@@ -251,9 +256,10 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
                         $baseUrl = $this->_request->getBaseUrl();
                         $prependBase = strncmp($result, $baseUrl, strlen($baseUrl));
                     }
-                    return $this->_helper->redirector->gotoUrl(
+                    $this->_helper->redirector->gotoUrl(
                         $result, array('prependBase' => $prependBase)
                     );
+                    return;
                 }
             }
 
@@ -282,7 +288,8 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
                         : self::getFormMessages($form)
                     );
                 }
-                return $ajaxResponse->sendAndExit();
+                $ajaxResponse->sendAndExit();
+                return;
             }
         } else {
             $this->_populate();
@@ -294,15 +301,15 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
             $ajaxResponse = $this->getAjaxResponse();
             $ajaxResponse->setSuccess();
             $ajaxResponse->setData($this->renderForm());
-            return $ajaxResponse->sendAndExit();
+            $ajaxResponse->sendAndExit();
+
+        } else {
+            // mark page as already rendered, so that it isn't auto rendered
+            // in viewRenderer::postDispatch(). Append form rendering to
+            // response.
+            $this->_helper->viewRenderer->setNoRender();
+            $this->getResponse()->appendBody($this->renderForm());
         }
-
-        // mark page as already rendered, so that it isn't auto rendered
-        // in viewRenderer::postDispatch(). Append form rendering to
-        // response.
-        $this->_helper->viewRenderer->setNoRender();
-
-        return $this->getResponse()->appendBody($this->renderForm());
     }
 
     /**
