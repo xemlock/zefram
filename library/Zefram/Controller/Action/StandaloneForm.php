@@ -224,8 +224,8 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
     {
         $this->_prepare();
 
-        // check for redirect
-        if ($this->getResponse()->isRedirect()) {
+        // check for redirect and forwards
+        if ($this->getResponse()->isRedirect() || !$this->getRequest()->isDispatched()) {
             return;
         }
 
@@ -240,9 +240,12 @@ abstract class Zefram_Controller_Action_StandaloneForm extends Zefram_Controller
                 $result = $this->_process();
 
                 // form was handled successfully, try to perform redirection,
-                // or do nothing if redirection was explicitly cancelled by
+                // or do nothing if redirect ion was explicitly cancelled by
                 // FALSE value returned from _process()
-                if ($this->getResponse()->isRedirect()) {
+
+                // Check if redirect or forward issued explicitly, if so, do
+                // nothing as the rest will be performed by the dispatcher
+                if ($this->getResponse()->isRedirect() || !$this->getRequest()->isDispatched()) {
                     return;
 
                 } elseif (false !== $result) {
