@@ -59,15 +59,14 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @param  string|array|object $resource
      * @return Zefram_Application_ResourceContainer
+     * @throws Zefram_Application_ResourceContainer_Exception
      */
     public function addResource($name, $resource) // {{{
     {
         $name = $this->_foldCase($name);
 
         if (isset($this->_resources[$name])) {
-            throw new Exception(sprintf(
-                "Resource '%s' is already registered", $name
-            ));
+            throw new Zefram_Application_ResourceContainer_Exception("Resource '$name' is already registered");
         }
 
         if (is_string($resource)) {
@@ -98,7 +97,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      *
      * @param  string $name
      * @return mixed
-     * @throws Exception
+     * @throws Zefram_Application_ResourceContainer_Exception
      */
     public function getResource($name) // {{{
     {
@@ -123,12 +122,16 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         }
 
         if (isset($this->_aliases[$name])) {
-            $resource = $this->_resources[$name] = $this->getResource($this->_aliases[$name]);
+            $resource = $this->getResource($this->_aliases[$name]);
+            if ($resource === null) {
+                throw new Zefram_Application_ResourceContainer_Exception("Invalid resource alias '$name'");
+            }
+            $this->_resources[$name] = $resource;
             unset($this->_aliases[$name]);
             return $resource;
         }
 
-        throw new Exception("No resource is registered for key '$name'");
+        throw new Zefram_Application_ResourceContainer_Exception("No resource is registered for key '$name'");
     } // }}}
 
     /**
@@ -207,11 +210,12 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $class
      * @param  array $params OPTIONAL
      * @return object
+     * @throws Zefram_Application_ResourceContainer_Exception
      */
     protected function _createInstance(array $description) // {{{
     {
         if (empty($description['class'])) {
-            throw new InvalidArgumentException('No class name found in description');
+            throw new Zefram_Application_ResourceContainer_Exception('No class name found in description');
         }
 
         $class = $description['class'];
@@ -278,7 +282,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         if (isset($description['invoke'])) {
             foreach ($description['invoke'] as $invoke) {
                 if (!is_array($invoke)) {
-                    throw new InvalidArgumentException('Invoke value must be an array');
+                    throw new Zefram_Application_ResourceContainer_Exception('Invoke value must be an array');
                 }
                 $method = array_shift($invoke);
                 $args = (array) array_shift($invoke);
