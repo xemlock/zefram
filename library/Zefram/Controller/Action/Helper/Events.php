@@ -2,6 +2,7 @@
 
 /**
  * @version 2014-09-26
+ * @deprecated
  */
 class Zefram_Controller_Action_Helper_Events
     extends Zend_Controller_Action_Helper_Abstract

@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Gravatar view helper replacement that allow getting URL of gravatar image.
+ * An enhanced Gravatar view helper that allows getting URL of gravatar image.
  *
  * @package Zefram_View
  * @subpackage Helper
+ * @author xemlock
  */
 class Zefram_View_Helper_Gravatar extends Zend_View_Helper_Gravatar
 {

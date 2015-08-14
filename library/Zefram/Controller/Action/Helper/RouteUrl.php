@@ -3,6 +3,7 @@
 /**
  * @author xemlock
  * @version 2013-06-10
+ * @deprecated
  */
 class Zefram_Controller_Action_Helper_RouteUrl extends Zend_Controller_Action_Helper_Abstract
 {

@@ -3,6 +3,7 @@
 /**
  * @author xemlock
  * @version 2013-07-01
+ * @deprecated
  */
 class Zefram_View_Helper_RouteUrl extends Zend_View_Helper_Abstract
 {
