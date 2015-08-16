@@ -29,14 +29,14 @@
  *   resources.view.basePathPrefix =
  *   resources.view.scriptPath =
  *   resources.view.helperPath =
+ *   resources.view.helperPathPrefix =
  *   resources.view.filterPath =
+ *   resources.view.filterPathPrefix =
  *   resources.view.filter =
  *   resources.view.strictVars =
  *   resources.view.lfiProtectionOn =
  *   resources.view.assign =
  *
- *
- * @version 2014-07-01
  * @author xemlock
  */
 class Zefram_Application_Resource_View extends Zend_Application_Resource_ResourceAbstract
@@ -72,8 +72,30 @@ class Zefram_Application_Resource_View extends Zend_Application_Resource_Resourc
             }
         }
 
-        $viewOptions = array_diff_key($options, $resourceOptions);
         $viewClass = $resourceOptions['class'];
+
+        if (!is_subclass_of($viewClass, 'Zend_View_Abstract')) {
+            throw new Zend_Application_Resource_Exception('View class must inherit from Zend_View_Abstract');
+        }
+
+        $viewOptions = array_diff_key($options, $resourceOptions);
+
+        // add Zefram_View_Helper_ prefix to list of helperPaths
+        if (!isset($viewOptions['helperPath'])) {
+            $helperPath = array();
+        } elseif (!is_array($viewOptions['helperPath'])) {
+            $prefix = 'Zend_View_Helper_';
+            if (array_key_exists('helperPathPrefix', $viewOptions)) {
+                $prefix = $viewOptions['helperPathPrefix'];
+            }
+            $helperPath = array($prefix => $viewOptions['helperPath']);
+        } else {
+            $helperPath = $viewOptions['helperPath'];
+        }
+        $viewOptions['helperPath'] = array_merge(
+            array('Zefram_View_Helper_' => 'Zefram/View/Helper/'),
+            $helperPath
+        );
 
         $view = new $viewClass($viewOptions);
 
@@ -108,7 +130,7 @@ class Zefram_Application_Resource_View extends Zend_Application_Resource_Resourc
         // Create an HTML5-style meta charset tag using headMeta view helper
         if (isset($resourceOptions['charset'])) {
             if (!$view->doctype()->isHtml5()) {
-                throw new Zend_View_Exception('Meta charset tag requires an HTML5 doctype');
+                throw new Zend_Application_Resource_Exception('Meta charset tag requires an HTML5 doctype');
             }
             $view->headMeta()->setCharset($resourceOptions['charset']);
         }
