@@ -85,7 +85,7 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
         );
 
         // if view needs to be modified, populate viewState
-        if ($viewBasePath !== null || $scriptPath !== null) {
+        if ($viewBasePath !== null || $viewScriptPath !== null) {
             // view script paths will be modified, store original scriptPaths
             // in the viewState
             $viewState['scriptPaths'] = $view->getScriptPaths();
@@ -102,7 +102,7 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
 
             // add path to script from the default module that will override
             // the script from the given module
-            if ($scriptPath !== null) {
+            if ($viewScriptPath !== null) {
                 $view->addScriptPath($viewScriptPath);
             }
         }
