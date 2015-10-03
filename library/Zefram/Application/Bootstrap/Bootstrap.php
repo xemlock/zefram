@@ -4,7 +4,7 @@
  * @category   Zefram
  * @package    Zefram_Application
  * @subpackage Bootstrap
- * @version    2015-03-11
+ * @version    2015-10-04
  * @author     xemlock
  */
 class Zefram_Application_Bootstrap_Bootstrap
@@ -24,7 +24,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      * @param  array $options
      * @return Zefram_Application_Bootstrap_Bootstrap
      */
-    public function setOptions(array $options) // {{{
+    public function setOptions(array $options)
     {
         parent::setOptions($options);
 
@@ -33,14 +33,14 @@ class Zefram_Application_Bootstrap_Bootstrap
         }
 
         return $this;
-    } // }}}
+    }
 
     /**
      * Get the plugin loader for resources.
      *
      * @return Zend_Loader_PluginLoader_Interface
      */
-    public function getPluginLoader() // {{{
+    public function getPluginLoader()
     {
         if ($this->_pluginLoader === null) {
             $prefixPaths = array(
@@ -51,7 +51,7 @@ class Zefram_Application_Bootstrap_Bootstrap
             }
         }
         return $this->_pluginLoader;
-    } // }}}
+    }
 
     /**
      * Retrieve resource container.
@@ -61,7 +61,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      *
      * @return object
      */
-    public function getContainer() // {{{
+    public function getContainer()
     {
         if (null === $this->_container) {
             $containerClass = $this->_containerClass;
@@ -69,7 +69,7 @@ class Zefram_Application_Bootstrap_Bootstrap
             $this->setContainer($container);
         }
         return $this->_container;
-    } // }}}
+    }
 
     /**
      * Save given resource using a custom name without involving _init method
@@ -79,7 +79,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      * @param  mixed $value
      * @return Zefram_Application_Bootstrap_Bootstrap
      */
-    public function setResource($name, $value) // {{{
+    public function setResource($name, $value)
     {
         $resource = strtolower($name);
 
@@ -91,7 +91,7 @@ class Zefram_Application_Bootstrap_Bootstrap
 
         $this->getContainer()->{$resource} = $value;
         return $this;
-    } // }}}
+    }
 
     /**
      * Is the requested class resource registered?
@@ -99,43 +99,79 @@ class Zefram_Application_Bootstrap_Bootstrap
      * @param  string $resource
      * @return bool
      */
-    public function hasClassResource($resource) // {{{
+    public function hasClassResource($resource)
     {
         return method_exists($this, '_init' . $resource);
-    } // }}}
+    }
 
     /**
-     * Loads a plugin resource.
+     * Register a new resource plugin
      *
-     * If resource name corresponds to a valid plugin resource, load it, unless
-     * a 'plugin' = false option is provided. If resource name is not a valid
-     * plugin resource and a 'class' option is provided, resource is treated
-     * as a resource definition and will be wrapped in a
-     * (@see Zefram_Application_Resource_ResourceDefinition) plugin instance.
+     * If a resource spec (an array, not plugin instance) of the same name is
+     * already registered, merge it with the provided one. This allows modules
+     * to modify resources defined elsewhere. To completely overwrite an
+     * existing resource spec with the provided one, use
+     * {@link unregisterPluginResource()} first.
      *
-     * Resource defitions must be supported by resource container to work
-     * as intended.
+     * If resource name is not a valid plugin resource and a 'class' option is
+     * provided, resource will be copied as is to resource container. It is
+     * up to Resource Container to process such a resource accordingly.
      *
-     * @param  string $resource
-     * @param  array|object|null $options
-     * @return string|false
+     * @param  string|Zend_Application_Resource_Resource $resource
+     * @param  mixed $options
+     * @return Zefram_Application_Bootstrap_Bootstrap
+     * @throws Zend_Application_Bootstrap_Exception When invalid resource is provided
      */
-    protected function _loadPluginResource($resource, $options = null) // {{{
+    public function registerPluginResource($resource, $options = null)
     {
         if (is_object($options) && method_exists($options, 'toArray')) {
             $options = $options->toArray();
         }
-        $options = (array) $options;
 
+        // check if a resource spec of the same name is already registered,
+        // if so, merge it with the provided spec
+        if (is_string($resource)
+            && isset($this->_pluginResources[$resource])
+            && is_array($this->_pluginResources[$resource])
+            && is_array($options)
+        ) {
+            $options = $this->mergeOptions($this->_pluginResources[$resource], $options);
+        }
+
+        // at this point we know whether to use plugin or not - we must
+        // use this knowledge here
+        // check for correct plugin class here, not when bootstrapping
         $resource = strtolower($resource);
         $pluginClass = $this->getPluginLoader()->load($resource, false);
 
+        // mark plugin as run, so that it does not get executed
+
         if ($pluginClass && (!isset($options['plugin']) || $options['plugin'])) {
             unset($options['plugin']);
-            return parent::_loadPluginResource($resource, $options);
+            parent::registerPluginResource($resource, $options);
+        } else {
+            // this is not a plugin resource - ok, add it right away to resource
+            // container, mark corresponding resource as executed
+            // options can be of any type - its up to container to interpret it
+            $this->getContainer()->{$resource} = $options;
+            $this->_markRun($resource);
         }
 
-        $this->_pluginResources[$resource] = new Zefram_Application_Resource_ResourceDefinition($options);
-        return $resource;
-    } // }}}
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function _bootstrap($resource = null)
+    {
+        if (null === $resource) {
+            // configure modules before bootstrapping resources
+            $moduleManager = $this->getPluginResource('modules');
+            if ($moduleManager && method_exists($moduleManager, 'configureModules')) {
+                $moduleManager->configureModules();
+            }
+        }
+        parent::_bootstrap($resource);
+    }
 }
