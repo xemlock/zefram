@@ -146,7 +146,9 @@ class Zefram_Application_Bootstrap_Bootstrap
         ) {
             unset($options['plugin']);
 
-            // merge existing plugin options with the ones provided
+            // if there is already an existing plugin registered, but it has not
+            // been yet instantiated (it is stored as an options array), merge
+            // newly provided options with the existing ones
             if (isset($this->_pluginResources[$resource])
                 && is_array($this->_pluginResources[$resource])
             ) {
@@ -165,8 +167,10 @@ class Zefram_Application_Bootstrap_Bootstrap
             // 3. add plugin resource 'a', upon bootstrapping resource from
             //    the container will be overwritten (which may result in error, when
             //    container does not allow overwrites)
-            // Solution: bootstrap, overwrite with unsetting prior to saving to the
-            // container, but only if bootstrapped resource is paired with Null resource
+
+            // Requirement: non-plugin plugin resources must be available in the container
+            // event without bootstrapping them explicitly -> they are to be bootstrapped by
+            // the container, not bootstrap
 
         } else {
             // merge existing resource with provided options
