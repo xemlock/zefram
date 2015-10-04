@@ -1,16 +1,20 @@
 <?php
 
 /**
- * This class works as a wrapper for resource definition understood by
- * {@link Zefram_Application_ResourceContainer}.
- * Actually it can work as a plugin wrapper for any value!!!
+ * This class works as a one-way value writer to resource container. The aim
+ * for this class is to allow non-plugin resources to be registered as
+ * ordinary plugin resources. The data will be written to container regardless
+ * of whether the corresponding resource has been explicitly bootstrapped.
+ * Bootstrapping of such resources is commissioned to the container itself -
+ * therefore use it only with containers supporting deferred resource/service
+ * creation.
  *
  * @category   Zefram
  * @package    Zefram_Application
  * @subpackage Bootstrap
  * @author     xemlock
  */
-class Zefram_Application_Resource_ResourceDefinition
+class Zefram_Application_Resource_ContainerData
     extends Zend_Application_Resource_ResourceAbstract
 {
     /**
