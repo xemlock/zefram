@@ -24,9 +24,10 @@ class Zefram_Application_Bootstrap_Bootstrap
      */
     public function __construct($application)
     {
-        // set container class before applying other application options,
-        // otherwise registration of any lazy plugin resource will trigger
-        // getContainer() which will initialize it with the default class,
+        // container class must be set before applying other application
+        // options (e.g. in parent constructor), otherwise registration of any
+        // unrecognized plugin resource will trigger getContainer(), which
+        // will initialize the container using the default class,
         // (from $_containerClass property), and not from application options.
 
         $options = $application->getOptions();
@@ -85,13 +86,6 @@ class Zefram_Application_Bootstrap_Bootstrap
     public function setResource($name, $value)
     {
         $resource = strtolower($name);
-
-        if ($this->hasResource($resource)) {
-            throw new Zend_Application_Bootstrap_Exception(sprintf(
-                "Resource '%s' already exists", $resource
-            ));
-        }
-
         $this->getContainer()->{$resource} = $value;
         return $this;
     }
@@ -131,53 +125,68 @@ class Zefram_Application_Bootstrap_Bootstrap
             return parent::registerPluginResource($resource);
         }
 
+        $resource = strtolower($resource);
+
+        // prevent registering unrunnable plugin resources
+        if (in_array($resource, $this->_run)) {
+            throw new Zend_Application_Bootstrap_Exception(sprintf(
+                "Resource '%s' has already been ran", $resource
+            ));
+        }
+
         if (is_object($options) && method_exists($options, 'toArray')) {
             $options = $options->toArray();
         }
 
-        // TODO pluginResources[resource] can be null
-        if (is_string($resource)
-            && isset($this->_pluginResources[$resource])
-            && is_array($this->_pluginResources[$resource])
+        // check whether to use plugin resource or put resource directly
+        // to the container
+
+        if (($pluginClass = $this->getPluginLoader()->load($resource, false))
+            && (!isset($options['plugin']) || $options['plugin'])
         ) {
-            $options = $this->mergeOptions($this->_pluginResources[$resource], $options);
-        }
-
-        // at this point we know whether to use plugin or not - we must
-        // use this knowledge here
-        // check for correct plugin class here, not when bootstrapping
-        $resource = strtolower($resource);
-        $pluginClass = $this->getPluginLoader()->load($resource, false);
-
-        if ($pluginClass && (!isset($options['plugin']) || $options['plugin'])) {
             unset($options['plugin']);
 
+            // merge existing plugin options with the ones provided
+            if (isset($this->_pluginResources[$resource])
+                && is_array($this->_pluginResources[$resource])
+            ) {
+                $options = $this->mergeOptions($this->_pluginResources[$resource], $options);
+            }
+
             parent::registerPluginResource($resource, $options);
-
-            // NOPE don't mark as not run. Actually FrontController is initialized
-            // before modules are analyzed (it is needed for path retrieval)
-            // and must not be un-run
-            // this is missing step in original impl - when registering new plugin
-            // resource it should be marked as not run
-            // $this->_unmarkRun($resource);
-
-            // this plugin will be lazily initialized
-            // $this->getContainer()->addResourceCallback($resource, array($this, 'bootstrapResource'), array($resource));
-            // NOPE - built-in resources are designed to be eagerly initialized,
-            // otherwise they will not work correctly (such as controller
-            // plugins not being registered)
 
             // built-in plugin resources require eager initialization, otherwise
             // they must be explicitly bootstrapped before use - since we don't want
             // any significant changes to how bootstrapping is made, we leave this
 
+            // problem scenario:
+            // 1. add non-plugin plugin resource 'a' (Null is added to _pluginResources, resource def to container)
+            // 2. update pluginLoader
+            // 3. add plugin resource 'a', upon bootstrapping resource from
+            //    the container will be overwritten (which may result in error, when
+            //    container does not allow overwrites)
+            // Solution: bootstrap, overwrite with unsetting prior to saving to the
+            // container, but only if bootstrapped resource is paired with Null resource
+
         } else {
-            // mark plugin as run, so that it does not get executed
-            // this is not a plugin resource - ok, add it right away to resource
-            // container, mark corresponding resource as executed
-            // options can be of any type - its up to container to interpret it
+            // merge existing resource with provided options
+            if (isset($this->getContainer()->{$resource})) {
+                // expect existing plugin resource to be a Null resource, otherwise
+                // something got out of sync - someone tampered with plugin loader
+
+                if (is_array($this->getContainer()->{$resource})) {
+                    $options = $this->mergeOptions($this->getContainer()->{$resource}, $options);
+                }
+
+                unset($this->getContainer()->{$resource});
+            }
+
             $this->getContainer()->{$resource} = $options;
-            $this->_markRun($resource);
+
+            // this will guard against registered already executed resource and
+            // will ensure that resource is executed only once
+            // corresponding resource has been already added to the container
+            $this->_pluginResources[$resource] = Zefram_Application_Resource_Null::getInstance();
         }
 
         return $this;
@@ -189,12 +198,8 @@ class Zefram_Application_Bootstrap_Bootstrap
     protected function _bootstrap($resource = null)
     {
         if (null === $resource) {
-            // TODO module bootstrapping must be done in two steps
-            // 1. retrieve module configs and merge them with bootstrap config
-            // 2. run all resources in default order
-            // Introduces preInit method executed prior to calling init()
-            // on plugin resources - this allows for example merging application
-            // and modules config
+            // Prior to bootstrapping modules call preInit() method on plugin
+            // resources to allow additional logic to be performed
             foreach ($this->_pluginResources as $pluginResource) {
                 if (method_exists($pluginResource, 'preInit')) {
                     $pluginResource->preInit();
