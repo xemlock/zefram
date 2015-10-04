@@ -39,9 +39,9 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
 
         // PHP versions prior to 5.2.2 cannot handle callbacks given
         // as class::method string
-        if (version_compare(PHP_VERSION, '5.2.2', '<') &&
-            is_string($callback) &&
-            (false !== strpos($callback, '::'))
+        if (version_compare(PHP_VERSION, '5.2.2', '<')
+            && is_string($callback)
+            && (false !== strpos($callback, '::'))
         ) {
             $callback = explode('::', $callback, 2);
         }
@@ -50,8 +50,9 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
         // implemented.
         // Use __invoke method when it is detected and given callback object is
         // not callable (PHP 5.0.0 - 5.2.x)
-        if (is_object($callback) && !is_callable($callback) &&
-            method_exists($callback, '__invoke')
+        if (is_object($callback)
+            && !is_callable($callback)
+            && method_exists($callback, '__invoke')
         ) {
             $callback = array($callback, '__invoke');
         }
@@ -61,14 +62,12 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
         // key indicates a metadatum whereas integer key an argument.
         $metadata = array();
 
-        if ($args) {
-            foreach ($args as $key => $value) {
-                if (is_string($key)) {
-                    // string key indicates a metadatum, move it to $metadata
-                    // array, numerical keys in $data are left intact
-                    $metadata[$key] = $value;
-                    unset($args[$key]);
-                }
+        foreach ($args as $key => $value) {
+            if (is_string($key)) {
+                // string key indicates a metadatum, move it to $metadata
+                // array, numerical keys in $data are left intact
+                $metadata[$key] = $value;
+                unset($args[$key]);
             }
         }
 
@@ -90,6 +89,16 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
     {
         $this->_args[] = $arg;
         return $this;
+    }
+
+    /**
+     * Retrieve callback arguments.
+     *
+     * @return array
+     */
+    public function getArgs()
+    {
+        return $this->_args;
     }
 
     /**

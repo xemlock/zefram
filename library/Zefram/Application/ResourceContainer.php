@@ -26,6 +26,12 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     protected $_definitions = array();
 
     /**
+     * Resource callbacks
+     * @var array
+     */
+    protected $_callbacks = array();
+
+    /**
      * @param array|object $options
      */
     public function __construct($options = null) // {{{
@@ -93,6 +99,24 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     } // }}}
 
     /**
+     * @param string $name
+     * @param callable|Zend_Stdlib_CallbackHandler $callback
+     * @param array $args OPTIONAL
+     * @return $this
+     */
+    public function addResourceCallback($name, $callback, array $args = array())
+    {
+        if (!$callback instanceof Zefram_Stdlib_CallbackHandler) {
+            $callback = new Zefram_Stdlib_CallbackHandler($callback, $args);
+        }
+
+        $name = $this->_foldCase($name);
+        $this->_callbacks[$name] = $callback;
+
+        return $this;
+    }
+
+    /**
      * Retrieve a resource instance
      *
      * @param  string $name
@@ -128,6 +152,12 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
             }
             $this->_resources[$name] = $resource;
             unset($this->_aliases[$name]);
+            return $resource;
+        }
+
+        if (isset($this->_callbacks[$name])) {
+            $resource = $this->_resources[$name] = $this->_callbacks[$name]->call();
+            unset($this->_callbacks[$name]);
             return $resource;
         }
 
