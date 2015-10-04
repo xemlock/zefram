@@ -166,12 +166,11 @@ class Zefram_Application_Bootstrap_Bootstrap
     protected function _bootstrap($resource = null)
     {
         if (null === $resource) {
-            // configure modules before bootstrapping resources
-            $moduleManager = $this->getPluginResource('modules');
-            if ($moduleManager && method_exists($moduleManager, 'configureModules')) {
-                $moduleManager->configureModules();
+            if ($this->hasPluginResource('modules')) {
+                $this->_bootstrap('modules');
             }
+        } else {
+            parent::_bootstrap($resource);
         }
-        parent::_bootstrap($resource);
     }
 }
