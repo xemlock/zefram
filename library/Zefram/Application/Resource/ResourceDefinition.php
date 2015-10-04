@@ -8,45 +8,113 @@
  * @category   Zefram
  * @package    Zefram_Application
  * @subpackage Bootstrap
- * @version    2015-03-11
  * @author     xemlock
  */
 class Zefram_Application_Resource_ResourceDefinition
     extends Zend_Application_Resource_ResourceAbstract
 {
     /**
-     * @var array
+     * @var object
      */
-    protected $_options;
+    protected $_container;
 
     /**
-     * Sets lazy resource configuration.
-     *
-     * @param  array $options
-     * @return Zefram_Application_Resource_ResourceDefinition
+     * @var string
      */
-    public function setOptions(array $options)
+    protected $_containerKey;
+
+    /**
+     * @var mixed
+     */
+    protected $_data;
+
+    /**
+     * @param object $container
+     * @return $this
+     * @throws InvalidArgumentException
+     */
+    public function setContainer($container)
     {
-        $this->_options = array_merge(
-            (array) $this->_options,
-            $options
-        );
+        if (!is_object($container)) {
+            throw new InvalidArgumentException('Resource container must be an object');
+        }
+        $this->_container = $container;
         return $this;
     }
 
     /**
-     * Returns a resource definition.
-     *
-     * @return array
-     * @throws Zend_Application_Resource_Exception
+     * @param string $containerKey
+     * @return $this
+     */
+    public function setContainerKey($containerKey)
+    {
+        $this->_containerKey = (string) $containerKey;
+        return $this;
+    }
+
+    /**
+     * @param mixed $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->_data = $data;
+        $this->_addToContainer();
+        return $this;
+    }
+
+    /**
+     * @param array $options
+     * @return Zend_Application_Resource_ResourceAbstract
+     */
+    public function setOptions(array $options)
+    {
+        // setup container and container key before setting data
+
+        if (isset($options['container'])) {
+            $this->setContainer($options['container']);
+            unset($options['container']);
+        }
+
+        if (isset($options['containerKey'])) {
+            $this->setContainerKey($options['containerKey']);
+            unset($options['containerKey']);
+        }
+
+        return parent::setOptions($options);
+    }
+
+    /**
+     * @return void
      */
     public function init()
     {
-        /* if (empty($this->_options['class'])) {
-            throw new Zend_Application_Resource_Exception(
-                'Resource definition requires a class name'
-            );
-        } */
-        return $this->_options;
+        // do nothing. Resource is automatically bootstrapped whenever
+        // options are changed. Do not return anything, so that bootstrap
+        // does not overwrite resource in container
+    }
+
+    /**
+     * @return $this
+     */
+    public function unregister()
+    {
+        $this->_removeFromContainer();
+        return $this;
+    }
+
+    protected function _addToContainer()
+    {
+        if ($this->_container) {
+            unset($this->_container->{$this->_containerKey});
+            $this->_container->{$this->_containerKey} = $this->_data;
+        }
+    }
+
+    protected function _removeFromContainer()
+    {
+        if ($this->_container) {
+            unset($this->_container->{$this->_containerKey});
+        }
     }
 }
