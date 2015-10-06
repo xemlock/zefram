@@ -24,11 +24,10 @@ class Zefram_Application_Bootstrap_Bootstrap
      */
     public function __construct($application)
     {
-        // container class must be set before applying other application
-        // options (e.g. in parent constructor), otherwise registration of any
-        // unrecognized plugin resource will trigger getContainer(), which
-        // will initialize the container using the default class,
-        // (from $_containerClass property), and not from application options.
+        // Container class option must be set before any other options,
+        // otherwise any call to getContainer() will initialize the
+        // container using the default class (from $this->_containerClass),
+        // not from application options.
 
         $options = $application->getOptions();
 
@@ -101,14 +100,11 @@ class Zefram_Application_Bootstrap_Bootstrap
         return method_exists($this, '_init' . $resource);
     }
 
+    protected $_rawResources = array();
+
+
     /**
      * Register a new resource plugin
-     *
-     * If a resource spec (an array, not plugin instance) of the same name is
-     * already registered, merge it with the provided one. This allows modules
-     * to modify resources defined elsewhere. To completely overwrite an
-     * existing resource spec with the provided one, use
-     * {@link unregisterPluginResource()} first.
      *
      * If resource name is not a valid plugin resource and a 'class' option is
      * provided, resource will be copied as is to resource container. It is
@@ -121,29 +117,17 @@ class Zefram_Application_Bootstrap_Bootstrap
      */
     public function registerPluginResource($resource, $options = null)
     {
-        if ($resource instanceof Zend_Application_Resource_Resource) {
-            return parent::registerPluginResource($resource);
+        if (!is_string($resource)) {
+            return parent::registerPluginResource($resource, $options);
         }
 
         $resource = strtolower($resource);
 
-        // prevent registering unrunnable plugin resources
-        if (in_array($resource, $this->_run)) {
-            throw new Zend_Application_Bootstrap_Exception(sprintf(
-                "Resource '%s' has already been ran", $resource
-            ));
-        }
-
         // Check whether to use plugin resource or to put the resource
         // directly in the container for deferred instantiation.
 
-        // Resources that are not recognized as plugin resources need not to
-        // be bootstrapped. The idea here is that these resources will be
-        // bootstrapped by the resource container upon explicit request.
-
-        // Instantiation of such resources must be done at the stage of
-        // plugin registration (in registerPluginResource()) and not in
-        // _loadPluginResource(), to avoid explicit bootstrapping.
+        // Resources that are not recognized are inserted to container as-is
+        // upon resource registration
 
         if (($pluginClass = $this->getPluginLoader()->load($resource, false))
             && (!isset($options['plugin']) || $options['plugin'])
@@ -151,35 +135,32 @@ class Zefram_Application_Bootstrap_Bootstrap
             unset($options['plugin']);
             parent::registerPluginResource($resource, $options);
 
-        } else {
-            // have to write directly to _pluginResources array because
-            // registerPluginResource() mangles the resource name when
-            // the resource is provided as an already instantiated object
-            $this->_pluginResources[$resource] = new Zefram_Application_Resource_ContainerData(array(
-                'container' => $this->getContainer(),
-                'containerKey' => $resource,
-                'data' => $options,
-            ));
+        } elseif (!in_array($resource, $this->getClassResourceNames())) {
+            // these are not plugin resources
+            // don't add if overwriting _init method exists
+            // otherwise add to rawResources array
+            $this->_rawResources[$resource] = $options;
         }
 
         return $this;
     }
 
-    // TODO public function unregisterPluginResource -> handle ContainerData resources
+    protected function _executeRawResources()
+    {
+        foreach ($this->_rawResources as $res => $value) {
+            $this->getContainer()->{$res} = $value;
+            unset($this->_rawResources[$res]);
+        }
+    }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function _bootstrap($resource = null)
     {
-        if (null === $resource) {
-            // Before bootstrapping resources try to call preInit() method on
-            // all registered plugin resources
-            foreach ($this->_pluginResources as $pluginResource) {
-                if (method_exists($pluginResource, 'preInit')) {
-                    $pluginResource->preInit();
-                }
+        if ($resource === null) {
+            if ($this->hasPluginResource('modules')) {
+                $modules = $this->getPluginResource('modules');
+                $modules->preInit(); // to powinno zaktualizować config
             }
+            $this->_executeRawResources();
         }
         parent::_bootstrap($resource);
     }

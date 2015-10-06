@@ -127,8 +127,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     {
         $name = $this->_foldCase($name);
 
-        if (isset($this->_resources[$name]) ||
-            array_key_exists($name, $this->_resources)
+        if (isset($this->_resources[$name])
+            || array_key_exists($name, $this->_resources)
         ) {
             return $this->_resources[$name];
         }
@@ -198,7 +198,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * Helper method to maintain case-insensitivity of resource names.
      *
      * @param  string $key
-     * @return $key
+     * @return string
      */
     protected function _foldCase($key) // {{{
     {
@@ -343,6 +343,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      *
      * @param  string $name
      * @param  mixed $resource
+     * @return void
      */
     public function __set($name, $resource) // {{{
     {
@@ -364,10 +365,11 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * Proxy to {@link removeResource()}.
      *
      * @param string $name
+     * @return void
      */
     public function __unset($name) // {{{
     {
-        return $this->removeResource($name);
+        $this->removeResource($name);
     } // }}}
 
     /**
