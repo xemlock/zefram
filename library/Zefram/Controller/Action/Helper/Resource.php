@@ -1,10 +1,10 @@
 <?php
 
 /**
- * This helper allows controllers to access bootstrap resources without
- * directly referencing bootstrap, front controller, or global registry.
+ * This helper allows controllers to retrieve resources from resource
+ * container without directly referencing bootstrap, front controller,
+ * or global registry.
  *
- * @version 2014-09-29
  * @author xemlock
  */
 class Zefram_Controller_Action_Helper_Resource
@@ -13,44 +13,73 @@ class Zefram_Controller_Action_Helper_Resource
     /**
      * @var Zend_Application_Bootstrap_BootstrapAbstract
      */
-    protected $_bootstrap;
+    protected $_container;
 
     /**
-     * Retrieve bootstrap.
+     * Set resource container
      *
-     * @return Zend_Application_Bootstrap_BootstrapAbstract
+     * @param object $container
+     * @throws Zend_Controller_Action_Exception
      */
-    public function getBootstrap()
+    public function setContainer($container)
     {
-        if (empty($this->_bootstrap)) {
-            // all bootstrapped plugin resources have 'bootstrap' param
-            $bootstrap = $this->getFrontController()->getParam('bootstrap');
-            $this->setBootstrap($bootstrap);
+        if (!is_object($container)) {
+            throw new Zend_Controller_Action_Exception('Resource container must be an object');
         }
-        return $this->_bootstrap;
-    }
-
-    /**
-     * Set bootstrap.
-     *
-     * @param  Zend_Application_Bootstrap_BootstrapAbstract $bootstrap
-     * @return Zefram_Controller_Action_Helper_Resource
-     */
-    public function setBootstrap(Zend_Application_Bootstrap_BootstrapAbstract $bootstrap)
-    {
-        $this->_bootstrap = $bootstrap;
+        $this->_container = $container;
         return $this;
     }
 
     /**
-     * Retrieve resource from bootstrap.
+     * Get resource container
+     *
+     * @return object
+     */
+    public function getContainer()
+    {
+        if (empty($this->_container)) {
+            // All bootstrapped plugin resources have 'bootstrap' param.
+            // Zend_Application_Resource_Frontcontroller::init() sets the
+            // 'bootstrap' value as a Front Controller param. Hence the
+            // "official" way of accessing resource container.
+            $bootstrap = $this->getFrontController()->getParam('bootstrap');
+            if ($bootstrap instanceof Zend_Application_Bootstrap_BootstrapAbstract) {
+                $container = $bootstrap->getContainer();
+            }
+            // if no container was retrieved from bootstrap (or there was no
+            // bootstrap at all) fall back to Zend_Registry instance.
+            if (empty($container)) {
+                $container = Zend_Registry::getInstance();
+            }
+            $this->setContainer($container);
+        }
+        return $this->_container;
+    }
+
+    /**
+     * Retrieve resource from container
      *
      * @param  string $resource
      * @return mixed
+     * @throws Zend_Controller_Action_Exception
      */
     public function getResource($resource)
     {
-        return $this->getBootstrap()->getResource($resource);
+        $resource = (string) $resource;
+        $container = $this->getContainer();
+
+        // Check if container is compatible with container-interop API
+        // (https://github.com/container-interop/container-interop)
+        if (method_exists($container, 'get')) {
+            return $container->get($resource);
+        } elseif (isset($container->{$resource})) {
+            return $container->{$resource};
+        }
+
+        throw new Zend_Controller_Action_Exception(sprintf(
+            'Resource matching "%s" not found',
+            $resource
+        ));
     }
 
     /**
