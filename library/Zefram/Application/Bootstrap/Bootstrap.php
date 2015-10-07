@@ -18,27 +18,6 @@ class Zefram_Application_Bootstrap_Bootstrap
     protected $_containerClass = 'Zefram_Application_ResourceContainer';
 
     /**
-     * {@inheritDoc}
-     *
-     * @param Zend_Application|Zend_Application_Bootstrap_Bootstrapper $application
-     */
-    public function __construct($application)
-    {
-        // Container class option must be set before any other options,
-        // otherwise any call to getContainer() will initialize the
-        // container using the default class (from $this->_containerClass),
-        // not from application options.
-
-        $options = $application->getOptions();
-
-        if (isset($options['bootstrap']['containerClass'])) {
-            $this->_containerClass = $options['bootstrap']['containerClass'];
-        }
-
-        parent::__construct($application);
-    }
-
-    /**
      * Get the plugin loader for resources.
      *
      * @return Zend_Loader_PluginLoader_Interface
@@ -54,6 +33,35 @@ class Zefram_Application_Bootstrap_Bootstrap
             }
         }
         return $this->_pluginLoader;
+    }
+
+    /**
+     * Set resource container
+     *
+     * By default, if a resource callback has a non-null return value, this
+     * value will be stored in a container using the resource name as the
+     * key.
+     *
+     * Containers must be objects, and must allow setting public properties.
+     *
+     * If provided container is a string, it is considered as class name that
+     * will be used by {@link getContainer()} to instantiate container if no
+     * container is present.
+     *
+     * @param  object|string $container
+     * @return Zend_Application_Bootstrap_BootstrapAbstract
+     * @throws Zend_Application_Bootstrap_Exception
+     */
+    public function setContainer($container = null)
+    {
+        if (null === $container) {
+            $this->_container = null;
+        } elseif (is_string($container)) {
+            $this->_containerClass = $container;
+        } else {
+            parent::setContainer($container);
+        }
+        return $this;
     }
 
     /**
