@@ -33,36 +33,34 @@
  */
 class Zefram_Application_Resource_Log extends Zend_Application_Resource_ResourceAbstract
 {
-    protected $_log;
+    /**
+     * @var string
+     */
     protected $_factoryClass = 'Zend_Log';
 
     /**
-     * @param  array|object $options
+     * @var Zend_Log
      */
-    public function __construct($options = null)
+    protected $_log;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setOptions(array $options)
     {
-        if (null !== $options) {
-            if (is_object($options) && method_exists($options, 'toArray')) {
-                $options = $options->toArray();
+        if (array_key_exists('factoryClass', $options)) {
+            $factoryClass = $options['factoryClass'];
+            $refClass = new ReflectionClass($factoryClass);
+            $factory = $refClass->getMethod('factory');
+
+            if (!$factory || !$factory->isStatic()) {
+                throw new Zend_Log_Exception('Log factory class must implement a static factory() method');
             }
 
-            $options = (array) $options;
-
-            if (array_key_exists('factoryClass', $options)) {
-                $factoryClass = $options['factoryClass'];
-                $refClass = new ReflectionClass($factoryClass);
-                $factory = $refClass->getMethod('factory');
-
-                if (!$factory || !$factory->isStatic()) {
-                    throw new Zend_Log_Exception('Log factory class must implement a static factory() method');
-                }
-
-                $this->_factoryClass = $factoryClass;
-                unset($options['factoryClass']);
-            }
+            $this->_factoryClass = $factoryClass;
+            unset($options['factoryClass']);
         }
-
-        parent::__construct($options);
+        return parent::setOptions($options);
     }
 
     public function init()
@@ -71,27 +69,16 @@ class Zefram_Application_Resource_Log extends Zend_Application_Resource_Resource
     }
 
     /**
-     * @param  object $log
-     * @return Zefram_Application_Resource_Log
-     */
-    public function setLog($log)
-    {
-        $this->_log = $log;
-        return $this;
-    }
-
-    /**
-     * Retrieve logger object.
+     * Retrieve logger object
      *
-     * @return mixed
+     * @return Zend_Log
      */
     public function getLog()
     {
         if (null === $this->_log) {
             $factoryClass = $this->_factoryClass;
             $options = $this->getOptions();
-            $log = $factoryClass::factory($options);
-            $this->setLog($log);
+            $this->_log = $factoryClass::factory($options);
         }
         return $this->_log;
     }
