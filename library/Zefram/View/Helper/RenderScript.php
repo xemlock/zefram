@@ -61,11 +61,9 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
         // if module name is not explicitly given, use the current module
         if ($module === null) {
             $module = $viewRenderer->getModule();
-        }
-
-        // if given module differs from the current module, prepare the base
-        // path of the given module to be added to the view
-        if ($module !== $viewRenderer->getModule()) {
+        } else {
+            // if module is explicitly specified ensure its path is on the
+            // top of searchPath stack
             $viewBasePath = $this->_getModuleViewBasePath($module);
         }
 
