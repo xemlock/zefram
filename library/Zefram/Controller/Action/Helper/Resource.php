@@ -32,27 +32,24 @@ class Zefram_Controller_Action_Helper_Resource
     /**
      * Retrieve a resource from bootstrap
      *
-     * @param  string $resource
+     * @param  string $name
      * @param  bool $throw OPTIONAL
      * @return mixed
      * @throws Zend_Controller_Action_Exception
      */
-    public function getResource($resource, $throw = true)
+    public function getResource($name, $throw = true)
     {
-        $resource = (string) $resource;
-        $bootstrap = $this->getBootstrap();
+        $name = (string) $name;
+        $resource = $this->getBootstrap()->getResource($name);
 
-        if ($bootstrap->hasResource($resource)) {
-            return $bootstrap->getResource($resource);
-        }
-
-        if ($throw) {
+        if (($resource === null) && $throw) {
             throw new Zend_Controller_Action_Exception(sprintf(
                 'Resource matching "%s" not found',
-                $resource
+                $name
             ));
         }
-        return null;
+
+        return $resource;
     }
 
     /**
