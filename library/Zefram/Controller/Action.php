@@ -4,76 +4,12 @@
  * @version 2014-09-25
  */
 class Zefram_Controller_Action extends Zend_Controller_Action
-    implements Zend_EventManager_EventManagerAware
 {
-    const EVENT_PRE_DISPATCH  = 'preDispatch';
-    const EVENT_POST_DISPATCH = 'postDispatch';
-
     /**
-     * @var Zend_EventManager_EventCollection
-     */
-    protected $_events;
-
-    /**
+     * Stores the name of the currently dispatched action
      * @var string
      */
     protected $_dispatchAction;
-
-    /**
-     * @param  Zend_EventManager_EventCollection $events
-     * @return Zefram_Controller_Action
-     */
-    public function setEventManager(Zend_EventManager_EventCollection $events)
-    {
-        if ($events instanceof Zend_EventManager_EventManager) {
-            $events->setIdentifiers(array(
-                __CLASS__,
-                get_class($this)
-            ));
-        }
-        $this->_events = $events;
-        return $this;
-    }
-
-    /**
-     * @return Zend_EventManager_EventCollection|null
-     */
-    public function getEventManager()
-    {
-        return $this->_events;
-    }
-
-    public function preDispatch()
-    {
-        $this->_preDispatch();
-
-        if ($this->getEventManager()) {
-            $this->getEventManager()->trigger(self::EVENT_PRE_DISPATCH, $this);
-        }
-    }
-
-    /**
-     * Pre-dispatch routine, see {@link Zend_Controller_Action::preDispatch()}
-     * for more details.
-     */
-    protected function _preDispatch()
-    {}
-
-    public function postDispatch()
-    {
-        $this->_postDispatch();
-
-        if ($this->getEventManager()) {
-            $this->getEventManager()->trigger(self::EVENT_POST_DISPATCH, $this);
-        }
-    }
-
-    /**
-     * Post-dispatch routine, see {@link Zend_Controller_Action::postDispatch()}
-     * for more details.
-     */
-    protected function _postDispatch()
-    {}
 
     /**
      * @return string|null
@@ -97,8 +33,13 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     public function dispatch($action)
     {
         $this->_dispatchAction = (string) $action;
-        parent::dispatch($action);
-        $this->_dispatchAction = null;
+        try {
+            parent::dispatch($action);
+            $this->_dispatchAction = null;
+        } catch (Exception $e) {
+            $this->_dispatchAction = null;
+            throw $e;
+        }
     }
 
     /**
@@ -214,6 +155,11 @@ class Zefram_Controller_Action extends Zend_Controller_Action
 
     protected $_ajaxResponse;
 
+    /**
+     * @return Zend_Application_Bootstrap_BootstrapAbstract
+     * @throws Exception
+     * @deprecated Use {@link Zefram_Controller_Action_Helper_Resource} instead.
+     */
     public function getBootstrap()
     {
         $bootstrap = $this->getFrontController()->getParam('bootstrap');
@@ -230,6 +176,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
      *
      * @param  string $name
      * @return mixed
+     * @deprecated Use {@link getResource()} instead.
      */
     public function getBootstrapResource($name)
     {
@@ -261,6 +208,12 @@ class Zefram_Controller_Action extends Zend_Controller_Action
         return $this->flashMessage($message, $namespace);
     }
 
+    /**
+     * @param $message
+     * @param null $namespace
+     * @return $this
+     * @deprecated
+     */
     public function flashMessage($message, $namespace = null)
     {
         $this->_helper->flashMessenger->addMessage($message, $namespace);
@@ -269,6 +222,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
 
     /**
      * @throws Zend_Controller_Action_Exception
+     * @deprecated
      */
     public function setLayout($layout)
     {
@@ -278,6 +232,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
 
     /**
      * @throws Zend_Controller_Action_Exception
+     * @deprecated
      */
     public function disableLayout($disable = true)
     {
@@ -290,11 +245,14 @@ class Zefram_Controller_Action extends Zend_Controller_Action
         return $this;
     }
 
+    /**
+     * @param bool $disable
+     * @return $this
+     * @deprecated
+     */
     public function disableView($disable = true)
     {
         $this->_helper->viewRenderer->setNoRender($disable);
         return $this;
     }
-
-    
 }
