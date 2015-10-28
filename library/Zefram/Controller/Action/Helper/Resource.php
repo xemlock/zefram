@@ -56,10 +56,11 @@ class Zefram_Controller_Action_Helper_Resource
      * Proxy to {@link getResource()}
      *
      * @param  string $resource
+     * @param  bool $throw OPTIONAL
      * @return mixed
      */
-    public function direct($resource)
+    public function direct($resource, $throw = true)
     {
-        return $this->getResource($resource);
+        return $this->getResource($resource, $throw);
     }
 }
