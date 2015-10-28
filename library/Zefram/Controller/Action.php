@@ -142,11 +142,12 @@ class Zefram_Controller_Action extends Zend_Controller_Action
      * Get resource from container.
      *
      * @param  string $name
+     * @param  bool $throw
      * @return mixed
      */
-    public function getResource($name)
+    public function getResource($name, $throw = true)
     {
-        return $this->_helper->resource($name);
+        return $this->_helper->resource($name, $throw);
     }
 
     // all below methods are now deprecated
