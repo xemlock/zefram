@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit backupGlobals="false"
-         colore="true"
+         colors="true"
          verbose="true"
          bootstrap="tests/bootstrap.php"
 >
