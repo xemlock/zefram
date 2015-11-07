@@ -164,10 +164,6 @@ class Zefram_Application_Bootstrap_Bootstrap
     protected function _bootstrap($resource = null)
     {
         if ($resource === null) {
-            if ($this->hasPluginResource('modules')) {
-                $modules = $this->getPluginResource('modules');
-                $modules->preInit(); // to powinno zaktualizować config
-            }
             $this->_executeRawResources();
         }
         parent::_bootstrap($resource);
