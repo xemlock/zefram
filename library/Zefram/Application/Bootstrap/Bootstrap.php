@@ -98,7 +98,7 @@ class Zefram_Application_Bootstrap_Bootstrap
     }
 
     /**
-     * Is the requested class resource registered?
+     * Is the requested class resource present?
      *
      * @param  string $resource
      * @return bool

@@ -14,6 +14,7 @@
  * @author     xemlock
  */
 abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Module_Bootstrap
+    implements Zefram_Application_Bootstrap_Bootstrapper
 {
     /**
      * Set parent bootstrap
@@ -40,5 +41,16 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
         }
 
         return $this;
+    }
+
+    /**
+     * Is the requested class resource present?
+     *
+     * @param  string $resource
+     * @return bool
+     */
+    public function hasClassResource($resource)
+    {
+        return method_exists($this, '_init' . $resource);
     }
 }
