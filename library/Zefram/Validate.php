@@ -17,11 +17,26 @@
  * @author    xemlock
  * @version   2015-06-27 / 2014-12-13 / 2013-10-18
  *
+ * 2015-11-26: Strict Standards conformance
  * 2015-06-27: added context parameter to isValid()
  * 2014-12-13: added allowEmpty feature
  */
-class Zefram_Validate extends Zend_Validate
+class Zefram_Validate implements Zend_Validate_Interface
 {
+    /**
+     * Validator chain
+     *
+     * @var array
+     */
+    protected $_validators = array();
+
+    /**
+     * Array of validation failure messages
+     *
+     * @var array
+     */
+    protected $_messages = array();
+
     /**
      * @var bool
      */
@@ -102,7 +117,6 @@ class Zefram_Validate extends Zend_Validate
     public function isValid($value, array $context = array())
     {
         $this->_messages = array();
-        $this->_errors   = array();
 
         if ($this->_allowEmpty && ($value === '' || $value === null)) {
             return true;
@@ -121,7 +135,6 @@ class Zefram_Validate extends Zend_Validate
             $result = false;
             $messages = $validator->getMessages();
             $this->_messages = array_merge($this->_messages, $messages);
-            $this->_errors   = array_merge($this->_errors,   array_keys($messages));
             if ($element['breakChainOnFailure']) {
                 break;
             }
@@ -136,6 +149,7 @@ class Zefram_Validate extends Zend_Validate
      * pass validation.
      *
      * @param  bool $flag
+     * @return Zefram_Validate
      */
     public function setAllowEmpty($flag)
     {
@@ -157,8 +171,10 @@ class Zefram_Validate extends Zend_Validate
      * @param string|array|Zend_Validate_Interface $validator
      * @param bool $breakChainOnFailure
      * @param array $options
+     * @return Zefram_Validate
+     * @throws Zend_Validate_Exception
      */
-    public function addValidator($validator, $breakChainOnFailure = null, array $options = null)
+    public function addValidator($validator, $breakChainOnFailure = false, array $options = null)
     {
         if (is_array($validator)) {
             $validator = array_slice($validator, 0, 3);
@@ -230,6 +246,8 @@ class Zefram_Validate extends Zend_Validate
             'instance' => $validator,
             'breakChainOnFailure' => (bool) $breakChainOnFailure,
         );
+
+        return $this;
     }
 
     /**
@@ -378,6 +396,16 @@ class Zefram_Validate extends Zend_Validate
     }
 
     /**
+     * Returns array of validation failure messages
+     *
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->_messages;
+    }
+
+    /**
      * This allows method chaining after object instantiation.
      *
      * @param  array|Zend_Config $options
@@ -394,5 +422,45 @@ class Zefram_Validate extends Zend_Validate
     public static function create($options = null)
     {
         return self::factory($options);
+    }
+
+    /**
+     * Returns the maximum allowed message length
+     *
+     * @return integer
+     */
+    public static function getMessageLength()
+    {
+        return Zend_Validate_Abstract::getMessageLength();
+    }
+
+    /**
+     * Sets the maximum allowed message length
+     *
+     * @param integer $length
+     */
+    public static function setMessageLength($length = -1)
+    {
+        Zend_Validate_Abstract::setMessageLength($length);
+    }
+
+    /**
+     * Returns the default translation object
+     *
+     * @return Zend_Translate_Adapter|null
+     */
+    public static function getDefaultTranslator()
+    {
+        return Zend_Validate_Abstract::getDefaultTranslator();
+    }
+
+    /**
+     * Sets a default translation object for all validation objects
+     *
+     * @param Zend_Translate|Zend_Translate_Adapter|null $translator
+     */
+    public static function setDefaultTranslator($translator = null)
+    {
+        Zend_Validate_Abstract::setDefaultTranslator($translator);
     }
 }
