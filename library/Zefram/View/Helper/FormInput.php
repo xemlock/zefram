@@ -4,6 +4,7 @@
  * INPUT tag renderer.
  *
  * @version 2014-02-12
+ * @deprecated Use Zefram_View_Helper_FormElement helper instead
  */
 class Zefram_View_Helper_FormInput extends Zend_View_Helper_FormElement
 {
