@@ -44,6 +44,20 @@ class Zefram_View_Helper_FormInput extends Zend_View_Helper_FormElement
             $elementValue = $element->getValue();
             $attribs = array_merge($element->getAttribs(), is_array($attribs) ? $attribs : array());
 
+            // handle boolean HTML attributes
+            foreach ($attribs as $k => $v) {
+                switch (strtolower($k)) {
+                    case 'checked':
+                    case 'readonly':
+                    case 'disabled':
+                    case 'selected':
+                        if (!$v) {
+                            unset($attribs[$k]);
+                        }
+                        break;
+                }
+            }
+
             if (null !== $value) {
                 // If $value parameter is given, assume the element is to be
                 // rendered as a checkable input (checkbox or radio). Compare
@@ -61,6 +75,7 @@ class Zefram_View_Helper_FormInput extends Zend_View_Helper_FormElement
                 // against. Simply use element's value when rendering input tag.
                 $value = $elementValue;
             }
+
             $name = $element->getFullyQualifiedName();
         }
 
