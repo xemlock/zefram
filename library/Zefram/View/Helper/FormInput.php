@@ -42,6 +42,7 @@ class Zefram_View_Helper_FormInput extends Zend_View_Helper_FormElement
         if ($name instanceof Zend_Form_Element) {
             $element = $name;
             $elementValue = $element->getValue();
+            $attribs = array_merge($element->getAttribs(), is_array($attribs) ? $attribs : array());
 
             if (null !== $value) {
                 // If $value parameter is given, assume the element is to be
