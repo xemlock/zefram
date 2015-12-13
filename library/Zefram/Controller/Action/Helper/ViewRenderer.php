@@ -14,12 +14,15 @@
  * specified is used.
  *
  * @author xemlock <xemlock@gmail.com>
+ * @deprecated Use controller plugin instead
  */
 class Zefram_Controller_Action_Helper_ViewRenderer
     extends Zend_Controller_Action_Helper_ViewRenderer
 {
     public function renderScript($script, $name = null)
     {
+        return parent::renderScript($script, $name);
+
         if (null === $name) {
             $name = $this->getResponseSegment();
         }
