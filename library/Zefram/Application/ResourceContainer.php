@@ -91,6 +91,9 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
 
         if (is_array($resource) && isset($resource['class'])) {
             $this->_definitions[$name] = $resource;
+        } elseif (is_array($resource) && isset($resource['callback'])) {
+            $args = isset($resource['args']) ? array_values($resource['args']) : array();
+            $this->addResourceCallback($name, $resource['callback'], $args);
         } else {
             $this->_resources[$name] = $resource;
         }
@@ -156,7 +159,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         }
 
         if (isset($this->_callbacks[$name])) {
-            $resource = $this->_resources[$name] = $this->_callbacks[$name]->call();
+            $resource = $this->_resources[$name] = $this->_callbacks[$name]->call($this);
             unset($this->_callbacks[$name]);
             return $resource;
         }
