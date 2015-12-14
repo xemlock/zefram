@@ -159,7 +159,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         }
 
         if (isset($this->_callbacks[$name])) {
-            $resource = $this->_resources[$name] = $this->_callbacks[$name]->call($this);
+            $resource = $this->_resources[$name] = $this->_callbacks[$name]->__invoke($this);
             unset($this->_callbacks[$name]);
             return $resource;
         }
@@ -179,7 +179,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         unset(
             $this->_resources[$name],
             $this->_definitions[$name],
-            $this->_aliases[$name]
+            $this->_aliases[$name],
+            $this->_callbacks[$name]
         );
     } // }}}
 
@@ -194,7 +195,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         $name = $this->_foldCase($name);
         return isset($this->_resources[$name])
             || isset($this->_definitions[$name])
-            || isset($this->_aliases[$name]);
+            || isset($this->_aliases[$name])
+            || isset($this->_callbacks[$name]);
     } // }}}
 
     /**

@@ -26,9 +26,8 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
     /**
      * Constructor
      *
-     * @param  callback $callback
+     * @param  callable $callback
      * @param  array $args OPTIONAL
-     * @return void
      */
     public function __construct($callback, array $args = array())
     {
@@ -37,12 +36,12 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
             $callback = $callback->getCallback();
         }
 
-        // PHP versions prior to 5.2.2 cannot handle callbacks given
+        // call_user_func() in PHP versions prior to 5.2.2 can't handle callbacks given
         // as class::method string
-        if (version_compare(PHP_VERSION, '5.2.2', '<')
-            && is_string($callback)
-            && (false !== strpos($callback, '::'))
-        ) {
+        // PHP prior to 7.0 can't handle function calls via variable name (i.e. $func()),
+        // if function name is given as class::method
+        // To overcome this function name is split into object/class and method parts
+        if (is_string($callback) && (false !== strpos($callback, '::'))) {
             $callback = explode('::', $callback, 2);
         }
 
