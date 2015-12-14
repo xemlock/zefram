@@ -3,6 +3,7 @@
 /**
  * @author xemlock
  * @version 2013-11-10
+ * @deprecated
  */
 abstract class Zefram_Controller_Action_Helper_Abstract extends Zend_Controller_Action_Helper_Abstract
 {

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated
+ */
 class Zefram_Controller_Action_Helper_Json extends Zend_Controller_Action_Helper_Json
 {
     public function encodeJson($data, $keepLayouts = false, $encodeData = true)
