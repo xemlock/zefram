@@ -159,8 +159,12 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         }
 
         if (isset($this->_callbacks[$name])) {
-            $resource = $this->_resources[$name] = $this->_callbacks[$name]->__invoke($this);
+            $resource = $this->_callbacks[$name]->__invoke($this);
+            if ($resource === null) {
+                throw new Zefram_Application_ResourceContainer_Exception("Could not create instance of '$name' from callback");
+            }
             unset($this->_callbacks[$name]);
+            $this->_resources[$name] = $resource;
             return $resource;
         }
 
