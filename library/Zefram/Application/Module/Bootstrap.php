@@ -3,10 +3,15 @@
 /**
  * Base bootstrap class for modules
  *
- * Enhancements:
+ * Differences from the Zend_Application_Module_Bootstrap:
+ * - application can only be an instance of Zend_Application_Bootstrap_BootstrapAbstract,
+ *   not Zend_Application, to make sure resource bootstrapping and retrieval is always
+ *   available
+ * - plugin loader and resource loader are set whenever application is set, not only
+ *   in constructor
  * - resource container is shared with parent bootstrap
- * - ambiguity of getApplication() return value is mitigated by accepting only
- *   instances of Zend_Application_Bootstrap_Bootstrapper in setApplication()
+ * - front controller plugin resource is registered in parent bootstrap, if it is
+ *   not already present there
  *
  * @category   Zefram
  * @package    Zefram_Application
@@ -14,20 +19,42 @@
  * @author     xemlock
  */
 abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Module_Bootstrap
-    implements Zefram_Application_Bootstrap_Bootstrapper
 {
+    /**
+     * Constructor
+     *
+     * @param Zend_Application|Zend_Application_Bootstrap_BootstrapAbstract $application
+     */
+    public function __construct($application)
+    {
+        if ($application instanceof Zend_Application) {
+            $application = $application->getBootstrap();
+        }
+        $this->setApplication($application);
+
+        // Set only module options
+        $key = strtolower($this->getModuleName());
+        if ($application->hasOption($key)) {
+            $this->setOptions($application->getOption($key));
+        }
+
+        // ZF-6545: ensure front controller is registered in parent bootstrap
+        if (!$this->getApplication()->hasPluginResource('FrontController')) {
+            $this->getApplication()->registerPluginResource('FrontController');
+        }
+    }
+
     /**
      * Set parent bootstrap
      *
-     * @param  Zend_Application_Bootstrap_Bootstrapper $application
-     * @return Zend_Application_Bootstrap_BootstrapAbstract
+     * @param  Zend_Application_Bootstrap_BootstrapAbstract $application
+     * @return Zefram_Application_Module_Bootstrap
      * @throws Zend_Application_Bootstrap_Exception
      */
     public function setApplication($application)
     {
-        // ensures that application is an instance of Bootstrapper only,
-        // so that getApplication() does not return application
-        if (!$application instanceof Zend_Application_Bootstrap_Bootstrapper) {
+        // Ensure that application is an instance of BootstrapAbstract only
+        if (!$application instanceof Zend_Application_Bootstrap_BootstrapAbstract) {
             throw new Zend_Application_Bootstrap_Exception(sprintf(
                 'Application must be an instance of %s (received "%s" instance)',
                 __CLASS__, get_class($application)
@@ -36,21 +63,28 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
 
         parent::setApplication($application);
 
-        if ($application instanceof Zend_Application_Bootstrap_BootstrapAbstract) {
-            $this->setContainer($application->getContainer());
+        // Use same plugin loader as parent bootstrap
+        $this->setPluginLoader($application->getPluginLoader());
+
+        // Use same resource loader as parent bootstrap
+        if ($application->hasOption('resourceloader')) {
+            $this->setResourceLoader($application->getOption('resourceloader'));
         }
+        $this->initResourceLoader();
+
+        // Use same container as parent bootstrap
+        $this->setContainer($application->getContainer());
 
         return $this;
     }
 
     /**
-     * Is the requested class resource present?
+     * Retrieve parent bootstrap instance
      *
-     * @param  string $resource
-     * @return bool
+     * @return Zend_Application_Bootstrap_BootstrapAbstract
      */
-    public function hasClassResource($resource)
+    public function getApplication()
     {
-        return method_exists($this, '_init' . $resource);
+        return $this->_application;
     }
 }
