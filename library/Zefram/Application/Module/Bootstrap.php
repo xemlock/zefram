@@ -27,6 +27,10 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
      */
     public function __construct($application)
     {
+        // Don't call parent::__construct() as this may cause duplicated
+        // (or even recursive) initialization of resources, see ZF-6545:
+        // http://framework.zend.com/issues/browse/ZF-6545
+
         if ($application instanceof Zend_Application) {
             $application = $application->getBootstrap();
         }
