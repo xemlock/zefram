@@ -3,7 +3,7 @@
 /**
  * Resource container with lazy object initialization.
  *
- * @version 2015-03-30
+ * @version 2015-12-22 / 2015-03-30
  */
 class Zefram_Application_ResourceContainer implements ArrayAccess
 {
@@ -46,9 +46,9 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     } // }}}
 
     /**
-     * Add many services at once
+     * Add many resources at once
      *
-     * @param  array|Traversable $services
+     * @param  array|Traversable $resources
      * @return Zefram_Application_ResourceContainer
      */
     public function addResources($resources) // {{{
@@ -65,14 +65,14 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @param  string|array|object $resource
      * @return Zefram_Application_ResourceContainer
-     * @throws Zefram_Application_ResourceContainer_Exception
+     * @throws Zend_Application_Exception
      */
     public function addResource($name, $resource) // {{{
     {
         $name = $this->_foldCase($name);
 
         if (isset($this->_resources[$name])) {
-            throw new Zefram_Application_ResourceContainer_Exception("Resource '$name' is already registered");
+            throw new Zend_Application_Exception("Resource '$name' is already registered");
         }
 
         if (is_string($resource)) {
@@ -124,57 +124,57 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      *
      * @param  string $name
      * @return mixed
-     * @throws Zefram_Application_ResourceContainer_Exception
+     * @throws Zend_Application_Exception
      */
     public function getResource($name) // {{{
     {
         $name = $this->_foldCase($name);
 
-        if (isset($this->_resources[$name])
-            || array_key_exists($name, $this->_resources)
-        ) {
+        // resource cannot be null, so check with isset() is sufficient
+        if (isset($this->_resources[$name])) {
             return $this->_resources[$name];
         }
 
         // when resolving new resources, check for definitions first,
         // then aliases.
 
+        $resource = null;
+
         // After a resource is instantiated from definition, the definition
         // is removed
-
         if (isset($this->_definitions[$name])) {
-            $resource = $this->_resources[$name] = $this->_createInstance($this->_definitions[$name]);
+            $resource = $this->_createInstance($this->_definitions[$name]);
             unset($this->_definitions[$name]);
-            return $resource;
         }
 
         if (isset($this->_aliases[$name])) {
-            $resource = $this->getResource($this->_aliases[$name]);
-            if ($resource === null) {
-                throw new Zefram_Application_ResourceContainer_Exception("Invalid resource alias '$name'");
+            if (!$this->hasResource($name)) {
+                throw new Zend_Application_Exception("Invalid resource alias '$name'");
             }
-            $this->_resources[$name] = $resource;
+            $resource = $this->getResource($this->_aliases[$name]);
             unset($this->_aliases[$name]);
-            return $resource;
         }
 
         if (isset($this->_callbacks[$name])) {
             $resource = $this->_callbacks[$name]->__invoke($this);
             if ($resource === null) {
-                throw new Zefram_Application_ResourceContainer_Exception("Could not create instance of '$name' from callback");
+                throw new Zend_Application_Exception("Could not create instance of '$name' from callback");
             }
             unset($this->_callbacks[$name]);
-            $this->_resources[$name] = $resource;
-            return $resource;
         }
 
-        throw new Zefram_Application_ResourceContainer_Exception("No resource is registered for key '$name'");
+        if ($resource === null) {
+            throw new Zend_Application_Exception("No resource is registered for key '$name'");
+        }
+
+        $this->_resources[$name] = $resource;
+        return $resource;
     } // }}}
 
     /**
      * Remove resource from container.
      *
-     * @param  string $resourceName
+     * @param  string $name
      * @return Zefram_Application_ResourceContainer
      */
     public function removeResource($name) // {{{
@@ -191,7 +191,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     /**
      * Is given resource registered in the container?
      *
-     * @param  string $resourceName
+     * @param  string $name
      * @return bool
      */
     public function hasResource($name) // {{{
@@ -215,6 +215,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     } // }}}
 
     /**
+     * @param  array|object $params
      * @return array
      */
     protected function _prepareParams($params) // {{{
@@ -246,15 +247,14 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     /**
      * Create an instance of a given class and setup its parameters.
      *
-     * @param  string $class
-     * @param  array $params OPTIONAL
+     * @param  array $description
      * @return object
-     * @throws Zefram_Application_ResourceContainer_Exception
+     * @throws Zend_Application_Exception
      */
     protected function _createInstance(array $description) // {{{
     {
         if (empty($description['class'])) {
-            throw new Zefram_Application_ResourceContainer_Exception('No class name found in description');
+            throw new Zend_Application_Exception('No class name found in description');
         }
 
         $class = $description['class'];
@@ -321,7 +321,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
         if (isset($description['invoke'])) {
             foreach ($description['invoke'] as $invoke) {
                 if (!is_array($invoke)) {
-                    throw new Zefram_Application_ResourceContainer_Exception('Invoke value must be an array');
+                    throw new Zend_Application_Exception('Invoke value must be an array');
                 }
                 $method = array_shift($invoke);
                 $args = (array) array_shift($invoke);
@@ -340,10 +340,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @return mixed
      */
-    public function __get($name) // {{{
+    public function __get($name)
     {
         return $this->getResource($name);
-    } // }}}
+    }
 
     /**
      * Proxy to {@see addResource()}.
@@ -354,10 +354,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  mixed $resource
      * @return void
      */
-    public function __set($name, $resource) // {{{
+    public function __set($name, $resource)
     {
-        return $this->addResource($name, $resource);
-    } // }}}
+        $this->addResource($name, $resource);
+    }
 
     /**
      * Proxy to {@link hasResource()}.
@@ -365,10 +365,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @return bool
      */
-    public function __isset($name) // {{{
+    public function __isset($name)
     {
         return $this->hasResource($name);
-    } // }}}
+    }
 
     /**
      * Proxy to {@link removeResource()}.
@@ -376,10 +376,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param string $name
      * @return void
      */
-    public function __unset($name) // {{{
+    public function __unset($name)
     {
         $this->removeResource($name);
-    } // }}}
+    }
 
     /**
      * Required by ArrayAccess interface.
@@ -389,10 +389,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @return mixed
      */
-    public function offsetGet($name) // {{{
+    public function offsetGet($name)
     {
         return $this->getResource($name);
-    } // }}}
+    }
 
     /**
      * Required by ArrayAccess interface.
@@ -403,10 +403,10 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  mixed $resource
      * @return void
      */
-    public function offsetSet($name, $resource) // {{{
+    public function offsetSet($name, $resource)
     {
-        $this->setResource($name, $resource);
-    } // }}}
+        $this->addResource($name, $resource);
+    }
 
     /**
      * Required by ArrayAccess interface.
@@ -414,13 +414,12 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * Proxy to {@link hasResource()}.
      *
      * @param  string $name
-     * @param  mixed $resource
      * @return bool
      */
-    public function offsetExists($name) // {{{
+    public function offsetExists($name)
     {
         return $this->hasResource($name);
-    } // }}}
+    }
 
     /**
      * Required by ArrayAccess interface.
@@ -430,8 +429,8 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
      * @param  string $name
      * @return void
      */
-    public function offsetUnset($name) // {{{
+    public function offsetUnset($name)
     {
         $this->removeResource($name);
-    } // }}}
+    }
 }
