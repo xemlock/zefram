@@ -1,90 +1,165 @@
 <?php
 
 /**
- * @package   Zefram_Validate
- * @uses      Zend_Validate
- * @uses      Zefram_Url
- * @author    xemlock
- * @version   2015-12-27
+ * Zend Framework surprisingly does not provide an URI validator, which should
+ * be a part of network related validators (Hostname, Ip and EmailAddress).
+ * This class makes up for this shortcoming.
+ *
+ * @category Zefram
+ * @package  Zefram_Validate
+ * @author   xemlock
  */
 class Zefram_Validate_Uri extends Zend_Validate_Abstract
 {
-    const INVALID              = 'uriInvalid';
-    const NOT_URI              = 'notUri';
-    const SCHEME_NOT_ALLOWED   = 'uriSchemeNotAllowed';
-    const HOSTNAME_NOT_ALLOWED = 'uriHostnameNotAllowed';
+    const INVALID          = 'uriInvalid';
+    const NOT_URI          = 'notUri';
+    const INVALID_SCHEME   = 'uriInvalidScheme';
+    const INVALID_HOSTNAME = 'uriInvalidHostname';
 
     protected $_messageTemplates = array(
-        self::INVALID              => "Invalid type given. String expected",
-        self::NOT_URI              => "The input does not appear to be a valid URI",
-        self::SCHEME_NOT_ALLOWED   => "URI scheme '%scheme%' is not allowed",
-        self::HOSTNAME_NOT_ALLOWED => "The input does not appear to have a valid URI hostname",
+        self::INVALID          => "Invalid type given. String expected",
+        self::NOT_URI          => "The input does not appear to be a valid URI",
+        self::INVALID_SCHEME   => "URI scheme '%scheme%' is not allowed",
+        self::INVALID_HOSTNAME => "The input does not appear to have a valid URI hostname",
     );
 
     protected $_messageVariables = array(
-        'scheme' => '_scheme',
+        'scheme'   => '_scheme',
+        'hostname' => '_hostname',
     );
 
     /**
-     * List of allowed schemes
-     * @var array
-     */
-    protected $_allowedSchemes = array('http', 'https');
-
-    /**
-     * Hostname validator instance
-     * @var Zend_Validate_Hostname
-     */
-    protected $_hostnameValidator;
-
-    /**
-     * Scheme of currently validated URI
+     * Scheme of currently validated URI, available for external access
+     *
      * @var string
      */
     protected $_scheme;
 
     /**
-     * @param array|object $options
+     * Hostname of currently validated URI, available for external access
+     *
+     * @var string
+     */
+    protected $_hostname;
+
+    /**
+     * Internal options array
+     *
+     * @var array
+     */
+    protected $_options = array(
+        'scheme'    => 'Zefram_Uri_Http',
+        'allow'     => Zend_Validate_Hostname::ALLOW_ALL,
+        'hostname'  => null,
+    );
+
+    /**
+     * Instantiates URI validator for local use
+     *
+     * See {@link setOptions()} for the list of supported options.
+     *
+     * @param array|Zend_Config $options OPTIONAL
      */
     public function __construct($options = null)
     {
-        if (is_object($options) && method_exists($options, 'toArray')) {
+        if ($options instanceof Zend_Config) {
             $options = $options->toArray();
         }
-
-        $options = (array) $options;
-
-        if ($options) {
-            $this->setOptions($options);
-        }
-    }
-
-    /**
-     * Proxy call to the hostname validator instance
-     *
-     * @param string $method
-     * @param array $args
-     * @return mixed
-     */
-    public function __call($method, $args)
-    {
-        return call_user_func_array(array($this->getHostnameValidator(), $method), $args);
+        $this->setOptions((array) $options);
     }
 
     /**
      * Set options
      *
+     * The following option keys are supported:
+     * 'scheme'    => List of allowed schemes
+     * 'allow'     => Options for the hostname validator, see Zend_Validate_Hostname::ALLOW_*
+     * 'hostname'  => A hostname validator, see Zend_Validate_Hostname
+     * 'messages'  => Validation messages
+     *
      * @param array $options
-     * @return Zefram_Validate_Uri
+     * @return Zefram_Validate_Uri Provides fluent interface
      */
     public function setOptions(array $options)
     {
-        foreach ($options as $key => $value) {
-            $method = 'set' . $key;
-            if (is_callable(array($this, $method))) {
-                $this->{$method}($value);
-            }
+        if (array_key_exists('messages', $options)) {
+            $this->setMessages($options['messages']);
         }
+
+        if (array_key_exists('scheme', $options)) {
+            $this->setScheme($options['scheme']);
+        }
+
+        if (array_key_exists('hostname', $options)) {
+            $this->setHostnameValidator($options['hostname']);
+        }
+
+        if (array_key_exists('allow', $options)) {
+            $this->setAllow($options['allow']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set URI scheme handler
+     *
+     * @param  string $scheme
+     * @return Zefram_Validate_Uri Provides fluent interface
+     */
+    public function setScheme($scheme)
+    {
+        $this->_options['scheme'] = (string) $scheme;
+        return $this;
+    }
+
+    /**
+     * Retrieve URI scheme handler
+     *
+     * @return array
+     */
+    public function getScheme()
+    {
+        return $this->_options['scheme'];
+    }
+
+    /**
+     * @param int $allow
+     * @return Zefram_Validate_Uri Provides fluent interface
+     */
+    public function setAllow($allow)
+    {
+        $this->_options['allow'] = (int) $allow;
+        if (isset($this->_options['hostname'])) {
+            $this->getHostnameValidator()->setAllow($allow);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAllow()
+    {
+        return $this->_options['allow'];
+    }
+
+    /**
+     * Set hostname validator
+     *
+     * @param Zend_Validate_Hostname $hostnameValidator
+     * @param int $allow
+     * @return Zefram_Validate_Uri Provides fluent interface
+     */
+    public function setHostnameValidator(Zend_Validate_Hostname $hostnameValidator = null, $allow = null)
+    {
+        $this->_options['hostname'] = $hostnameValidator;
+
+        if ($allow !== null) {
+            $this->setAllow($allow);
+        }
+
         return $this;
     }
 
@@ -95,31 +170,10 @@ class Zefram_Validate_Uri extends Zend_Validate_Abstract
      */
     public function getHostnameValidator()
     {
-        if ($this->_hostnameValidator === null) {
-            $this->_hostnameValidator = new Zend_Validate_Hostname();
+        if (!isset($this->_options['hostname'])) {
+            $this->_options['hostname'] = new Zend_Validate_Hostname($this->getAllow());
         }
-        return $this->_hostnameValidator;
-    }
-
-    /**
-     * @param  string|array $schemes
-     * @return Zefram_Validate_Url this object
-     */
-    public function setAllowedSchemes($schemes)
-    {
-        if (is_string($schemes) && strpos($schemes, ',') !== false) {
-            $schemes = array_map('trim', explode(',', $schemes));
-        }
-        $this->_allowedSchemes = array_map('strtolower', (array) $schemes);
-        return $this;
-    }
-
-    /**
-     * @return string|array
-     */
-    public function getAllowedSchemes()
-    {
-        return $this->_allowedSchemes;
+        return $this->_options['hostname'];
     }
 
     /**
@@ -136,7 +190,7 @@ class Zefram_Validate_Uri extends Zend_Validate_Abstract
         $this->_setValue($value);
 
         try {
-            $uri = Zefram_Uri::factory($value);
+            $uri = Zefram_Uri::factory($value, $this->getScheme());
         } catch (Exception $e) {
             $this->_error(self::NOT_URI);
             return false;
@@ -148,15 +202,25 @@ class Zefram_Validate_Uri extends Zend_Validate_Abstract
         }
 
         $this->_scheme = $uri->getScheme();
+        $this->_hostname = $uri->getHost();
 
-        if (!in_array($this->_scheme, $this->_allowedSchemes, true)) {
-            $this->_error(self::SCHEME_NOT_ALLOWED);
-            return false;
-        }
+        if (strlen($this->_hostname)) {
+            $hostnameValidator = $this->getHostnameValidator();
+            $hostnameValidator->setTranslator($this->getTranslator());
 
-        if (!$this->getHostnameValidator()->isValid($uri->getHost())) {
-            $this->_error(self::HOSTNAME_NOT_ALLOWED);
-            return false;
+            if (!$hostnameValidator->isValid($this->_hostname)) {
+                $this->_error(self::INVALID_HOSTNAME);
+
+                // Get messages and errors from hostnameValidator
+                foreach ($hostnameValidator->getMessages() as $code => $message) {
+                    $this->_messages[$code] = $message;
+                }
+                foreach ($hostnameValidator->getErrors() as $error) {
+                    $this->_errors[] = $error;
+                }
+
+                return false;
+            }
         }
 
         return true;
