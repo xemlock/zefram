@@ -7,6 +7,10 @@
  * only those having http(s) scheme, so use it as default class. That
  * is why it is used as a base class for representing URI objects.
  *
+ * URI construction has been simplified, constructors need not to be
+ * protected and can be called directly. Scheme specific part does not
+ * need to be separated from scheme.
+ *
  * @category Zefram
  * @package  Zefram_Uri
  * @author   xemlock
@@ -20,8 +24,17 @@ class Zefram_Uri extends Zend_Uri_Http
      */
     protected $_validSchemes = array();
 
+    /**
+     * Create a new URI object
+     *
+     * @param string $scheme
+     * @param string $schemeSpecific
+     */
     public function __construct($scheme, $schemeSpecific = '')
     {
+        if (strpos($scheme, ':') !== false) {
+            list($scheme, $schemeSpecific) = explode(':', $scheme, 2);
+        }
         $this->setScheme($scheme);
         parent::__construct($scheme, $schemeSpecific);
     }
