@@ -11,7 +11,7 @@
  * @package  Zefram_Uri
  * @author   xemlock
  */
-abstract class Zefram_Uri extends Zend_Uri_Http
+class Zefram_Uri extends Zend_Uri_Http
 {
     /**
      * Array of valid schemes, provided by subclasses
@@ -36,15 +36,29 @@ abstract class Zefram_Uri extends Zend_Uri_Http
     public function setScheme($scheme)
     {
         $scheme = strtolower($scheme);
-        if (!in_array($scheme, $this->_validSchemes, true)) {
-            throw new Zend_Uri_Exception(sprintf(
-                'Scheme "%s" is not valid or is not accepted by %s',
-                $scheme,
-                get_class($this)
-            ));
+
+        if (!$this->validateScheme($scheme)) {
+            throw new Zend_Uri_Exception(sprintf('Scheme "%s" is not valid or not accepted', $scheme));
         }
+
         $this->_scheme = $scheme;
         return $this;
+    }
+
+    /**
+     * Returns true if and only if the scheme string passes validation.
+     *
+     * @param  string $scheme
+     * @return bool
+     */
+    public function validateScheme($scheme)
+    {
+        if (count($this->_validSchemes)
+            && !in_array(strtolower($scheme), $this->_validSchemes, true)
+        ) {
+            return false;
+        }
+        return (bool) preg_match('/^[A-Za-z][A-Za-z0-9\-\.+]*$/', $scheme);
     }
 
     public static function factory($uri = 'http', $className = null)
