@@ -2,6 +2,8 @@
 
 /**
  * Abstract validator class with error message pluralization support.
+ *
+ * @deprecated
  */
 abstract class Zefram_Validate_Abstract extends Zend_Validate_Abstract
 {

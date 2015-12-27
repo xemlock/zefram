@@ -2,6 +2,7 @@
 
 /**
  * @version 2014-11-13
+ * @deprecated
  */
 class Zefram_Validate_ByteLength extends Zend_Validate_StringLength
 {

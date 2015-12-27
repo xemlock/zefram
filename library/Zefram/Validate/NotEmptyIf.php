@@ -8,6 +8,7 @@
  *
  * @version 2014-12-13 / 2014-02-25
  * @author xemlock
+ * @deprecated Use Zend_Validate_Callback
  */
 class Zefram_Validate_NotEmptyIf extends Zend_Validate_NotEmpty
 {
@@ -127,6 +128,7 @@ class Zefram_Validate_NotEmptyIf extends Zend_Validate_NotEmpty
     /**
      * @param  bool $negate
      * @return Zefram_Validate_NotEmptyIf
+     * @deprecated Provide a callback that does not require negation
      */
     public function setNegate($negate = true)
     {
