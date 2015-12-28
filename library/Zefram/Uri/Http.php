@@ -6,4 +6,12 @@ class Zefram_Uri_Http extends Zefram_Uri
         'http',
         'https',
     );
+
+    public function valid()
+    {
+        if (strlen($this->_host) === 0) {
+            return false;
+        }
+        return parent::valid();
+    }
 }

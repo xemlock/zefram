@@ -6,26 +6,11 @@ class Zefram_Uri_File extends Zefram_Uri
         'file',
     );
 
-    public function validateHost($host = null)
+    public function valid()
     {
-        if ($host === null) {
-            $host = $this->_host;
+        if (strlen($this->_username) || strlen($this->_password) || strlen($this->_query) || strlen($this->_fragment)) {
+            return false;
         }
-
-        // Empty host is still considered valid
-        if (strlen($host) === 0) {
-            return true;
-        }
-
-        return parent::validateHost($host);
-    }
-
-    public function validateQuery($query = null)
-    {
-        if ($query === null) {
-            $query = $this->_query;
-        }
-
-        return (strlen($query) === 0);
+        return parent::valid();
     }
 }

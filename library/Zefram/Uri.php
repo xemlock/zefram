@@ -74,6 +74,20 @@ class Zefram_Uri extends Zend_Uri_Http
         return (bool) preg_match('/^[A-Za-z][A-Za-z0-9\-\.+]*$/', $scheme);
     }
 
+    public function validateHost($host = null)
+    {
+        if ($host === null) {
+            $host = $this->_host;
+        }
+
+        // If the host is empty, then it is considered valid
+        if (strlen($host) === 0) {
+            return true;
+        }
+
+        return parent::validateHost($host);
+    }
+
     protected function _parseUri($schemeSpecific)
     {
         // According to RFC 2396, if scheme specific part does not start with
