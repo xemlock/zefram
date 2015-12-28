@@ -49,6 +49,7 @@ class Zefram_Validate_UriTest extends PHPUnit_Framework_TestCase
         $validator->setScheme('Zefram_Uri_File');
         $validator->getHostnameValidator()->setAllow(Zend_Validate_Hostname::ALLOW_URI);
         $this->assertTrue($validator->isValid('file:///path/to/file'));
+        $this->assertTrue($validator->isValid('file://localhost/c:/WINDOWS/clock.avi'));
 
         $validator->getHostnameValidator()->setAllow(Zend_Validate_Hostname::ALLOW_DNS);
         // valid file url, host name validation skipped
@@ -57,5 +58,12 @@ class Zefram_Validate_UriTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($validator->isValid('file://example.com/path/to/file'));
         // valid file url, but invalid host name
         $this->assertFalse($validator->isValid('file://192.168.1.1/path/to/file'));
+
+        $this->assertFalse($validator->isValid('file://localhost/c|/WINDOWS/clock.avi'));
+
+        $validator->getHostnameValidator()->setAllow(Zend_Validate_Hostname::ALLOW_LOCAL);
+        $this->assertTrue($validator->isValid('file://localhost/c|/WINDOWS/clock.avi'));
+        $this->assertTrue($validator->isValid('file:///c|/WINDOWS/clock.avi'));
+        $this->assertTrue($validator->isValid('file://localhost/c:/WINDOWS/clock.avi'));
     }
 }

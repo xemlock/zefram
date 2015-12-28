@@ -13,4 +13,6 @@ class Zefram_Uri_File extends Zefram_Uri
         }
         return parent::valid();
     }
+
+    // TODO validate filesystem path
 }

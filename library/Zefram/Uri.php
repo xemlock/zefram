@@ -88,6 +88,24 @@ class Zefram_Uri extends Zend_Uri_Http
         return parent::validateHost($host);
     }
 
+    /**
+     * Validate the current URI from the instance variables. Returns true if and only if all
+     * parts except path pass validation.
+     *
+     * Path validation is delegated to URI subclasses.
+     *
+     * @return bool
+     */
+    public function valid()
+    {
+        return $this->validateUsername()
+            && $this->validatePassword()
+            && $this->validateHost()
+            && $this->validatePort()
+            && $this->validateQuery()
+            && $this->validateFragment();
+    }
+
     protected function _parseUri($schemeSpecific)
     {
         // According to RFC 2396, if scheme specific part does not start with
@@ -132,6 +150,10 @@ class Zefram_Uri extends Zend_Uri_Http
                 case 'http':
                 case 'https':
                     $className = 'Zefram_Uri_Http';
+                    break;
+
+                case 'mailto':
+                    $className = 'Zefram_Uri_Mailto';
                     break;
 
                 default:

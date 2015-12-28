@@ -12,6 +12,6 @@ class Zefram_Uri_Http extends Zefram_Uri
         if (strlen($this->_host) === 0) {
             return false;
         }
-        return parent::valid();
+        return $this->validatePath() && parent::valid();
     }
 }
