@@ -74,6 +74,36 @@ class Zefram_Uri extends Zend_Uri_Http
         return (bool) preg_match('/^[A-Za-z][A-Za-z0-9\-\.+]*$/', $scheme);
     }
 
+    protected function _parseUri($schemeSpecific)
+    {
+        // According to RFC 2396, if scheme specific part does not start with
+        // double slash, it means that the authority component is absent.
+        // Unfortunately, the original _parseUri() method fails to handle such
+        // case, hence the updated implementation below.
+
+        if (substr($schemeSpecific, 0, 2) === '//') {
+            return parent::_parseUri($schemeSpecific);
+        }
+
+        // High-level decomposition parser
+        $pattern = '~^(?<path>[^?#]*)(\?(?<query>[^#]*))?(#(?<fragment>.*))?$~';
+        $status  = @preg_match($pattern, $schemeSpecific, $matches);
+        if ($status === false) {
+            throw new Zend_Uri_Exception('Internal error: scheme-specific decomposition failed');
+        }
+
+        // Save URI components that need no further decomposition
+        $this->_path     = $matches['path'];
+        $this->_query    = $matches['query'];
+        $this->_fragment = $matches['fragment'];
+
+        // Authority component is absent
+        $this->_username = '';
+        $this->_password = '';
+        $this->_host     = '';
+        $this->_port     = '';
+    }
+
     public static function factory($uri = 'http', $className = null)
     {
         if ($className === null) {
