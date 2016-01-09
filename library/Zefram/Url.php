@@ -3,7 +3,7 @@
 /**
  * @deprecated
  */
-class Zefram_Url extends Zend_Uri
+abstract class Zefram_Url extends Zend_Uri
 {
     /**
      * URL factory.
