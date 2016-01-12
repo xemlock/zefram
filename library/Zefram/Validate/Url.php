@@ -6,6 +6,7 @@
  * @uses      Zefram_Url
  * @author    xemlock
  * @version   2013-07-21
+ * @deprecated Use Zefram_Validate_Uri instead
  *
  * Changelog: 2014-11-20 Added allowLocal option
  */
