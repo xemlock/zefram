@@ -110,7 +110,7 @@ class Zefram_Application_ResourceContainer implements ArrayAccess
     public function addResourceCallback($name, $callback, array $args = array())
     {
         if (!$callback instanceof Zefram_Stdlib_CallbackHandler) {
-            $callback = new Zefram_Stdlib_CallbackHandler($callback, $args);
+            $callback = new Zefram_Stdlib_CallbackHandler($callback, array(), $args);
         }
 
         $name = $this->_foldCase($name);

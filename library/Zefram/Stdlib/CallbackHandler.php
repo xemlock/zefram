@@ -27,13 +27,15 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
      * Constructor
      *
      * @param  callable $callback
+     * @param  array $metadata OPTIONAL
      * @param  array $args OPTIONAL
      */
-    public function __construct($callback, array $args = array())
+    public function __construct($callback, array $metadata = array(), array $args = array())
     {
         // copy constructor, use internal callback value
         if ($callback instanceof Zend_Stdlib_CallbackHandler) {
             $callback = $callback->getCallback();
+            $metadata = array_merge($callback->getMetadata(), $metadata);
         }
 
         // call_user_func() in PHP versions prior to 5.2.2 can't handle callbacks given
@@ -56,26 +58,31 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
             $callback = array($callback, '__invoke');
         }
 
-        // extract metadata to be passed to parent constructor
-        // Metadata are distinguished from arguments by their key, a string
-        // key indicates a metadatum whereas integer key an argument.
-        $metadata = array();
-
-        foreach ($args as $key => $value) {
-            if (is_string($key)) {
-                // string key indicates a metadatum, move it to $metadata
-                // array, numerical keys in $data are left intact
-                $metadata[$key] = $value;
-                unset($args[$key]);
-            }
-        }
-
         parent::__construct($callback, $metadata);
 
-        // push any arguments left
+        // if args are explicitly given, they overwrite any args present in
+        // a handler instance
+        if (empty($args)
+            && $callback instanceof Zefram_Stdlib_CallbackHandler
+        ) {
+            $args = $callback->getArgs();
+        }
+
+        $this->pushArgs($args);
+    }
+
+    /**
+     * Store arguments to be used for callback invocation.
+     *
+     * @param  array $args
+     * @return Zefram_Stdlib_CallbackHandler
+     */
+    public function pushArgs(array $args)
+    {
         foreach ($args as $arg) {
             $this->pushArg($arg);
         }
+        return $this;
     }
 
     /**

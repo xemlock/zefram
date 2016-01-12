@@ -23,7 +23,7 @@ class Zefram_Application_ResourceContainerTest extends PHPUnit_Framework_TestCas
         $this->assertInstanceOf('Res', $resource);
         $this->assertEquals('Gyarados', $resource->getName());
 
-        $callback = new Zefram_Stdlib_CallbackHandler(array($this, 'resourceCallback'), array('Lugia'));
+        $callback = new Zefram_Stdlib_CallbackHandler(array($this, 'resourceCallback'), array(), array('Lugia'));
         $container->addResourceCallback('pokemon2', $callback);
         $resource = $container->getResource('pokemon2');
 
