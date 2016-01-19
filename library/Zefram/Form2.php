@@ -49,6 +49,15 @@ class Zefram_Form2 extends Zend_Form
         return parent::isValidPartial($data);
     }
 
+    public function getValidValues($data, $suppressArrayNotation = false)
+    {
+        if (is_bool($data)) {
+            $suppressArrayNotation = $data;
+            $data = (array) $this->_data;
+        }
+        return parent::getValidValues($data, $suppressArrayNotation);
+    }
+
     public function addSubForm(Zend_Form $form, $name = null, $order = null)
     {
         // handle order if passed as the second param
