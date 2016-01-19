@@ -4,6 +4,11 @@ class Zefram_Form2 extends Zend_Form
 {
     protected static $_defaultPrefixPaths = array();
 
+    /**
+     * @var array
+     */
+    protected $_data;
+
     public function __construct($options = null)
     {
         // configure loaders before handling options, so that any prefix paths
@@ -22,6 +27,28 @@ class Zefram_Form2 extends Zend_Form
         parent::__construct((array) $options);
     }
 
+    public function setData(array $data = null)
+    {
+        $this->_data = $data;
+        return $this;
+    }
+
+    public function isValid($data = null)
+    {
+        if ($data === null) {
+            $data = (array) $this->_data;
+        }
+        return parent::isValid($data);
+    }
+
+    public function isValidPartial(array $data = null)
+    {
+        if ($data === null) {
+            $data = (array) $this->_data;
+        }
+        return parent::isValidPartial($data);
+    }
+
     public function addSubForm(Zend_Form $form, $name = null, $order = null)
     {
         // handle order if passed as the second param
@@ -33,28 +60,6 @@ class Zefram_Form2 extends Zend_Form
             $name = $form->getName();
         }
         return parent::addSubForm($form, $name, $order);
-    }
-
-    /**
-     * Set default plugin loaders for use with decorators and elements.
-     *
-     * @param  Zend_Loader_PluginLoader_Interface $loader
-     * @param  string $type 'decorator' or 'element'
-     * @throws Zend_Form_Exception on invalid type
-     */
-    public static function addDefaultPrefixPath($prefix, $path, $type)
-    {
-        $type = strtoupper($type);
-
-        switch ($type) {
-            case self::DECORATOR:
-            case self::ELEMENT:
-                self::$_defaultPrefixPaths[$type][$prefix] = $path;
-                break;
-
-            default:
-                throw new Zend_Form_Exception(sprintf('Invalid type "%s" provided to addDefaultPrefixPath()', $type));
-        }
     }
 
     public function getPluginLoader($type = null)
@@ -75,5 +80,28 @@ class Zefram_Form2 extends Zend_Form
         }
 
         return $this->_loaders[$type];
+    }
+
+    /**
+     * Add default prefix path for given type
+     *
+     * @param  string $prefix
+     * @param  string $path
+     * @param  string $type 'decorator' or 'element'
+     * @throws Zend_Form_Exception on invalid type
+     */
+    public static function addDefaultPrefixPath($prefix, $path, $type)
+    {
+        $type = strtoupper($type);
+
+        switch ($type) {
+            case self::DECORATOR:
+            case self::ELEMENT:
+                self::$_defaultPrefixPaths[$type][$prefix] = $path;
+                break;
+
+            default:
+                throw new Zend_Form_Exception(sprintf('Invalid type "%s" provided to addDefaultPrefixPath()', $type));
+        }
     }
 }
