@@ -7,6 +7,16 @@
  * @method Zend_Controller_Front getFrontController()
  * @method Zend_Controller_Request_Abstract getRequest()
  * @method Zend_Controller_Response_Abstract getResponse()
+ *
+ * @method Zend_Controller_Action setParam()
+ * @method bool hasParam()
+ * @method mixed getParam()
+ * @method array getAllParams()
+ * @method void forward()
+ * @method void redirect()
+ *
+ * @method mixed getScalarParam()
+ * @method mixed getResource()
  */
 abstract class Zefram_Controller_Action_Standalone
 {
