@@ -4,6 +4,17 @@
  * The main problem of Zend_Form_ view helpers is that they don't support
  * instances of Zend_Form_Element, and as such are cumbersome to deal with.
  * This helper accepts Zend_Form_Element as the first parameter.
+ *
+ * So, instead of writing unnecessarily verbose code such as below:
+ * <pre>
+ *     $this->formSelect($elem->getFullyQualifiedName(), $elem->getValue(),
+ *                       $elem->getAttribs(), $elem->getMultiOptions());
+ * </pre>
+ * you can now simply write:
+ * <pre>
+ *     $this->formSelect($elem)
+ * </pre>
+ * to achieve the same effect. Profit!
  */
 class Zefram_View_Helper_FormSelect extends Zend_View_Helper_FormSelect
 {
