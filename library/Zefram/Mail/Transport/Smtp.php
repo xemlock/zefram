@@ -26,4 +26,14 @@ class Zefram_Mail_Transport_Smtp extends Zend_Mail_Transport_Smtp
         }
         parent::__construct($host, (array) $config);
     }
+
+    /**
+     * Retrieve the connection protocol instance
+     *
+     * @return Zend_Mail_Protocol_Abstract|null
+     */
+    public function getConnection()
+    {
+        return $this->_connection;
+    }
 }
