@@ -17,6 +17,11 @@ class Zefram_Mail extends Zend_Mail
     protected static $_defaultHeaderEncoding = null;
 
     /**
+     * Last used transport
+     */
+    protected $_transport;
+
+    /**
      * @param  string $charset OPTIONAL
      * @return void
      */
@@ -35,6 +40,33 @@ class Zefram_Mail extends Zend_Mail
         if (null !== self::$_defaultHeaderEncoding) {
             $this->setHeaderEncoding(self::$_defaultHeaderEncoding);
         }
+    }
+
+    public function setTransport($transport = null)
+    {
+        $this->_transport = $transport;
+        return $this;
+    }
+
+    public function getTransport()
+    {
+        if (!$this->_transport) {
+            if (!self::$_defaultTransport instanceof Zend_Mail_Transport_Abstract) {
+                $transport = new Zend_Mail_Transport_Sendmail();
+            } else {
+                $transport = self::$_defaultTransport;
+            }
+            $this->_transport = $transport;
+        }
+        return $this->_transport;
+    }
+
+    public function send($transport = null)
+    {
+        if ($transport !== null) {
+            $this->setTransport($transport);
+        }
+        return parent::send($this->_transport);
     }
 
     /**
