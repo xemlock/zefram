@@ -101,6 +101,36 @@ abstract class Zefram_Os
         putenv("$key=$value");
     } // }}}
 
+    // Wanna have setTempDir()? I'll tell you why you don't.
+    //
+    // main/php_open_temporary_file.c: php_get_temporary_directory(void)
+    // once called its results are cached
+    // on Windows TMP and TEMP variables are checked (in this order)
+    // on UNIX systems TMPDIR is checked
+    // and if that fails fall back to /tmp
+    //
+    // php_open_temporary_{fd,fd_ex,file}()functions also use
+    // php_get_temporary_directory()
+    //
+    // $tmp=realpath('/temporary');putenv('TMPDIR='.$tmp);$_ENV['TMPDIR']=$tmp;echo sys_get_temp_dir();
+    // the result of this code depends on whether sys_get_temp_dir() was called earlier.
+    // If so, setting environment variables does not change anything
+
+    // It is advisable to not use sys_get_temp_dir() as it cannot be
+    // customized on a shared environment, use this instead
+    //
+    // When finding out that file has been uploaded, PHP internally determines
+    // the location of temp dir, which effectively makes any methods of
+    // setting temp dir during runtime (such as via environment) useless
+    // and unreliable.
+    //
+    // It is then discouraged to use setEnv() for changing temp dir location.
+    // Also session save handler (ext/session/mod_files.c) calls
+    // php_get_temporary_directory is save path is not provided
+    // 
+    // Temp dir should be treated as a read-only property of a system PHP runs
+    // in.
+
     /**
      * @return string|false
      */
@@ -108,7 +138,9 @@ abstract class Zefram_Os
     {
         $tmpdir = array();
 
-        if (function_exists('sys_get_temp_dir')) { // requires PHP 5.2.1
+        // sys_get_temp_dir() may be disabled for security reasons
+        // requires PHP 5.2.1
+        if (is_callable('sys_get_temp_dir')) {
             $tmpdir[sys_get_temp_dir()] = true;
         }
 
