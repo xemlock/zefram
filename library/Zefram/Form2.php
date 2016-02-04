@@ -2,60 +2,45 @@
 
 class Zefram_Form2 extends Zend_Form
 {
+    /**
+     * Default prefix paths for plugin loader
+     * @var array
+     */
     protected static $_defaultPrefixPaths = array();
 
     /**
+     * Prefix paths to use when creating elements
      * @var array
      */
-    protected $_data;
+    protected $_elementPrefixPaths = array(
+        array(
+            'prefix' => 'Zefram_Filter_',
+            'path'   => 'Zefram/Filter/',
+            'type'   => Zend_Form_Element::FILTER,
+        ),
+        array(
+            'prefix' => 'Zefram_Validate_',
+            'path'   => 'Zefram/Validate/',
+            'type'   => Zend_Form_Element::VALIDATE,
+        ),
+    );
 
     public function __construct($options = null)
     {
         // configure loaders before handling options, so that any prefix paths
         // provided in options will have higher priority than the below ones
-        $this->addPrefixPath('Zefram_Form_Element_',   'Zefram/Form/Element/',   self::ELEMENT);
-        $this->addPrefixPath('Zefram_Form_Decorator_', 'Zefram/Form/Decorator/', self::DECORATOR);
+        //$this->addPrefixPath('Zefram_Form_Element_',   'Zefram/Form/Element/',   self::ELEMENT);
+        //$this->addPrefixPath('Zefram_Form_Decorator_', 'Zefram/Form/Decorator/', self::DECORATOR);
 
-        $this->addElementPrefixPath('Zefram_Validate_', 'Zefram/Validate/', Zend_Form_Element::VALIDATE);
-        $this->addElementPrefixPath('Zefram_Filter_',   'Zefram/Filter/', Zend_Form_Element::FILTER);
+        //$this->addElementPrefixPath('Zefram_Validate_', 'Zefram/Validate/', Zend_Form_Element::VALIDATE);
+        //$this->addElementPrefixPath('Zefram_Filter_',   'Zefram/Filter/', Zend_Form_Element::FILTER);
 
         // unified options handling
-        if (is_object($options) && method_exists($options, 'toArray')) {
-            $options = $options->toArray();
-        }
+        //if (is_object($options) && method_exists($options, 'toArray')) {
+        //    $options = $options->toArray();
+        //}
 
-        parent::__construct((array) $options);
-    }
-
-    public function setData(array $data = null)
-    {
-        $this->_data = $data;
-        return $this;
-    }
-
-    public function isValid($data = null)
-    {
-        if ($data === null) {
-            $data = (array) $this->_data;
-        }
-        return parent::isValid($data);
-    }
-
-    public function isValidPartial(array $data = null)
-    {
-        if ($data === null) {
-            $data = (array) $this->_data;
-        }
-        return parent::isValidPartial($data);
-    }
-
-    public function getValidValues($data, $suppressArrayNotation = false)
-    {
-        if (is_bool($data)) {
-            $suppressArrayNotation = $data;
-            $data = (array) $this->_data;
-        }
-        return parent::getValidValues($data, $suppressArrayNotation);
+        parent::__construct($options);
     }
 
     public function addSubForm(Zend_Form $form, $name = null, $order = null)
@@ -84,6 +69,21 @@ class Zefram_Form2 extends Zend_Form
                     $loader->addPrefixPath($prefix, $path);
                 }
             }
+
+            switch ($type) {
+                case self::DECORATOR:
+                    $prefixSegment = 'Zefram_Form_Decorator';
+                    $pathSegment   = 'Zefram/Form/Decorator';
+                    break;
+                case self::ELEMENT:
+                    $prefixSegment = 'Zefram_Form_Element';
+                    $pathSegment   = 'Zefram/Form/Element';
+                    break;
+                default:
+                    // make lint happy
+                    throw new Zend_Form_Exception(sprintf('Invalid type "%s" provided to getPluginLoader()', $type));
+            }
+            $loader->addPrefixPath($prefixSegment, $pathSegment);
 
             return $loader;
         }
