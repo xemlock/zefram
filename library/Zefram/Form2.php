@@ -27,21 +27,22 @@ class Zefram_Form2 extends Zend_Form
 
     public function __construct($options = null)
     {
-        // configure loaders before handling options, so that any prefix paths
-        // provided in options will have higher priority than the below ones
-        //$this->addPrefixPath('Zefram_Form_Element_',   'Zefram/Form/Element/',   self::ELEMENT);
-        //$this->addPrefixPath('Zefram_Form_Decorator_', 'Zefram/Form/Decorator/', self::DECORATOR);
-
-        //$this->addElementPrefixPath('Zefram_Validate_', 'Zefram/Validate/', Zend_Form_Element::VALIDATE);
-        //$this->addElementPrefixPath('Zefram_Filter_',   'Zefram/Filter/', Zend_Form_Element::FILTER);
-
-        // unified options handling
-        //if (is_object($options) && method_exists($options, 'toArray')) {
-        //    $options = $options->toArray();
-        //}
-
         parent::__construct($options);
+
+        $this->_init();
     }
+
+    /**
+     * Initialize form (used by extending classes)
+     *
+     * Contrary to {@link init()} this method is not designed to be called
+     * externally, and as such it provides more clean initialization logic
+     * executed as a final step of object initialization.
+     *
+     * @return void
+     */
+    protected function _init()
+    {}
 
     public function addSubForm(Zend_Form $form, $name = null, $order = null)
     {
