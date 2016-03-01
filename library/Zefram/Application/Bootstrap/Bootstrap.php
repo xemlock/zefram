@@ -161,11 +161,26 @@ class Zefram_Application_Bootstrap_Bootstrap
         }
     }
 
+    /**
+     * Bootstrap and return one or more resources
+     *
+     * @param  null|string|array $resource
+     * @return mixed If resource is given as a string, a resource of matching name is returned,
+     *               if given as array, an array of matching resources is returned
+     * @throws Zend_Application_Bootstrap_Exception When invalid argument was passed
+     */
     protected function _bootstrap($resource = null)
     {
         if ($resource === null) {
             $this->_executeRawResources();
         }
         parent::_bootstrap($resource);
+
+        if ($resource !== null) {
+            if (is_array($resource)) {
+                return array_map(array($this, 'getResource'), $resource);
+            }
+            return $this->getResource($resource);
+        }
     }
 }

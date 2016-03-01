@@ -91,4 +91,24 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
     {
         return $this->_application;
     }
+
+    /**
+     * Bootstrap and return one or more resources
+     *
+     * @param  null|string|array $resource
+     * @return mixed If resource is given as a string, a resource of matching name is returned,
+     *               if given as array, an array of matching resources is returned
+     * @throws Zend_Application_Bootstrap_Exception When invalid argument was passed
+     */
+    protected function _bootstrap($resource = null)
+    {
+        parent::_bootstrap($resource);
+
+        if ($resource !== null) {
+            if (is_array($resource)) {
+                return array_map(array($this, 'getResource'), $resource);
+            }
+            return $this->getResource($resource);
+        }
+    }
 }

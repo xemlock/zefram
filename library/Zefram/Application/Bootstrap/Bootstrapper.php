@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated
+ */
 interface Zefram_Application_Bootstrap_Bootstrapper
     extends Zend_Application_Bootstrap_Bootstrapper
 {
