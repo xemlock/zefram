@@ -3,11 +3,22 @@
 abstract class Zefram_Controller_Plugin_Abstract extends Zend_Controller_Plugin_Abstract
 {
     /**
+     * Retrieve front controller instance
+     *
+     * @return Zend_Controller_Front
+     */
+    public function getFrontController()
+    {
+        return Zend_Controller_Front::getInstance();
+    }
+
+    /**
      * Retrieve a resource from bootstrap
      *
      * @param  string $resource
      * @param  bool $throw OPTIONAL
      * @return mixed
+     * @deprecated Reference resources explicitly either in constructor or setters
      */
     public function getResource($resource, $throw = true)
     {
