@@ -17,7 +17,11 @@ class Zefram_View_Helper_FormElement extends Zend_View_Helper_FormElement
             }
 
             $attribs = array_merge($element->getAttribs(), is_array($attribs) ? $attribs : array());
-            $options = array_merge($element->options, is_array($options) ? $options : array());
+
+            $options = is_array($options) ? $options : array();
+            if (isset($element->options) && is_array($element->options)) {
+                $options = array_merge($element->options, $options);
+            }
         }
 
         if (isset($attribs['value'])) {
