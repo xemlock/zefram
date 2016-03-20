@@ -9,21 +9,21 @@
  * @method Zend_Controller_Response_Abstract getResponse()
  *
  * @method Zend_Controller_Action setParam()
- * @method bool hasParam()
- * @method mixed getParam()
- * @method array getAllParams()
- * @method void forward()
- * @method void redirect()
+ * @method bool hasParam(string $name) Proxy to Zend_Controller_Action::hasParam()
+ * @method mixed getParam(string $name, $default = null) Proxy to Zend_Controller_Action::getParam()
+ * @method array getAllParams() Proxy to Zend_Controller_Action::getAllParams()
+ * @method void forward(string $action, string $controller = null, string $module = null, array $params = null) Proxy to Zend_Controller_Action::forward()
+ * @method void redirect(string $url, array $options = array()) Proxy to Zend_Controller_Action::redirect()
  *
- * @method mixed getScalarParam()
- * @method mixed getResource()
+ * @method mixed getScalarParam(string $name, $default = null) Proxy to Zefram_Controller_Action::getScalarParam()
+ * @method mixed getResource(string $name, bool $throw = true) Proxy to Zefram_Controller_Action::getResource()
  */
 abstract class Zefram_Controller_Action_Standalone
 {
     /**
      * @var string
      */
-    protected $_actionControllerClass;
+    protected $_actionControllerClass = 'Zefram_Controller_Action';
 
     /**
      * @var Zend_Controller_Action
@@ -51,7 +51,7 @@ abstract class Zefram_Controller_Action_Standalone
     public $view;
 
     /**
-     * @param  Zend_Controller_Action $controller
+     * @param  Zend_Controller_Action $actionController
      * @throws Zefram_Controller_Action_Exception_InvalidArgument
      */
     public function __construct(Zend_Controller_Action $actionController) 
@@ -146,11 +146,21 @@ abstract class Zefram_Controller_Action_Standalone
         return $value;
     }
 
+    /**
+     * @param $url
+     * @param array $options
+     * @deprecated
+     */
     protected function _redirect($url, array $options = array())
     {
         $this->_helper->redirector->gotoUrl($url, $options);
     }
 
+    /**
+     * @param $message
+     * @param null $namespace
+     * @deprecated
+     */
     protected function _flashMessage($message, $namespace = null)
     {
         $this->_helper->flashMessenger->addMessage($message, $namespace);
