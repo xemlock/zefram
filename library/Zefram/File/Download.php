@@ -4,7 +4,7 @@
  * cURL based file downloader.
  *
  * @uses     Zefram_Os
- * @uses     Zefram_Url
+ * @uses     Zefram_Uri
  * @uses     Zefram_Validate
  * @author   xemlock
  * @version  2013-11-25
@@ -36,7 +36,7 @@ class Zefram_File_Download
             );
         }
 
-        $url = Zefram_Url::fromString($url);
+        $url = Zefram_Uri::factory($url);
 
         if (!$url->valid()) {
             throw new InvalidArgumentException(
@@ -262,7 +262,7 @@ class Zefram_File_Download
                 $name = $this->_detectedFilename;
             } else {
                 try {
-                    $url = Zefram_Url::fromString($info['url']);
+                    $url = Zefram_Uri::factory($info['url']);
                     $name = basename($url->getPath());
                 } catch (Exception $e) {
                     $name = basename($path);

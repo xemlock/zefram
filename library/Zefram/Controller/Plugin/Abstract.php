@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated Instead of using getResource() pass dependencies explicitly
+ */
 abstract class Zefram_Controller_Plugin_Abstract extends Zend_Controller_Plugin_Abstract
 {
     /**

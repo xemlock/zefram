@@ -136,6 +136,12 @@ class Zefram_Uri extends Zend_Uri_Http
         $this->_port     = '';
     }
 
+    /**
+     * @param string $uri
+     * @param string $className OPTIONAL
+     * @return Zefram_Uri
+     * @throws Zend_Uri_Exception
+     */
     public static function factory($uri = 'http', $className = null)
     {
         if ($className === null) {
