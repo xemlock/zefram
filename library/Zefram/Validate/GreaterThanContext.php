@@ -28,7 +28,7 @@ class Zefram_Validate_GreaterThanContext extends Zend_Validate_Abstract
      * Additional variables available for error messages
      * @var array
      */
-    protected $messageVariables = array(
+    protected $_messageVariables = array(
         'min' => '_min',
     );
 
