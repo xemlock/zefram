@@ -1,31 +1,25 @@
 <?php
 
-class Zefram_Validate_Db_RecordExists extends Zend_Validate_Db_RecordExists
+/**
+ * Confirms a record exists in a table.
+ *
+ * @category   Zefram
+ * @package    Zefram_Validate
+ * @uses       Zefram_Validate_Db_Abstract
+ */
+class Zefram_Validate_Db_RecordExists extends Zefram_Validate_Db_Abstract
 {
-    /**
-     * @param  string|Zend_Db_Table_Abstract $table
-     * @return Zend_Validate_Db_Abstract
-     */
-    public function setTable($table)
+    public function isValid($value)
     {
-        if ($table instanceof Zend_Db_Table_Abstract) {
-            $this->setAdapter($table->getAdapter());
-            $this->setSchema($table->info(Zend_Db_Table_Abstract::SCHEMA));
-            $table = $table->info(Zend_Db_Table_Abstract::NAME);
-        }
-        return parent::setTable($table);
-    }
+        $valid = true;
+        $this->_setValue($value);
 
-    /**
-     * @param  string|Zend_Db_Expr $field
-     * @return Zefram_Validate_Db_RecordExists
-     */
-    public function setField($field)
-    {
-        if (!$field instanceof Zend_Db_Expr) {
-            $field = (string) $field;
+        $result = $this->_query($value);
+        if (!$result) {
+            $valid = false;
+            $this->_error(self::ERROR_NO_RECORD_FOUND);
         }
-        $this->_field = $field;
-        return $this;
+
+        return $valid;
     }
 }
