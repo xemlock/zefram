@@ -781,10 +781,20 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         $this->_isSaving = true;
         $this->_saveParentRows();
 
+        /**
+         * Run pre-SAVE logic
+         */
         $result = parent::save();
+
         $this->_getTable()->addToIdentityMap($this);
 
         $this->_isSaving = false;
+
+        /**
+         * Run post-SAVE logic
+         */
+        $this->_postSave();
+
         return $result;
     } // }}}
 
@@ -923,4 +933,22 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
 
         return parent::_getTableFromString($tableName);
     } // }}}
+
+    /**
+     * Allows pre-save (insert or update) logic to be applied to row.
+     * Subclasses may override this method.
+     *
+     * @return void
+     */
+    protected function _save()
+    {}
+
+    /**
+     * Allows post-save (insert or update) logic to be applied to row.
+     * Subclasses may override this method.
+     *
+     * @return void
+     */
+    protected function _postSave()
+    {}
 }
