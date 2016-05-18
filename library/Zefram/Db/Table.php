@@ -35,6 +35,12 @@ class Zefram_Db_Table extends Zend_Db_Table
      */
     protected $_identityMap = array();
 
+    /**
+     * TRUE if this table is an intersection table for Many To Many relation
+     * @var bool
+     */
+    protected $_intersectionTable = false;
+
     // does anybody know why these are missing in Zend_Db?
     // info() is somewhat inconvenient
     public function getSchema()
@@ -58,6 +64,11 @@ class Zefram_Db_Table extends Zend_Db_Table
     public function getQuotedName()
     {
         return $this->getAdapter()->quoteIdentifier($this->_name);
+    }
+
+    public function isIntersectionTable()
+    {
+        return $this->_intersectionTable;
     }
 
     /**
@@ -246,6 +257,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * explanation.
      *
      * @return array
+     * @deprecated
      */
     public function fetchAllAsArray($where = null, $order = null, $limit = null, $offset = null) // {{{
     {
@@ -259,6 +271,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * for parameter explanation. 
      *
      * @return array|null
+     * @deprecated
      */
     public function fetchRowAsArray($where = null, $order = null, $offset = null) // {{{
     {
