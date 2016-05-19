@@ -757,10 +757,10 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      */
     public function setFromArray(array $data)
     {
-        $data = array_intersect_key($data, $this->_cols);
-
-        foreach ($data as $columnname => $value) {
-            $this->__set($columnname, $value);
+        foreach ($data as $columnName => $value) {
+            if ($this->hasColumn($columnName) || $this->hasReference($columnName)) {
+                $this->__set($columnName, $value);
+            }
         }
 
         return $this;
