@@ -618,30 +618,6 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             return $this->getParentRow($key);
         }
 
-        $dependentTables = $this->getTable()->info(Zend_Db_Table_Abstract::DEPENDENT_TABLES);
-        if (isset($dependentTables[$key])) {
-            if (!isset($this->_dependentRowsets[$key])) {
-                $this->_dependentRowsets[$key] = new Core_Db_Table_Rowset_DependentRows($this, $dependentTables[$key]);
-            }
-            return $this->_dependentRowsets[$key];
-        } else {
-            // in case rules are ambiguous, you can specify it by giving dependentTable key as Property:RuleInDependentTable
-            $found = false;
-            foreach ($dependentTables as $k => $v) {
-                if ($key . ':' === substr($k, 0, strlen($key) + 1)) {
-                    list($key, $ruleKey) = explode(':', $k);
-                    $found = true;
-                    break;
-                }
-            }
-            if ($found) {
-                if (!isset($this->_dependentRowsets[$key])) {
-                    $this->_dependentRowsets[$key] = new Core_Db_Table_Rowset_DependentRows($this, $dependentTables[$key. ':' . $ruleKey], $ruleKey);
-                }
-                return $this->_dependentRowsets[$key];
-            }
-        }
-
         throw new Zend_Db_Table_Row_Exception(sprintf(
             'Specified column "%s" is not in the row', $columnName
         ));
