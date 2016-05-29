@@ -155,9 +155,12 @@ class Zefram_Filter_Utf8 implements Zend_Filter_Interface
      */
     public static function _normalize($string)
     {
+        // use canonical forms of compound glyphs
         $string = strtr($string, array(
             '́e' => 'é',
         ));
+        // remove control characters other than \t, \n and \r
+        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '$', $string);
         return $string;
     }
 }
