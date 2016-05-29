@@ -44,29 +44,49 @@ class Zefram_Filter_Utf8 implements Zend_Filter_Interface
     }
 
     /**
-     * Remove invalid UTF-8 sequence from input string.
+     * Remove invalid UTF-8 sequence from input string using an
+     * instance based filter.
      *
      * @param  string $value
      * @return string
      */
     public function filter($value)
     {
+        return self::filterStatic($value, $this->getSubstChar());
+    }
+
+    /**
+     * Remove invalid UTF-8 sequence from input string.
+     *
+     * @param  string $value
+     * @param  string $substChar OPTIONAL
+     * @return string
+     */
+    public static function filterStatic($value, $substChar = null)
+    {
         if (extension_loaded('mbstring')) {
-            return $this->_mbstringFilter($value);
+            $filtered = self::_mbstringFilter($value);
+        } else {
+            $filtered = self::_regexFilter($value);
         }
-        return $this->_regexFilter($value);
+
+        if (null !== $substChar) {
+            $filtered = str_replace(self::REPLACEMENT_CHAR, $substChar, $filtered);
+        }
+
+        return self::_normalize($filtered);
     }
 
     /**
      * Filter out invalid UTF-8 characters using mbstring library.
      *
-     * Do not call this method directly, call {@link filter()} instead, as
-     * it is public for testing purposes only.
+     * Do not call this method directly, as it is public for testing purposes
+     * only.
      *
-     * @param $value
+     * @param string $value
      * @return mixed|string
      */
-    public function _mbstringFilter($value)
+    public static function _mbstringFilter($value)
     {
         $prevSubstChar = mb_substitute_character();
         mb_substitute_character(self::REPLACEMENT_CODEPOINT);
@@ -74,23 +94,19 @@ class Zefram_Filter_Utf8 implements Zend_Filter_Interface
         $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
         mb_substitute_character($prevSubstChar);
 
-        if (null !== $this->_substChar) {
-            $value = str_replace(self::REPLACEMENT_CHAR, $this->_substChar, $value);
-        }
-
         return $value;
     }
 
     /**
      * Filter out invalid UTF-8 characters using regular expression.
      *
-     * Do not call this method directly, call {@link filter()} instead, as
-     * it is public for testing purposes only.
+     * Do not call this method directly, as it is public for testing purposes
+     * only.
      *
-     * @param $value
+     * @param string $value
      * @return mixed
      */
-    public function _regexFilter($value)
+    public static function _regexFilter($value)
     {
         // Implementation taken from http://stackoverflow.com/a/13695364
         $regex = '/
@@ -114,36 +130,34 @@ class Zefram_Filter_Utf8 implements Zend_Filter_Interface
         // $matches[1]: valid character
         // $matches[2]: invalid 3-byte or 4-byte character
         // $matches[3]: invalid 1-byte
-        return preg_replace_callback($regex, array($this, '_regexFilterCallback'), $value);
+        return preg_replace_callback($regex, array(__CLASS__, '_regexFilterCallback'), $value);
     }
 
     /**
-     * @internal
+     * {@link _regexFilter()} helper function.
+     *
+     * @param array $matches
+     * @return string
      */
-    protected function _regexFilterCallback(array $matches)
+    protected static function _regexFilterCallback(array $matches)
     {
         if (isset($matches[2]) || isset($matches[3])) {
-            if (null !== $this->_substChar) {
-                return $this->_substChar;
-            }
             return self::REPLACEMENT_CHAR;
         }
-
         return $matches[1];
     }
 
     /**
-     * Call this filter in a static way.
+     * Perform some UTF-8 normalizations
      *
-     * @param  string $value
-     * @param  string $substChar OPTIONAL
+     * @param string $string
      * @return string
-     * @deprecated Use instance based filtering
      */
-    public static function filterStatic($value, $substChar = null)
+    public static function _normalize($string)
     {
-        $filter = new self();
-        $filter->setSubstChar($substChar);
-        return $filter->filter($value);
+        $string = strtr($string, array(
+            '́e' => 'é',
+        ));
+        return $string;
     }
 }
