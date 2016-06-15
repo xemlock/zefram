@@ -162,7 +162,7 @@ abstract class Zefram_Json
     public static function prettyPrint($json)
     {
         return preg_replace(
-            '/(?<!\\\\)":(["\[\{]|\d)/',
+            '/(?<!\\\\)":(["\[\{]|\d|null|true|false)/i',
             '": \1',
             Zend_Json::prettyPrint($json, array(
                 'format' => 'txt',
