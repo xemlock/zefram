@@ -1,5 +1,7 @@
 <?php
 
+$__ZEFRAM_ERROR_REPORTING = error_reporting(error_reporting() & ~E_STRICT);
+
 class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_Helper_Redirector
 {
     /**
@@ -10,6 +12,7 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
      * @param string|array $urlOptions
      * @param bool $reset
      * @param bool $encode
+     * @return void
      */
     public function gotoRoute($name, $urlOptions = null, $reset = false, $encode = true)
     {
@@ -17,13 +20,14 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
             list($name, $urlOptions) = array($urlOptions, $name);
         }
 
-        return parent::gotoRoute((array) $urlOptions, $name, $reset, $encode);
+        parent::gotoRoute((array) $urlOptions, $name, $reset, $encode);
     }
 
     /**
      * @param string|array $name
      * @param string|array $urlOptions
      * @param bool $reset
+     * @return void
      */
     public function gotoRouteAndExit($name, $urlOptions = null, $reset = false)
     {
@@ -31,7 +35,7 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
             list($name, $urlOptions) = array($urlOptions, $name);
         }
 
-        return parent::gotoRouteAndExit((array) $urlOptions, $name, $reset);
+        parent::gotoRouteAndExit((array) $urlOptions, $name, $reset);
     }
 
     /**
@@ -39,6 +43,7 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
      *
      * @param string $url
      * @param array  $options
+     * @return void
      */
     public function setGotoUrl($url, array $options = null)
     {
@@ -47,6 +52,8 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
             $base = $request->getBaseUrl();
             $options['prependBase'] = strncmp($url, $base, strlen($base));
         }
-        return parent::setGotoUrl($url, (array) $options);
+        parent::setGotoUrl($url, (array) $options);
     }
 }
+
+error_reporting($__ZEFRAM_ERROR_REPORTING);

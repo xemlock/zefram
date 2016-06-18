@@ -1,10 +1,12 @@
 <?php
 
+$__ZEFRAM_ERROR_REPORTING = error_reporting(error_reporting() & ~E_STRICT);
+
 /**
  * @author xemlock
  * @version 2014-05-15
  */
-class Zefram_View_Helper_Url extends Zend_View_Helper_Abstract
+class Zefram_View_Helper_Url extends Zend_View_Helper_Url
 {
     /**
      * Assembles a URL based on a given route.
@@ -20,7 +22,8 @@ class Zefram_View_Helper_Url extends Zend_View_Helper_Abstract
         if (is_array($routeName)) {
             list($urlParams, $routeName) = array($routeName, $urlParams);
         }
-        $helper = Zend_Controller_Action_HelperBroker::getStaticHelper('url');
-        return $helper->url((array) $urlParams, $routeName, $reset, $encode);
+        return parent::url((array) $urlParams, $routeName, $reset, $encode);
     }
 }
+
+error_reporting($__ZEFRAM_ERROR_REPORTING);
