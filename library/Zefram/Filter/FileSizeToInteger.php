@@ -2,6 +2,9 @@
 
 class Zefram_Filter_FileSizeToInteger implements Zend_Filter_Interface
 {
+    /**
+     * @var bool
+     */
     protected $_binary = true;
 
     /**
@@ -41,11 +44,22 @@ class Zefram_Filter_FileSizeToInteger implements Zend_Filter_Interface
     }
 
     /**
+     * @param mixed $fileSize
+     * @param bool $binary
+     * @return int
+     */
+    public function filter($fileSize, $binary = null)
+    {
+        $binary = null === $binary ? $this->_binary : $binary;
+        return self::filterStatic($fileSize, $binary);
+    }
+
+    /**
      * @param  string $fileSize
      * @param  bool $binary
      * @return int
      */
-    public function filter($fileSize, $binary = null)
+    public static function filterStatic($fileSize, $binary = true)
     {
         if (!is_int($fileSize)) {
             // trim whitespaces and units
@@ -55,36 +69,40 @@ class Zefram_Filter_FileSizeToInteger implements Zend_Filter_Interface
                 $suffix = strtoupper(substr($fileSize, -1));
                 $fileSize = intval(substr($fileSize, 0, -1));
 
-                $binary = null === $binary ? $this->_binary : $binary;
                 $multiplier = $binary ? 1024 : 1000;
 
                 switch ($suffix) {
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'Y':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'Z':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'E':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'P':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'T':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'G':
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'M' :
-                        $fileSize *= $multiplier; // intentional no break
+                        $fileSize *= $multiplier;
 
+                    /** @noinspection PhpMissingBreakStatementInspection */
                     case 'K' :
-                        $fileSize *= $multiplier; // intentional no break
-
-                    default :
-                        break;
+                        $fileSize *= $multiplier;
                 }
             }
         }
