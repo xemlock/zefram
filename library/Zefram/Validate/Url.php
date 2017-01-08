@@ -133,7 +133,7 @@ class Zefram_Validate_Url extends Zend_Validate_Abstract
         $this->_setValue($value);
 
         try {
-            $uri = Zefram_Url::fromString($value);
+            $uri = Zefram_Uri::fromString($value);
         } catch (Exception $e) {
             $this->_error(self::INVALID);
             return false;
