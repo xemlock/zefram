@@ -1,6 +1,6 @@
 <?php
 
-abstract class Zefram_Os 
+abstract class Zefram_Os
 {
     public static function normalizePath($path) // {{{
     {
@@ -57,7 +57,9 @@ abstract class Zefram_Os
     {
         static $_isWindows = null;
         if (null === $_isWindows) {
-            $_isWindows = stripos(PHP_OS, 'WIN') !== false;
+            $_isWindows = in_array(
+                strtoupper(PHP_OS), array('WIN32', 'WINNT', 'WINDOWS'), true
+            );
         }
         return $_isWindows;
     } // }}}
@@ -70,11 +72,11 @@ abstract class Zefram_Os
 
         // From php.net forum:
         // In Windows, exec() issues an internal call to "cmd /c your_command".
-        // This implies that your command must follow the rules imposed by 
-        // cmd.exe which includes an extra set of quotes around the full 
+        // This implies that your command must follow the rules imposed by
+        // cmd.exe which includes an extra set of quotes around the full
         // command (see: http://ss64.com/nt/cmd.html).
-        // Current PHP versions take this into account and add the quotes 
-        // automatically, but old versions don't. Apparently, the change 
+        // Current PHP versions take this into account and add the quotes
+        // automatically, but old versions don't. Apparently, the change
         // was made in PHP/5.3.0 yet not backported to 5.2.x because it's
         // a backwards incompatible change.
         if (self::isWindows()) {
@@ -127,7 +129,7 @@ abstract class Zefram_Os
     // It is then discouraged to use setEnv() for changing temp dir location.
     // Also session save handler (ext/session/mod_files.c) calls
     // php_get_temporary_directory is save path is not provided
-    // 
+    //
     // Temp dir should be treated as a read-only property of a system PHP runs
     // in.
 
