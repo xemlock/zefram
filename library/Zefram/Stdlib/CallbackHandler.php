@@ -7,14 +7,8 @@
  *
  * @package Zefram_Stdlib
  * @uses    Zend_Stdlib_CallbackHandler
- * @version 2013-12-10
+ * @version 2014-12-11
  * @author  xemlock
- *
- * ChangeLog:
- *
- * 2014-12-11  Xemlock
- *
- * * [new] added invoke() method
  */
 class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
 {
@@ -24,18 +18,38 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
     protected $_args = array();
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param  callable $callback
-     * @param  array $metadata OPTIONAL
-     * @param  array $args OPTIONAL
+     * @param callable $callback
+     * @param array $metadata
+     * @param array $args
      */
     public function __construct($callback, array $metadata = array(), array $args = array())
     {
+        // if args param is empty and metadata is an array with
+        // consecutive integer keys, it will be treated as args
+        if (empty($args)
+            && count($metadata)
+            && array_keys($metadata) === range(0, count($metadata) - 1)
+        ) {
+            $args = $metadata;
+            $metadata = array();
+        }
+
+        // if args are explicitly given, they overwrite any args present in
+        // the handler instance, otherwise take args from callback
+        if ($callback instanceof Zefram_Stdlib_CallbackHandler
+            && empty($args)
+        ) {
+            $args = $callback->getArgs();
+        }
+
         // copy constructor, use internal callback value
         if ($callback instanceof Zend_Stdlib_CallbackHandler) {
+            if (empty($metadata)) {
+                $metadata = $callback->getMetadata();
+            }
             $callback = $callback->getCallback();
-            $metadata = array_merge($callback->getMetadata(), $metadata);
         }
 
         // call_user_func() in PHP versions prior to 5.2.2 can't handle callbacks given
@@ -60,41 +74,7 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
 
         parent::__construct($callback, $metadata);
 
-        // if args are explicitly given, they overwrite any args present in
-        // a handler instance
-        if (empty($args)
-            && $callback instanceof Zefram_Stdlib_CallbackHandler
-        ) {
-            $args = $callback->getArgs();
-        }
-
-        $this->pushArgs($args);
-    }
-
-    /**
-     * Store arguments to be used for callback invocation.
-     *
-     * @param  array $args
-     * @return Zefram_Stdlib_CallbackHandler
-     */
-    public function pushArgs(array $args)
-    {
-        foreach ($args as $arg) {
-            $this->pushArg($arg);
-        }
-        return $this;
-    }
-
-    /**
-     * Store argument to be used for callback invocation.
-     *
-     * @param  mixed $arg
-     * @return Zefram_Stdlib_CallbackHandler
-     */
-    public function pushArg($arg)
-    {
-        $this->_args[] = $arg;
-        return $this;
+        $this->_args = array_values($args);
     }
 
     /**
@@ -105,17 +85,6 @@ class Zefram_Stdlib_CallbackHandler extends Zend_Stdlib_CallbackHandler
     public function getArgs()
     {
         return $this->_args;
-    }
-
-    /**
-     * Clear stored callback arguments.
-     *
-     * @return Zefram_Stdlib_CallbackHandler
-     */
-    public function clearArgs()
-    {
-        $this->_args = array();
-        return $this;
     }
 
     /**
