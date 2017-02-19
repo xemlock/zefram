@@ -24,13 +24,16 @@ class Zefram_Application_Resource_Tablemanager
                 (method_exists($bootstrap, '_initDb') || $bootstrap->hasPluginResource('Db'))
             ) {
                 $bootstrap->bootstrap('Db');
-            } else {
-                // TODO try to detect default table adapter if multiDb resource
-                // is available
-                throw new Exception('Db resource is not avaliable');
             }
 
-            $manager = new Zefram_Db_TableProvider($bootstrap->getResource('Db'));
+            $db = $bootstrap->getResource('Db');
+            if (!$db instanceof Zend_Db_Adapter_Abstract) {
+                // TODO try to detect default table adapter if multiDb resource
+                // is available
+                throw new Exception('Db resource is not available');
+            }
+
+            $manager = new Zefram_Db_TableProvider($db);
             foreach ($this->getOptions() as $key => $value) {
                 $method = 'set' . $key;
                 if (method_exists($manager, $method)) {
