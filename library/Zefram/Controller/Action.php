@@ -24,7 +24,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
      *
      * Original dispatch() implementation offers no ability do get the currently
      * dispatched action in preDispatch() and postDispatch() routines. Here, the
-     * currently dispatched action name is stored in $_currentAction property.
+     * currently dispatched action name is stored in $_dispatchAction property.
      *
      * This functionality is needed, as the dispatched action name cannot be
      * changed by action helpers, whereas the value of 'action' request
@@ -94,7 +94,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     {
         $controllerClass = get_class($this);
         $actionMethod = ucfirst(preg_replace_callback(
-            '/-([a-zA-Z0-9]+)/', 
+            '/-([a-zA-Z0-9]+)/',
             create_function('$match', 'return ucfirst($match[1]);'),
             $actionName
         ));
@@ -104,7 +104,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     }
 
     public function __call($method, $arguments)
-    {        
+    {
         if (!strcasecmp(substr($method, -6), 'Action')) {
             // undefined action, try running standalone action
             $actionClass = self::loadActionClass(get_class($this), $method);
@@ -124,7 +124,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     }
 
     /**
-     * null is not considered a scalar value 
+     * null is not considered a scalar value
      * (@see http://php.net/manual/en/function.is-scalar.php)
      *
      * @param  string $name
@@ -151,7 +151,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     }
 
     // all below methods are now deprecated
-    
+
     protected $_ajaxResponseClass = 'Zefram_Controller_Action_AjaxResponse';
 
     protected $_ajaxResponse;
