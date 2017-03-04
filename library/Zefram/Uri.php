@@ -126,8 +126,8 @@ class Zefram_Uri extends Zend_Uri_Http
 
         // Save URI components that need no further decomposition
         $this->_path     = $matches['path'];
-        $this->_query    = $matches['query'];
-        $this->_fragment = $matches['fragment'];
+        $this->_query    = isset($matches['query']) ? $matches['query'] : null;
+        $this->_fragment = isset($matches['fragment']) ? $matches['fragment'] : null;
 
         // Authority component is absent
         $this->_username = '';
@@ -161,9 +161,6 @@ class Zefram_Uri extends Zend_Uri_Http
                 case 'mailto':
                     $className = 'Zefram_Uri_Mailto';
                     break;
-
-                default:
-                    throw new Zend_Uri_Exception(sprintf('Scheme "%s" is not supported', $scheme));
             }
         }
         return parent::factory($uri, $className);
