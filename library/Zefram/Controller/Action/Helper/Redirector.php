@@ -49,8 +49,10 @@ class Zefram_Controller_Action_Helper_Redirector extends Zend_Controller_Action_
     {
         $request = $this->getRequest();
         if ($request instanceof Zend_Controller_Request_Http) {
-            $base = $request->getBaseUrl();
-            $options['prependBase'] = strncmp($url, $base, strlen($base));
+            if (!isset($options['prependBase'])) {
+                $base = $request->getBaseUrl();
+                $options['prependBase'] = strncmp($url, $base, strlen($base));
+            }
         }
         parent::setGotoUrl($url, (array) $options);
     }
