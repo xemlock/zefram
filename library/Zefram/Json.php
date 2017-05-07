@@ -6,11 +6,8 @@
  * @package Zefram_Json
  * @uses    Zend_Json
  */
-abstract class Zefram_Json
+abstract class Zefram_Json extends Zend_Json
 {
-    const TYPE_ARRAY  = Zend_Json::TYPE_ARRAY;
-    const TYPE_OBJECT = Zend_Json::TYPE_OBJECT;
-
     const CYCLE_CHECK       = 'cycleCheck';
     const PRETTY_PRINT      = 'prettyPrint';
     const UNESCAPED_SLASHES = 'unescapedSlashes';
@@ -19,31 +16,26 @@ abstract class Zefram_Json
     const HEX_QUOT          = 'hexQuot';
 
     /**
-     * @param string $encodedValue
-     * @param int $objectDecodeType
-     * @return mixed
-     */
-    public static function decode($encodedValue, $objectDecodeType = self::TYPE_ARRAY)
-    {
-        return Zend_Json::decode($encodedValue, $objectDecodeType);
-    }
-
-    /**
      * @param mixed $value
+     * @param bool|array $cycleCheck
      * @param array $options
+     * @return string
      */
-    public static function encode($value, array $options = array())
+    public static function encode($value, $cycleCheck = false, $options = array())
     {
         $requirePhp53 = false;
         $requirePhp54 = false;
+
+        if (is_array($cycleCheck)) {
+            $options = $cycleCheck;
+            $cycleCheck = false;
+        }
 
         // cycle check applies only when encoding using Zend_Json_Encoder,
         // json_encode() has built-in recursion limit
         if (isset($options[self::CYCLE_CHECK])) {
             $cycleCheck = (bool) $options[self::CYCLE_CHECK];
             unset($options[self::CYCLE_CHECK]);
-        } else {
-            $cycleCheck = false;
         }
 
         if (isset($options[self::HEX_TAG])) {
@@ -101,7 +93,7 @@ abstract class Zefram_Json
             $json = json_encode($value, $flags);
 
         } else {
-            $json = Zend_Json::encode($value, $cycleCheck, $options);
+            $json = parent::encode($value, $cycleCheck, $options);
 
             $search = array();
             $replace = array();
@@ -157,17 +149,35 @@ abstract class Zefram_Json
      * with JSON_PRETTY_PRINT flag would do.
      *
      * @param string $json
+     * @param array $options
      * @return string
      */
-    public static function prettyPrint($json)
+    public static function prettyPrint($json, $options = array())
     {
         return preg_replace(
             '/(?<!\\\\)":(["\[\{]|\d|null|true|false)/i',
             '": \1',
-            Zend_Json::prettyPrint($json, array(
+            parent::prettyPrint($json, array_merge(array(
                 'format' => 'txt',
                 'indent' => '    ',
-            ))
+            ), $options))
         );
+    }
+
+    /**
+     * @param string $filePath
+     * @param int $objectDecodeType
+     * @return mixed
+     * @throws Zend_Json_Exception
+     */
+    public static function fromFile($filePath, $objectDecodeType = Zend_Json::TYPE_ARRAY)
+    {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            throw new Zend_Json_Exception("File does not exist or is not readable: $filePath");
+        }
+        if (($fileContents = @file_get_contents($filePath)) === false) {
+            throw new Zend_Json_Exception("Cannot read file contents: $filePath");
+        }
+        return self::decode($fileContents, $objectDecodeType);
     }
 }
