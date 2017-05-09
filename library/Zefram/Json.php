@@ -130,14 +130,16 @@ abstract class Zefram_Json extends Zend_Json
         }
 
         // No string in JavaScript can contain a literal U+2028 or a U+2029
-        // (line terminator and paragraph terminator respectively), so remove
-        // them from the encoded string. Read more:
-        // http://timelessrepo.com/json-isnt-a-javascript-subset
+        // (line terminator and paragraph terminator respectively), so escape
+        // them regardless of unescapedUnicode setting. The same behavior
+        // was introduced in PHP 7.1 json_encode() function. More details:
+        // - http://timelessrepo.com/json-isnt-a-javascript-subset
+        // - http://php.net/manual/en/migration71.incompatible.php
         $json = strtr(
             $json,
             array(
-                "\xE2\x80\xA8" => '', // \u2028
-                "\xE2\x80\xA9" => '', // \u2029
+                "\xE2\x80\xA8" => '\u2028',
+                "\xE2\x80\xA9" => '\u2029',
             )
         );
 
