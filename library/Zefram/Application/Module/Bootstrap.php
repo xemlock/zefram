@@ -12,6 +12,7 @@
  * - resource container is shared with parent bootstrap
  * - front controller plugin resource is registered in parent bootstrap, if it is
  *   not already present there
+ * - resource bootstrapping and retrieving with one method call
  *
  * @category   Zefram
  * @package    Zefram_Application
@@ -19,6 +20,7 @@
  * @author     xemlock
  */
 abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Module_Bootstrap
+    implements Zefram_Application_Bootstrap_Bootstrapper
 {
     /**
      * Constructor
@@ -93,22 +95,85 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
     }
 
     /**
-     * Bootstrap and return one or more resources
+     * Is the requested class resource present
      *
-     * @param  null|string|array $resource
-     * @return mixed If resource is given as a string, a resource of matching name is returned,
-     *               if given as array, an array of matching resources is returned
-     * @throws Zend_Application_Bootstrap_Exception When invalid argument was passed
+     * @param  string $resource
+     * @return bool
      */
-    protected function _bootstrap($resource = null)
+    public function hasClassResource($resource)
     {
-        parent::_bootstrap($resource);
+        $resource = strtolower($resource);
 
-        if ($resource !== null) {
-            if (is_array($resource)) {
-                return array_map(array($this, 'getResource'), $resource);
+        return array_key_exists($resource, $this->getClassResources());
+    }
+
+    /**
+     * Bootstrap and retrieve resource
+     *
+     * If a resource is not registered in this bootstrap, the parent bootstrap
+     * (or application) is examined.
+     *
+     * This function is roughly equivalent to calling {@link bootstrap()} followed
+     * by {@link getResource()}. So instead of writing:
+     * <code>
+     * $frontController = $this->bootstrap('FrontController')->getResource('FrontController');
+     * </code>
+     *
+     * resource can be bootstrapped and retrieved in a single method call:
+     * <code>
+     * $frontController = $this->bootstrapResource('FrontController');
+     * </code>
+     *
+     * @param string $resource Resource name
+     * @return mixed Bootstrapped resource (if any)
+     * @throws Zend_Application_Bootstrap_Exception When matching resource was not found
+     */
+    public function bootstrapResource($resource)
+    {
+        $resource = strtolower($resource);
+
+        /** @var Zend_Application_Bootstrap_BootstrapAbstract[] $bootstraps */
+        $bootstraps = array($this, $this->getApplication());
+
+        foreach ($bootstraps as $bootstrap) {
+            if ($bootstrap->hasPluginResource($resource) ||
+                array_key_exists($resource, $bootstrap->getClassResources())
+            ) {
+                $bootstrap->bootstrap($resource);
+                return $bootstrap->getResource($resource);
             }
-            return $this->getResource($resource);
         }
+
+        throw new Zend_Application_Bootstrap_Exception('Resource matching "' . $resource . '" not found');
+    }
+
+    /**
+     * Bootstrap and retrieve one or more resources
+     *
+     * Example usage:
+     * <code>
+     * list($frontController, $view) = $this->bootstrapResources('FrontController', 'View');
+     * </code>
+     *
+     * @param array|string $resources,... If an array is passed, it's treated as a list of
+     *                                    resource names, otherwise the list of resource names
+     *                                    will be constructed from all the passed in parameters
+     * @return array Array with bootstrapped resources, in the same order as specified in the
+     *               provided list of resource names
+     * @throws Zend_Application_Bootstrap_Exception When matching resource was not found
+     */
+    public function bootstrapResources($resources)
+    {
+        if (!is_array($resources)) {
+            $resources = func_get_args();
+        }
+
+        $bootstrappedResources = array();
+
+        foreach ($resources as $resource) {
+            $bootstrappedResources[] = $this->bootstrapResource($resource);
+        }
+
+        return $bootstrappedResources;
     }
 }
