@@ -32,12 +32,11 @@ $console->dispatch();
 
 ### Notes
 
-Because of how the hardcoded `zf` command name is handled, in order to
-display a `zf` string without it being replaced, it must be appended to
-response with `commandName` decorator disabled (i.e. set to `false` or
-an empty string):
+Because of how the hardcoded `zf` command name is handled, to display
+a `zf` string in the output one need to append content using a disabled
+`commandName` decorator:
 
 ```php
-// response is an instance of Zend_Tool_Framework_Client_Response
+/** @var Zend_Tool_Framework_Client_Response $response */
 $response->appendContent('zf', array('commandName' => false));
 ```

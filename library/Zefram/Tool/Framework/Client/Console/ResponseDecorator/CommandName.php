@@ -9,7 +9,12 @@ class Zefram_Tool_Framework_Client_Console_ResponseDecorator_CommandName
     }
 
     /**
-     * Replaces all occurrences of 'zf' in the input with a given command name.
+     * Replaces all occurrences of 'zf' in the input with a %commandName%
+     * placeholder, and then all occurrences of the placeholder with the
+     * given command name.
+     *
+     * This is designed to override 'zf' command name hardcoded in
+     * {@link Zend_Tool_Framework_Client_Console_HelpSystem}.
      *
      * @param string $content
      * @param string $commandName
@@ -18,7 +23,10 @@ class Zefram_Tool_Framework_Client_Console_ResponseDecorator_CommandName
     public function decorate($content, $commandName)
     {
         if (strlen($commandName)) {
-            $content = preg_replace('/(\s*)(zf)(\s*)/', '$1' . $commandName . '$3', $content);
+            if ($commandName !== 'zf') {
+                $content = preg_replace('/(?:\b)(zf)(?:\b)/', '%commandName%', $content);
+            }
+            $content = str_replace('%commandName%', $commandName, $content);
         }
         return $content;
     }
