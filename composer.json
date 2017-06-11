@@ -20,5 +20,8 @@
     },
     "include-path": [
         "library/"
-    ]
+    ],
+    "scripts": {
+        "test": "phpunit"
+    }
 }
