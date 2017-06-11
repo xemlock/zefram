@@ -23,6 +23,25 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
     protected $_prompt;
 
     /**
+     * @var int
+     */
+    protected $_exitCode = 0;
+
+    /**
+     * This is typically called as a main function of a cli script.
+     *
+     * @param array $options
+     * @return int
+     */
+    public static function main($options = array())
+    {
+        $cliClient = new self($options);
+        $cliClient->dispatch();
+
+        return $cliClient->getExitCode();
+    }
+
+    /**
      * @param string $name
      * @return Zefram_Tool_Framework_Client_Console
      */
@@ -103,6 +122,24 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
     }
 
     /**
+     * @return int
+     */
+    public function getExitCode()
+    {
+        return $this->_exitCode;
+    }
+
+    /**
+     * @param int $exitCode
+     * @return Zefram_Tool_Framework_Client_Console
+     */
+    public function setExitCode($exitCode)
+    {
+        $this->_exitCode = (int) $exitCode;
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function handleInteractiveInputRequest(Zend_Tool_Framework_Client_Interactive_InputRequest $inputRequest)
@@ -147,6 +184,10 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
         $response = $this->_registry->getResponse();
 
         if ($response->isException()) {
+            if (!$this->getExitCode()) {
+                $this->setExitCode(1);
+            }
+
             $helpSystem = $this->_createHelpSystem();
             $helpSystem->setRegistry($this->_registry)
                 ->respondWithErrorMessage($response->getException()->getMessage(), $response->getException())
