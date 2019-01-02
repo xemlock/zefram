@@ -137,4 +137,12 @@ class Zefram_Controller_Action_Helper_ViewRenderer
         }
         return $this;
     }
+
+    protected function _translateSpec(array $vars = array())
+    {
+        if (empty($vars['suffix'])) {
+            $vars['suffix'] = $this->getViewSuffix();
+        }
+        return parent::_translateSpec($vars);
+    }
 }
