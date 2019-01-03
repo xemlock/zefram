@@ -231,10 +231,18 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
 
         // getModuleDirectory() throws exception if module directory cannot
         // be determined
-        $moduleDir = $viewRenderer->getModuleDirectory();
+        try {
+            $moduleDir = $viewRenderer->getModuleDirectory();
+        } catch (Exception $e) {
+            $moduleDir = null;
+        }
 
-        // restore original module name
+        // restore original module name before re-throwing exception (if any)
         $request->setModuleName($origModule);
+
+        if (isset($e)) {
+            throw $e;
+        }
 
         return $moduleDir;
     }
@@ -255,7 +263,7 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
         // not by hard-coding views/ subdirectory, nor by searching for
         // controller directory and taking dirname() of it)
         $viewBasePath = strtr(
-            $this->_getViewRenderer()->getViewBasePathSpec(),
+            $this->_getViewRenderer()->getViewBasePathSpec($module),
             array(
                 ':moduleDir' => $moduleDir,
             )
