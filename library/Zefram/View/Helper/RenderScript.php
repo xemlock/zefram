@@ -126,7 +126,7 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
 
         try {
             $exception = null;
-            $result = $view->render($this->_getScriptName($script));
+            $result = $view->render($this->_getScriptName($script, $module));
 
         } catch (Exception $exception) {
             // will be re-thrown after cleanup
@@ -186,15 +186,16 @@ class Zefram_View_Helper_RenderScript extends Zend_View_Helper_Abstract
      * Ensure that given script has proper suffix (file extension)
      *
      * @param  string $script
+     * @param  string $module
      * @return string
      */
-    protected function _getScriptName($script)
+    protected function _getScriptName($script, $module)
     {
         $viewRenderer = $this->_getViewRenderer();
 
         // ensure script has proper suffix (extension)
-        if (strpos($viewRenderer->getViewScriptPathSpec(), ':suffix') !== false) {
-            $suffix = '.' . ltrim($viewRenderer->getViewSuffix(), '.');
+        if (strpos($viewRenderer->getViewScriptPathSpec($module), ':suffix') !== false) {
+            $suffix = '.' . ltrim($viewRenderer->getViewSuffix($module), '.');
             if (substr($script, -strlen($suffix)) !== $suffix) {
                 $script .= $suffix;
             }
