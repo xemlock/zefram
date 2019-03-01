@@ -218,6 +218,9 @@ class Zefram_Db implements Zefram_Db_TransactionManager
      */
     public static function quoteEmbeddedIdentifiers(Zend_Db_Adapter_Abstract $db, $string) // {{{
     {
+        if ($string instanceof Zend_Db_Expr) {
+            return $string;
+        }
         return preg_replace_callback(
             '/(?P<table>[_a-z][_a-z0-9]*)\.(?P<column>[_a-z][_a-z0-9]*)/i',
             self::_quoteEmbeddedIdentifiersCallback($db), $string
