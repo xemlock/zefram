@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Application with a predefined built-in fallback bootstrap instance.
+ *
+ * @category   Zefram
+ * @package    Zefram_Application
+ */
 class Zefram_Application extends Zend_Application
 {
     /**
