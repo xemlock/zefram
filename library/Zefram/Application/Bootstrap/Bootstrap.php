@@ -15,7 +15,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      *
      * @var string
      */
-    protected $_containerClass = 'Zefram_Application_ResourceContainer';
+    protected $_containerClass = 'Zend_Registry';
 
     /**
      * Get the plugin loader for resources.
