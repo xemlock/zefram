@@ -115,7 +115,7 @@ class Zefram_Db_Table_Factory implements Zefram_Db_Table_FactoryInterface
     /**
      * @param  string $tableName
      * @param  Zend_Db_Adapter_Abstract|string $db OPTIONAL
-     * @return Zend_Db_Table_Abstract
+     * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
     public function getTable($tableName, $db = null)
     {

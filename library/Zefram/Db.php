@@ -143,7 +143,7 @@ class Zefram_Db implements Zefram_Db_TransactionManager
     } // }}}
 
     /**
-     * @return Zend_Db_Table_Abstract
+     * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
     public function getTable($name) // {{{
     {
