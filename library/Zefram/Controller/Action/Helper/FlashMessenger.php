@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @method $this addSuccessMessage(string $message)
+ * @method $this addWarningMessage(string $message)
+ * @method $this addErrorMessage(string $message)
+ * @method bool hasSuccessMessages()
+ * @method bool hasWarningMessages()
+ * @method bool hasErrorMessages()
+ */
 class Zefram_Controller_Action_Helper_FlashMessenger
     extends Zend_Controller_Action_Helper_FlashMessenger
 {
@@ -27,7 +35,11 @@ class Zefram_Controller_Action_Helper_FlashMessenger
     }
 
     /**
-     * {@inheritDoc}
+     * Add a message to specific namespace
+     *
+     * @param  string $message
+     * @param  string $namespace OPTIONAL
+     * @return $this
      */
     public function addMessage($message, $namespace = null)
     {
