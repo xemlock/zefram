@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @property Zefram_Controller_Action_HelperBroker $_helper
  * @version 2014-09-25
  */
 class Zefram_Controller_Action extends Zend_Controller_Action
