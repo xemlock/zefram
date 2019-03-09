@@ -5,15 +5,19 @@ class Zefram_Config extends Zend_Config
     /**
      * Creates a config object based on the path of a given file.
      *
-     * @param  string     $file      file to process
-     * @param  string     $section   section to process
-     * @param  array|bool $options
+     * @param  array|string $file      file to process, or array to build config from
+     * @param  string       $section   section to process
+     * @param  array|bool   $options
      * @return Zend_Config
      * @throws Zend_Config_Exception When file cannot be loaded
      * @throws Zend_Config_Exception When section cannot be found in file contents
      */
     public static function factory($file, $section = null, $options = false)
     {
+        if (is_array($file)) {
+            return new self($file);
+        }
+
         $suffix = pathinfo($file, PATHINFO_EXTENSION);
         $suffix = ($suffix === 'dist')
                 ? pathinfo(basename($file, ".$suffix"), PATHINFO_EXTENSION)
@@ -41,9 +45,10 @@ class Zefram_Config extends Zend_Config
             case 'inc':
                 $config = include $file;
                 if (!is_array($config)) {
-                    throw new Zend_Config_Exception(
-                        'Invalid configuration file provided; PHP file does not return array value'
-                    );
+                    throw new Zend_Config_Exception(sprintf(
+                        "Invalid configuration file provided; PHP file '%s' does not return array value",
+                        $file
+                    ));
                 }
                 return new self($config);
 
