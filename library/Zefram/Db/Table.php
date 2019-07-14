@@ -137,7 +137,7 @@ class Zefram_Db_Table extends Zend_Db_Table
     /**
      * @param  array $data
      * @param  bool $readOnly
-     * @return Zend_Db_Table_Row_Abstract
+     * @return Zend_Db_Table_Row_Abstract|Zefram_Db_Table_Row
      * @internal
      */
     public function _createStoredRow(array $data, $readOnly = false) // {{{
@@ -200,7 +200,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param string|array|Zend_Db_Select $where  OPTIONAL
      * @param string|array                $order  OPTIONAL
      * @param int                         $offset OPTIONAL
-     * @return Zend_Db_Table_Row_Abstract|null
+     * @return Zend_Db_Table_Row_Abstract|Zefram_Db_Table_Row|null
      */
     public function fetchRow($where = null, $order = null, $offset = null) // {{{
     {
@@ -227,7 +227,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param string|array                $order  OPTIONAL
      * @param int                         $limit  OPTIONAL
      * @param int                         $offset OPTIONAL
-     * @return Zend_Db_Table_Rowset_Abstract
+     * @return Zend_Db_Table_Rowset_Abstract|Zefram_Db_Table_Rowset
      */
     public function fetchAll($where = null, $order = null, $limit = null, $offset = null) // {{{
     {
@@ -452,6 +452,9 @@ class Zefram_Db_Table extends Zend_Db_Table
         return $rows;
     }
 
+    /**
+     * @deprecated
+     */
     public function findRowAsArray($id)
     {
         $row = $this->findRow($id);
@@ -654,7 +657,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * subclasses only.
      *
      * @param  string $tableClass
-     * @return Zend_Db_Table_Abstract
+     * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
     public function _getTableFromString($tableClass) // {{{
     {
@@ -675,7 +678,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * adapter.
      *
      * @param  string $tableClass
-     * @return Zend_Db_Table_Abstract
+     * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
     public function getTable($tableClass = null) // {{{
     {
@@ -732,7 +735,7 @@ class Zefram_Db_Table extends Zend_Db_Table
 
     /**
      * @param Zefram_Db_Table_FactoryInterface $tableProvider
-     * @return Zefram_Db_Table
+     * @return Zefram_Db_Table_FactoryInterface
      */
     public function setTableFactory(Zefram_Db_Table_FactoryInterface $factory) // {{{
     {
