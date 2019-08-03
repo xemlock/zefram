@@ -25,7 +25,6 @@ class Zefram_Application_Module_BootstrapTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($moduleBootstrap->getApplication(), $application->getBootstrap());
         $this->assertSame($moduleBootstrap->getPluginLoader(), $application->getBootstrap()->getPluginLoader());
-        $this->assertSame($moduleBootstrap->getContainer(), $application->getBootstrap()->getContainer());
     }
 
     public function testHasClassResource()
@@ -37,34 +36,25 @@ class Zefram_Application_Module_BootstrapTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($moduleBootstrap->hasClassResource('qux'));
     }
 
-    public function testBootstrapResource()
+    public function testOptions()
     {
-        $foo = $this->_moduleBootstrap->bootstrapResource('foo');
+        $application = new Zefram_Application('test', array(
+            'test' => array(
+                'foo' => 'foo',
+            ),
+            'Test' => array(
+                'bar' => 'bar',
+            ),
+            'TEST' => array(
+                'foo' => 'baz',
+            ),
+        ));
+        $moduleBootstrap = new Test_ModuleBootstrap($application);
 
-        $this->assertInstanceOf('stdClass', $foo);
-        $this->assertEquals('foo', $foo->name);
-    }
-
-    public function testBootstrapResources()
-    {
-        list($foo, $bar) = $this->_moduleBootstrap->bootstrapResources('foo', 'bar');
-
-        $this->assertInstanceOf('stdClass', $foo);
-        $this->assertEquals('foo', $foo->name);
-
-        $this->assertInstanceOf('stdClass', $bar);
-        $this->assertEquals('bar', $bar->name);
-    }
-
-    public function testBootstrapResourcesWithArray()
-    {
-        list($bar, $baz) = $this->_moduleBootstrap->bootstrapResources(array('bar', 'baz'));
-
-        $this->assertInstanceOf('stdClass', $bar);
-        $this->assertEquals('bar', $bar->name);
-
-        $this->assertInstanceOf('stdClass', $baz);
-        $this->assertEquals('baz', $baz->name);
+        $this->assertEquals(array(
+            'foo' => 'baz',
+            'bar' => 'bar',
+        ), $moduleBootstrap->getOptions());
     }
 }
 
