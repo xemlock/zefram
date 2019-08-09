@@ -126,6 +126,32 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     }
 
     /**
+     * Gets a parameter from the {@link $_request Request object}. If the
+     * parameter does not exist, NULL will be returned.
+     *
+     * If the parameter does not exist and $default is set, then
+     * $default will be returned instead of NULL.
+     *
+     * If parameter resolves to an array, the first element is returned.
+     * If the array is empty a $default value will be returned.
+     *
+     * @param string $paramName
+     * @param mixed $default OPTIONAL
+     * @return mixed
+     */
+    public function getSingleParam($paramName, $default = null)
+    {
+        $value = $this->getRequest()->getParam($paramName);
+        if (is_array($value)) {
+            $value = $value ? reset($value) : null;
+        }
+        if ((null === $value || '' === $value) && (null !== $default)) {
+            $value = $default;
+        }
+        return $value;
+    }
+
+    /**
      * null is not considered a scalar value
      * (@see http://php.net/manual/en/function.is-scalar.php)
      *
@@ -133,6 +159,7 @@ class Zefram_Controller_Action extends Zend_Controller_Action
      * @param  mixed $default
      * @param  scalar|null
      * @return mixed
+     * @deprecated Use {@link getSingleParam()}
      */
     public function getScalarParam($name, $default = null)
     {
