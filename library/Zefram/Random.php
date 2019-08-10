@@ -1,6 +1,13 @@
 <?php
 
-abstract class Zefram_Math_Rand
+/**
+ * Pseudo-random generator
+ *
+ * @category Zefram
+ * @package  Zefram_Uri
+ * @author   xemlock
+ */
+abstract class Zefram_Random
 {
     const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const ALPHA_LOWER = 'abcdefghijklmnopqrstuvwxyz';
