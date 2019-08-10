@@ -2,12 +2,14 @@
 
 abstract class Zefram_Math_Rand
 {
-    const ALPHA     = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const ALNUM     = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const DIGITS    = '0123456789';
-    const XDIGITS   = '0123456789ABCDEFabcdef';
-    const BASE64    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    const BASE64URL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const ALPHA_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+    const ALPHA       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const ALNUM       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const DIGITS      = '0123456789';
+    const XDIGITS     = '0123456789ABCDEFabcdef';
+    const BASE64      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    const BASE64URL   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
     /**
      * @param  int $min
