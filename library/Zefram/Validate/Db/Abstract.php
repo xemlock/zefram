@@ -60,7 +60,7 @@ abstract class Zefram_Validate_Db_Abstract extends Zend_Validate_Db_Abstract
     {
         if (null === $this->_select) {
             if (is_array($this->_exclude)) {
-                if (!isset($this->_exclude['field']) || !isset($this->_exclude['value'])) {
+                if (!array_key_exists('field', $this->_exclude) && !array_key_exists('value', $this->_exclude)) {
                     $exclude = $this->_exclude;
                     $this->_exclude = null;
                 }
