@@ -1,8 +1,8 @@
 <?php
 
 set_include_path(
-    realpath('./../../../') . PATH_SEPARATOR .
-    realpath('./../../../ZendFramework-1.12.3/library') . PATH_SEPARATOR .
+    __DIR__ . '/../../../../library' . PATH_SEPARATOR .
+    __DIR__ . '/../../../../vendor/zendframework/zendframework1/library' . PATH_SEPARATOR .
     get_include_path()
 );
 
@@ -12,15 +12,16 @@ echo 'Include path: ', get_include_path(), "\n\n";
 require 'Zend/Loader/Autoloader.php';
 Zend_Loader_Autoloader::getInstance()->registerNamespace('Zefram_');
 
-$tmpdir = Zefram_Os::getTempDir();
-
-$dbname = $tmpdir . '/test-' . mt_rand() . '.db';
+$dbname = ':memory:';
 $db = Zend_Db::factory('PDO_SQLITE', compact('dbname'));
 
 echo "Database: ", $dbname, "\n\n";
 
 echo "Tests:\n";
 
+/**
+ * @method Zefram_Db_Table_Row createRow(array $data = array(), string $defaultSource = null)
+ */
 class ATable extends Zefram_Db_Table
 {
     protected $_name = 'a';
@@ -38,6 +39,9 @@ class ATable extends Zefram_Db_Table
     );
 }
 
+/**
+ * @method Zefram_Db_Table_Row createRow(array $data = array(), string $defaultSource = null)
+ */
 class BTable extends Zefram_Db_Table
 {
     protected $_name = 'b';
@@ -89,7 +93,10 @@ $db->query('CREATE TABLE b (b_id INTEGER NOT NULL PRIMARY KEY, bval VARCHAR(32) 
 
 $tableProvider = new Zefram_Db_TableProvider($db);
 
+/** @var ATable $aTable */
 $aTable = $tableProvider->getTable('ATable');
+
+/** @var BTable $bTable */
 $bTable = $tableProvider->getTable('BTable');
 
 $a = $aTable->createRow();
@@ -102,6 +109,15 @@ $a2->save();
 
 $b = $bTable->createRow();
 $b->A = $a;
+
+assertTrue(
+    $a->getSimplePrimaryKey() === $a->a_id,
+    'Simple primary key vs column'
+);
+assertTrue(
+    array('a_id' => $a->getSimplePrimaryKey()) === $a->getPrimaryKey(),
+    'Simple primary key vs fully qualified primary key'
+);
 
 assertTrue($b->A === $a,         'Parent row assignment ($b->A === $a)');
 assertTrue($b->a_id == $a->a_id, 'Reference columns must match ($b->a_id == $a->a_id)');
@@ -203,7 +219,6 @@ assertTrue(BTableRow::getPostLoadLog() === array(BTableRow::postLoadLogEntry($b8
 
 $db->closeConnection();
 $db = null;
-unlink($dbname);
 
 function assertTrue($expr, $text) {
     if ($expr) {

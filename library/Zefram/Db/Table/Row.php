@@ -13,6 +13,13 @@
  *    Such rows are available for future use.
  * 5. Columns can be automatically loaded on demand.
  *
+ * 2019-08-15
+ *          - Added getSimplePrimaryKey() for retrieval of simple (i.e. non-
+ *            composite) primary keys as scalar values. This allows primary
+ *            keys to be retrieved without explicitly giving their column
+ *            name. Also it's more convenient than getPrimaryKey() because
+ *            it does not involve dereferencing.
+ *
  * 2014-10-23
  *          - reimplemented _refresh() so that it does not involve creation
  *            of a temporary row instance
@@ -93,6 +100,23 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             $this->_postLoad();
         }
     } // }}}
+
+    /**
+     * Retrieves value of the single-column primary key. This method will
+     * fail if the primary key is composite.
+     *
+     * @param bool $useDirty
+     * @return mixed
+     * @throws Zend_Db_Table_Row_Exception If primary key is composite
+     */
+    public function getSimplePrimaryKey($useDirty = true)
+    {
+        $primaryKey = $this->getPrimaryKey($useDirty);
+        if (count($primaryKey) > 1) {
+            throw new Zend_Db_Table_Row_Exception('Unable to get simple value from a composite primary key');
+        }
+        return reset($primaryKey);
+    }
 
     public function setTable(Zend_Db_Table_Abstract $table = null) // {{{
     {
