@@ -2,6 +2,45 @@
 
 abstract class Zefram_Stdlib_ArrayUtils
 {
+    /**
+     * Merge arrays recursively.
+     *
+     * The built-in {@link array_merge_recursive()} is somewhat inconvenient,
+     * because it merges values with the same string keys into a single array
+     * instead of overwriting them with the values from the seconda array.
+     *
+     * @param array $a
+     * @param array $b
+     * @param bool $preserveNumericKeys
+     */
+    public static function merge(array $a, array $b, $preserveNumericKeys = false)
+    {
+        if (is_array($b)) {
+            foreach ($b as $key => $value) {
+                if (is_int($key) && !$preserveNumericKeys) {
+                    $a[] = $value;
+                } elseif (is_array($b[$key])) {
+                    $a[$key] = isset($a[$key]) && is_array($a[$key])
+                        ? self::merge($a[$key], $b[$key])
+                        : $b[$key];
+                } else {
+                    $a[$key] = $value;
+                }
+            }
+        }
+        return $a;
+    }
+
+    public static function first(array $a)
+    {
+        return reset($a);
+    }
+
+    public static function last(array $a)
+    {
+        return end($a);
+    }
+
     const CASE_LOWER      = 0;
     const CASE_UPPER      = 1;
     const CASE_CAMEL      = 2;
