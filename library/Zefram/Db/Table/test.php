@@ -110,15 +110,6 @@ $a2->save();
 $b = $bTable->createRow();
 $b->A = $a;
 
-assertTrue(
-    $a->getSimplePrimaryKey() === $a->a_id,
-    'Simple primary key vs column'
-);
-assertTrue(
-    array('a_id' => $a->getSimplePrimaryKey()) === $a->getPrimaryKey(),
-    'Simple primary key vs fully qualified primary key'
-);
-
 assertTrue($b->A === $a,         'Parent row assignment ($b->A === $a)');
 assertTrue($b->a_id == $a->a_id, 'Reference columns must match ($b->a_id == $a->a_id)');
 
@@ -212,7 +203,6 @@ $b7->save();
 assertTrue(BTableRow::getPostLoadLog() === array(BTableRow::postLoadLogEntry($b7)), 'Post-load logic is executed upon save()');
 
 BTableRow::clearPostLoadLog();
-$bTable->removeFromIdentityMap($b7);
 $b8 = $bTable->findRow($b7->b_id);
 assertTrue(BTableRow::getPostLoadLog() === array(BTableRow::postLoadLogEntry($b8)), 'Post-load logic is executed when row is fetched');
 

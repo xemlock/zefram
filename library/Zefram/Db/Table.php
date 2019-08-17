@@ -7,7 +7,7 @@
  *   (setIntegrityCheck(false) thwarts all integrity checks and allows
  *   partial objects to be fetched)
  * - static function used as a table factory, what if one needs to override it?
- * - info() is inconvenient! missing getters for metadata, cols 
+ * - info() is inconvenient! missing getters for metadata, cols
  */
 
 class Zefram_Db_Table extends Zend_Db_Table
@@ -28,12 +28,6 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @var Zefram_Db_Table_FactoryInterface
      */
     protected $_tableFactory;
-
-    /**
-     * Storage for rows fetched by {@link findRow()}.
-     * @var array
-     */
-    protected $_identityMap = array();
 
     /**
      * TRUE if this table is an intersection table for Many To Many relation
@@ -140,7 +134,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @return Zend_Db_Table_Row_Abstract|Zefram_Db_Table_Row
      * @internal
      */
-    public function _createStoredRow(array $data, $readOnly = false) // {{{
+    public function _createStoredRow(array $data, $readOnly = false)
     {
         $rowClass = $this->getRowClass();
 
@@ -154,7 +148,7 @@ class Zefram_Db_Table extends Zend_Db_Table
             'stored' => true,
             'readOnly' => $readOnly,
         ));
-    } // }}}
+    }
 
     /**
      * Returns an instance of a Zend_Db_Select object.
@@ -165,7 +159,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param  int                         $limit  OPTIONAL
      * @return Zend_Db_Select
      */
-    protected function _select($where = null, $order = null, $offset = null, $limit = null) // {{{
+    protected function _select($where = null, $order = null, $offset = null, $limit = null)
     {
         if (!($where instanceof Zend_Db_Select)) {
             $select = $this->select();
@@ -191,7 +185,7 @@ class Zefram_Db_Table extends Zend_Db_Table
         }
 
         return $select;
-    } // }}}
+    }
 
     /**
      * Fetches one row in an object of type Zend_Db_Table_Row_Abstract,
@@ -202,7 +196,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param int                         $offset OPTIONAL
      * @return Zend_Db_Table_Row_Abstract|Zefram_Db_Table_Row|null
      */
-    public function fetchRow($where = null, $order = null, $offset = null) // {{{
+    public function fetchRow($where = null, $order = null, $offset = null)
     {
         $select = $this->_select($where, $order, $offset, 1);
         $data = $this->_db->fetchRow($select, null, Zend_Db::FETCH_ASSOC);
@@ -214,11 +208,8 @@ class Zefram_Db_Table extends Zend_Db_Table
         $readOnly = method_exists($select, 'isReadOnly') ? $select->isReadOnly() : false;
         $row = $this->_createStoredRow($data, $readOnly);
 
-        // Add this row to identity map, for later use.
-        $this->addToIdentityMap($row);
-
         return $row;
-    } // }}}
+    }
 
     /**
      * Fetches all rows matching given search criteria.
@@ -229,7 +220,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param int                         $offset OPTIONAL
      * @return Zend_Db_Table_Rowset_Abstract|Zefram_Db_Table_Rowset
      */
-    public function fetchAll($where = null, $order = null, $limit = null, $offset = null) // {{{
+    public function fetchAll($where = null, $order = null, $limit = null, $offset = null)
     {
         $select = $this->_select($where, $order, $offset, $limit);
         $rows = $this->_db->fetchAll($select, null, Zend_Db::FETCH_ASSOC);
@@ -248,7 +239,7 @@ class Zefram_Db_Table extends Zend_Db_Table
             'rowClass' => $this->getRowClass(),
             'stored'   => true
         ));
-    } // }}}
+    }
 
     /**
      * Fetches all rows matching given search criteria.
@@ -259,21 +250,21 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @return array
      * @deprecated
      */
-    public function fetchAllAsArray($where = null, $order = null, $limit = null, $offset = null) // {{{
+    public function fetchAllAsArray($where = null, $order = null, $limit = null, $offset = null)
     {
         $select = $this->_select($where, $order, $offset, $limit);
         return $this->_db->fetchAll($select, null, Zend_Db::FETCH_ASSOC);
-    } // }}}
+    }
 
     /**
      * Fetches one row as array or returns false if no row matches the
      * specified criteria. See {@link Zend_Db_Table_Abstract::fetchRow()}
-     * for parameter explanation. 
+     * for parameter explanation.
      *
      * @return array|null
      * @deprecated
      */
-    public function fetchRowAsArray($where = null, $order = null, $offset = null) // {{{
+    public function fetchRowAsArray($where = null, $order = null, $offset = null)
     {
         $select = $this->_select($where, $order, $offset, 1);
         $row = $this->_db->fetchRow($select, null, Zend_Db::FETCH_ASSOC);
@@ -283,7 +274,7 @@ class Zefram_Db_Table extends Zend_Db_Table
         }
 
         return $row;
-    } // }}}
+    }
 
     /**
      * Count rows matching $where
@@ -291,7 +282,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param string|array $where
      * @return int
      */
-    public function count($where = null) // {{{
+    public function count($where = null)
     {
         $select = $this->select();
         $select->from($this->_name, new Zend_Db_Expr('COUNT(1)'), $this->_schema);
@@ -305,7 +296,7 @@ class Zefram_Db_Table extends Zend_Db_Table
         }
 
         return 0;
-    } // }}}
+    }
 
     /**
      * Proxy to {@see count()}.
@@ -332,23 +323,20 @@ class Zefram_Db_Table extends Zend_Db_Table
      */
     public function findRow($id)
     {
-        if (null === ($row = $this->getFromIdentityMap($id))) {
-            $id = $this->_normalizeId($id);
-            $db = $this->getAdapter();
-            $where = array();
+        $id = $this->_normalizeId($id);
+        $db = $this->getAdapter();
+        $where = array();
 
-            $select = $this->select();
-            $select->limit(1);
+        $select = $this->select();
+        $select->limit(1);
 
-            foreach ($id as $column => $value) {
-                $select->where(
-                    $db->quoteIdentifier($column) . ' = ' . $db->quote($value)
-                );
-            }
-
-            $row = $this->fetchRow($select);
+        foreach ($id as $column => $value) {
+            $select->where(
+                $db->quoteIdentifier($column) . ' = ' . $db->quote($value)
+            );
         }
 
+        $row = $this->fetchRow($select);
         return $row;
     }
 
@@ -408,39 +396,22 @@ class Zefram_Db_Table extends Zend_Db_Table
 
         foreach ($ids as $id) {
             $id = $this->_normalizeId($id);
-            $key = serialize($id);
-
-            if (array_key_exists($key, $this->_identityMap)) {
-                $row = $this->_identityMap[$key];
-                if ($row) {
-                    if ($indexBy) {
-                        $rows[$row->{$indexBy}] = $row;
-                    } else {
-                        $rows[] = $row;
-                    }
+            $subWhere = array();
+            foreach ($primary as $column) {
+                if (isset($id[$column])) {
+                    $subWhere[] = $db->quoteIdentifier($column) . ' = ' . $db->quote($id[$column]);
                 }
-            } else {
-                $subWhere = array();
-                foreach ($primary as $column) {
-                    if (isset($id[$column])) {
-                        $subWhere[] = $db->quoteIdentifier($column) . ' = ' . $db->quote($id[$column]);
-                    }
-                }
-                if (count($subWhere) != count($primary)) {
-                    throw new Exception('Incomplete primary key values');
-                }
-                $where[] = '(' . implode(' AND ', $subWhere) . ')';
             }
+            if (count($subWhere) != count($primary)) {
+                throw new Exception('Incomplete primary key values');
+            }
+            $where[] = '(' . implode(' AND ', $subWhere) . ')';
         }
 
         // fetch required rows and add them to the identity map
         if ($where) {
             $where = implode(' OR ', $where);
             foreach ($this->fetchAll($where) as $row) {
-                $id = $this->_normalizeId($row);
-                $key = serialize($id);
-
-                $this->_identityMap[$key] = $row;
                 if ($indexBy) {
                     $rows[$row->{$indexBy}] = $row;
                 } else {
@@ -473,7 +444,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param  string $suffix OPTIONAL
      * @return array
      */
-    public function getColsForSelect($prefix = null, $suffix = null) // {{{
+    public function getColsForSelect($prefix = null, $suffix = null)
     {
         $cols = $this->_getCols();
 
@@ -486,7 +457,7 @@ class Zefram_Db_Table extends Zend_Db_Table
         }
 
         return $cols;
-    } // }}}
+    }
 
     /**
      * Created an instance of a Zend_Db_Select.
@@ -546,36 +517,30 @@ class Zefram_Db_Table extends Zend_Db_Table
     /**
      * @param  mixed $id
      * @return Zefram_Db_Table
+     * @deprecated This is a noop
      */
     public function removeFromIdentityMap($id)
     {
-        // Unsetting an unexistant key from an existing array does not trigger
-        // an "Undefined variable" notice. See:
-        // http://www.php.net/manual/en/function.unset.php#77310
-        $key = serialize($this->_normalizeId($id));
-        unset($this->_identityMap[$key]);
         return $this;
     }
 
-    
+    /**
+     * @param $row
+     * @return $this
+     * @deprecated This is a noop
+     */
     public function addToIdentityMap($row)
     {
-        if ((null !== $row) && !$row instanceof $this->_rowClass) {
-            throw new Exception(sprintf(
-                'Non-empty row must be an instance of %s', $this->_rowClass
-            ));
-        }
-        $key = serialize($this->_normalizeId($row));
-        $this->_identityMap[$key] = $row ? $row : false;
         return $this;
     }
 
+    /**
+     * @param $id
+     * @return null
+     * @deprecated This is a noop
+     */
     public function getFromIdentityMap($id)
     {
-        $key = serialize($this->_normalizeId($id));
-        if (isset($this->_identityMap[$key])) {
-            return $this->_identityMap[$key];
-        }
         return null;
     }
 
@@ -659,7 +624,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param  string $tableClass
      * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
-    public function _getTableFromString($tableClass) // {{{
+    public function _getTableFromString($tableClass)
     {
         if ($tableClass instanceof Zend_Db_Table_Abstract) {
             return $tableClass;
@@ -669,8 +634,8 @@ class Zefram_Db_Table extends Zend_Db_Table
             return $this->getTableFactory()->getTable($tableClass, $this->_db);
         }
 
-        return Zefram_Db::getTable2($tableClass, $this->_db);        
-    } // }}}
+        return Zefram_Db::getTable2($tableClass, $this->_db);
+    }
 
     /**
      * Get table instance by class name. This method is essentially a proxy
@@ -680,7 +645,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @param  string $tableClass
      * @return Zend_Db_Table_Abstract|Zefram_Db_Table
      */
-    public function getTable($tableClass = null) // {{{
+    public function getTable($tableClass = null)
     {
         if (null === $tableClass) {
             return $this;
@@ -698,7 +663,7 @@ class Zefram_Db_Table extends Zend_Db_Table
         }
 
         return $this->_getTableFromString($tableClass);
-    } // }}}
+    }
 
     /**
      * Insert new rows using INSERT SELECT.
@@ -707,7 +672,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      * @return int
      * @throws Exception
      */
-    public function insertFromSelect(Zend_Db_Select $select) // {{{
+    public function insertFromSelect(Zend_Db_Select $select)
     {
         $tableCols = array_flip($this->_getCols());
         $cols = array();
@@ -729,33 +694,33 @@ class Zefram_Db_Table extends Zend_Db_Table
             ' (' . implode(', ', $cols) . ') ' .
             $select;
 
-        $result = $db->query($sql); 
+        $result = $db->query($sql);
         return $result->rowCount();
-    } // }}}
+    }
 
     /**
      * @param Zefram_Db_Table_FactoryInterface $tableProvider
      * @return Zefram_Db_Table_FactoryInterface
      */
-    public function setTableFactory(Zefram_Db_Table_FactoryInterface $factory) // {{{
+    public function setTableFactory(Zefram_Db_Table_FactoryInterface $factory)
     {
         $this->_tableFactory = $factory;
         return $this->_tableFactory;
-    } // }}}
+    }
 
     /**
      * @return Zefram_Db_Table_FactoryInterface
      */
-    public function getTableFactory() // {{{
+    public function getTableFactory()
     {
         return $this->_tableFactory;
-    } // }}}
+    }
 
     /**
      * @return bool
      */
-    public function hasTableFactory() // {{{
+    public function hasTableFactory()
     {
         return null !== $this->_tableFactory;
-    } // }}}
+    }
 }

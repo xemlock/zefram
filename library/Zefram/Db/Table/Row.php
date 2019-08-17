@@ -13,13 +13,6 @@
  *    Such rows are available for future use.
  * 5. Columns can be automatically loaded on demand.
  *
- * 2019-08-15
- *          - Added getSimplePrimaryKey() for retrieval of simple (i.e. non-
- *            composite) primary keys as scalar values. This allows primary
- *            keys to be retrieved without explicitly giving their column
- *            name. Also it's more convenient than getPrimaryKey() because
- *            it does not involve dereferencing.
- *
  * 2014-10-23
  *          - reimplemented _refresh() so that it does not involve creation
  *            of a temporary row instance
@@ -80,7 +73,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return void
      * @throws Zend_Db_Table_Row_Exception
      */
-    public function __construct(array $config = array()) // {{{
+    public function __construct(array $config = array())
     {
         if (!isset($config['table']) || !$config['table'] instanceof Zend_Db_Table_Abstract) {
             if ($this->_tableClass !== null) {
@@ -99,34 +92,17 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         if (count($this->_cleanData)) {
             $this->_postLoad();
         }
-    } // }}}
-
-    /**
-     * Retrieves value of the single-column primary key. This method will
-     * fail if the primary key is composite.
-     *
-     * @param bool $useDirty
-     * @return mixed
-     * @throws Zend_Db_Table_Row_Exception If primary key is composite
-     */
-    public function getSimplePrimaryKey($useDirty = true)
-    {
-        $primaryKey = $this->getPrimaryKey($useDirty);
-        if (count($primaryKey) > 1) {
-            throw new Zend_Db_Table_Row_Exception('Unable to get simple value from a composite primary key');
-        }
-        return reset($primaryKey);
     }
 
-    public function setTable(Zend_Db_Table_Abstract $table = null) // {{{
+    public function setTable(Zend_Db_Table_Abstract $table = null)
     {
         $result = parent::setTable($table);
         $this->_setupCols();
 
         return $result;
-    } // }}}
+    }
 
-    protected function _setupCols() // {{{
+    protected function _setupCols()
     {
         $table = $this->_getTable();
 
@@ -135,7 +111,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         } else {
             $this->_cols = array_flip($table->info(Zend_Db_Table_Abstract::COLS));
         }
-    } // }}}
+    }
 
     /**
      * Allows post-load logic to be applied to row. Subclasses may override
@@ -152,10 +128,10 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $columnName
      * @return bool
      */
-    public function hasColumn($columnName) // {{{
+    public function hasColumn($columnName)
     {
         return $this->_hasColumn($this->_transformColumn($columnName));
-    } // }}}
+    }
 
     /**
      * For internal use, contrary to {@see hasColumn()} it operates on an
@@ -164,20 +140,20 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $transformedColumnName
      * @return bool
      */
-    protected function _hasColumn($transformedColumnName) // {{{
+    protected function _hasColumn($transformedColumnName)
     {
         return isset($this->_cols[$transformedColumnName]);
-    } // }}}
+    }
 
     /**
      * Is this row stored in the database.
      *
      * @return bool
      */
-    public function isStored() // {{{
+    public function isStored()
     {
         return !empty($this->_cleanData);
-    } // }}}
+    }
 
     /**
      * Does this row have modified fields, or has a specific field been
@@ -186,7 +162,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $columnName OPTIONAL
      * @return bool
      */
-    public function isModified($columnName = null) // {{{
+    public function isModified($columnName = null)
     {
         if (null === $columnName) {
             return 0 < count($this->_modifiedFields);
@@ -194,21 +170,21 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
 
         $columnName = $this->_transformColumn($columnName);
         return isset($this->_modifiedFields[$columnName]);
-    } // }}}
+    }
 
     /**
      * Retrieve an array of modified fields and associated values.
      *
      * @return array
      */
-    public function getModified() // {{{
+    public function getModified()
     {
         $modified = array();
         foreach ($this->_modifiedFields as $columnName => $value) {
             $modified[$columnName] = $this->_data[$columnName];
         }
         return $modified;
-    } // }}}
+    }
 
     /**
      * This function is intended for internal use, you are free to use
@@ -220,7 +196,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $columnName
      * @return Zefram_Db_Table_Row
      */
-    public function setModified($columnName) // {{{
+    public function setModified($columnName)
     {
         $columnName = $this->_transformColumn($columnName);
 
@@ -232,7 +208,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
 
         $this->_modifiedFields[$columnName] = true;
         return $this;
-    } // }}}
+    }
 
     /**
      * Gets the Zend_Db_Adapter_Abstract from the table this row is
@@ -241,10 +217,10 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return Zend_Db_Adapter_Abstract
      * @throws Zend_Db_Table_Row_Exception
      */
-    public function getAdapter() // {{{
+    public function getAdapter()
     {
         return $this->_getTable()->getAdapter();
-    } // }}}
+    }
 
     /**
      * Fetches value for given columns, which effectively re-initializes
@@ -298,7 +274,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string|array $transformedColumnNames
      * @return void
      */
-    protected function _ensureLoaded($transformedColumnNames) // {{{
+    protected function _ensureLoaded($transformedColumnNames)
     {
         $missingCols = null; // lazy array initialization
 
@@ -313,7 +289,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         if ($missingCols) {
             $this->_fetchColumns($missingCols);
         }
-    } // }}}
+    }
 
     /**
      * Is reference to parent row identified by rule name defined in the
@@ -323,14 +299,14 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return bool
      * @throws Exception
      */
-    public function hasReference($ruleKey) // {{{
+    public function hasReference($ruleKey)
     {
         try {
             return (bool) $this->_getReference($ruleKey);
         } catch (Exception $e) {
         }
         return false;
-    } // }}}
+    }
 
     /**
      * Get reference rule matching the given key.
@@ -339,7 +315,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return array
      * @throws Zend_Db_Table_Row_Exception
      */
-    protected function _getReference($ruleKey) // {{{
+    protected function _getReference($ruleKey)
     {
         $ruleKey = (string) $ruleKey;
         $referenceMap = $this->_getTable()->info(Zend_Db_Table_Abstract::REFERENCE_MAP);
@@ -352,14 +328,14 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             'No reference identified by rule "%s" defined in table %s',
             $ruleKey, get_class($this->_getTable())
         ));
-    } // }}}
+    }
 
     /**
      * @param  string|array $rule
      * @return array
      * @throws Zefram_Db_Table_Row_InvalidArgumentException
      */
-    protected function _getReferenceColumnMap($rule) // {{{
+    protected function _getReferenceColumnMap($rule)
     {
         if (!is_array($rule)) {
             $rule = $this->_getReference($rule);
@@ -378,13 +354,13 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         }
 
         return $columnMap;
-    } // }}}
+    }
 
     /**
      * @param  string $ruleKey
      * @return string
      */
-    protected function _getParentRowKey($ruleKey) // {{{
+    protected function _getParentRowKey($ruleKey)
     {
         if (empty($this->_parentRowsKeyCache[$ruleKey])) {
             $rule = $this->_getReference($ruleKey);
@@ -401,7 +377,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             $this->_parentRowsKeyCache[$ruleKey] = $ruleKey . '@' . serialize($temp);
         }
         return $this->_parentRowsKeyCache[$ruleKey];
-    } // }}}
+    }
 
     /**
      * @param  string $ruleKey
@@ -409,7 +385,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return Zefram_Db_Table_Row
      * @throws Zend_Db_Table_Row_Exception
      */
-    public function setParentRow($ruleKey, Zend_Db_Table_Row_Abstract $row = null) // {{{
+    public function setParentRow($ruleKey, Zend_Db_Table_Row_Abstract $row = null)
     {
         $rule = $this->_getReference($ruleKey);
 
@@ -452,7 +428,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         $this->_setParentRow($this->_getParentRowKey($ruleKey), $row);
 
         return $this;
-    } // }}}
+    }
 
     /**
      * Retrieves referenced parent row according to given rule.
@@ -460,7 +436,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $ruleKey
      * @return Zend_Db_Table_Row_Abstract
      */
-    public function getParentRow($ruleKey) // {{{
+    public function getParentRow($ruleKey)
     {
         $ruleKey = (string) $ruleKey;
 
@@ -476,7 +452,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         }
 
         return $this->_setParentRow($refKey, $this->_fetchParentRow($ruleKey));
-    } // }}}
+    }
 
     /**
      * Fetch parent row identified by a given rule name.
@@ -484,7 +460,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $ruleKey
      * @return Zend_Db_Table_Row_Abstract|null
      */
-    protected function _fetchParentRow($ruleKey) // {{{
+    protected function _fetchParentRow($ruleKey)
     {
         $ruleKey = (string) $ruleKey;
 
@@ -526,13 +502,13 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             return $row;
         }
         return null;
-    } // }}}
+    }
 
     /**
      * @param  string $ruleKey
      * @return void
      */
-    protected function _unsetParentRow($ruleKey) // {{{
+    protected function _unsetParentRow($ruleKey)
     {
         if (($pos = strpos($ruleKey, '@')) !== false) {
             $prefix = substr($ruleKey, 0, $pos + 1);
@@ -545,14 +521,14 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
                 unset($this->_parentRows[$key]);
             }
         }
-    } // }}}
+    }
 
     /**
      * @param  string $parentKey
      * @param  Zend_Db_Table_Row_Abstract $parentKey
      * @return Zend_Db_Table_Row_Abstract|null
      */
-    protected function _setParentRow($parentKey, Zend_Db_Table_Row_Abstract $row = null) // {{{
+    protected function _setParentRow($parentKey, Zend_Db_Table_Row_Abstract $row = null)
     {
         // remove previously fetched parent row(s) for this fule
         $this->_unsetParentRow($parentKey);
@@ -562,7 +538,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         // echo json_encode(array_keys($this->_parentRows)), "\n";
 
         return $row;
-    } // }}}
+    }
 
     /**
      * Save all modified or not stored referenced rows.
@@ -571,7 +547,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      *
      * @return void
      */
-    protected function _saveParentRows() // {{{
+    protected function _saveParentRows()
     {
         foreach ($this->_parentRows as $key => $row) {
             if (!$row instanceof Zend_Db_Table_Row_Abstract || $row === $this) {
@@ -606,7 +582,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
             // added or removed will not affect iteration
             $this->_setParentRow($this->_getParentRowKey($ruleKey), $row);
         }
-    } // }}}
+    }
 
     /**
      * Retrieve row field value.
@@ -623,7 +599,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      *     No referenced row was found even though columns containing the
      *     primary key of row in the parent table are marked as NOT NULL.
      */
-    public function __get($key) // {{{
+    public function __get($key)
     {
         $columnName = $this->_transformColumn($key);
 
@@ -645,13 +621,13 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         throw new Zend_Db_Table_Row_Exception(sprintf(
             'Specified column "%s" is not in the row', $columnName
         ));
-    } // }}}
+    }
 
     /**
      * Does not mark unchanged values as modified. Allows to set values for
      * fields which was not yet fetched from the database.
      */
-    public function __set($columnName, $value) // {{{
+    public function __set($columnName, $value)
     {
         $columnName = $this->_transformColumn($columnName);
 
@@ -671,7 +647,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
 
             return;
         }
- 
+
         $origData = $this->_data[$columnName];
 
         // when comparing with previous value check if both types match
@@ -684,7 +660,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
 
         // force recalculation of referenced rows identifiers
         $this->_parentRowsKeyCache = null;
-    } // }}}
+    }
 
     /**
      * Test existence of field or reference. For more specific test
@@ -722,7 +698,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * unnecessary creation of a temporary row instance. After the successful
      * retrieval of row's data, the post-load logic is executed.
      */
-    protected function _refresh() // {{{
+    protected function _refresh()
     {
         $select = $this->_getTable()->select();
         $select->limit(1);
@@ -747,7 +723,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         $this->_parentRowsKeyCache = null;
 
         $this->_postLoad();
-    } // }}}
+    }
 
     /**
      * Sets all data in the row from an array.
@@ -769,7 +745,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
     /**
      * @return mixed
      */
-    public function save() // {{{
+    public function save()
     {
         if ($this->_isSaving) {
             return false;
@@ -796,7 +772,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         $this->_postSave();
 
         return $result;
-    } // }}}
+    }
 
     /**
      * @return int
@@ -843,7 +819,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  Zend_Db_Table_Select $select OPTIONAL
      * @return Zend_Db_Table_Row_Abstract
      */
-    public function findParentRow($parentTable, $ruleKey = null, Zend_Db_Table_Select $select = null) // {{{
+    public function findParentRow($parentTable, $ruleKey = null, Zend_Db_Table_Select $select = null)
     {
         $db = $this->_getTable()->getAdapter();
 
@@ -884,7 +860,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         }
 
         return parent::findParentRow($parentTable, $ruleKey, $select);
-    } // }}}
+    }
 
     /**
      * Retrieve an instance of the table this row is connected to or, if table
@@ -893,7 +869,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @return Zend_Db_Table_Abstract
      * @throws Zend_Db_Table_Row_Exception
      */
-    protected function _getTable($tableName = null) // {{{
+    protected function _getTable($tableName = null)
     {
         if (!$this->_connected || !$this->_table) {
             throw new Zend_Db_Table_Row_Exception('Cannot retrieve Table instance from a disconnected Row');
@@ -914,7 +890,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         }
 
         return $this->_table->_getTableFromString($tableName);
-    } // }}}
+    }
 
     /**
      * Instantiate a table of a given class using connected table as
@@ -923,7 +899,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
      * @param  string $tableName
      * @return Zend_Db_Table_Abstract
      */
-    protected function _getTableFromString($tableName) // {{{
+    protected function _getTableFromString($tableName)
     {
         $table = $this->_getTable();
 
@@ -932,7 +908,7 @@ class Zefram_Db_Table_Row extends Zend_Db_Table_Row
         }
 
         return parent::_getTableFromString($tableName);
-    } // }}}
+    }
 
     /**
      * Allows pre-save (insert or update) logic to be applied to row.
