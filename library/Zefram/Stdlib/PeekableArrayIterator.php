@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated
+ */
 class Zefram_Stdlib_PeekableArrayIterator 
     implements Iterator, Countable, ArrayAccess, Zefram_Stdlib_PeekableIterator
 {

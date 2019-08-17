@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated
+ */
 interface Zefram_Stdlib_PeekableIterator extends Iterator
 {
     /**

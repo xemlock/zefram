@@ -6,6 +6,7 @@
  *
  * @version 2014-07-26
  * @author xemlock
+ * @deprecated
  */
 class Zefram_Stdlib_ObjectWrapper implements ArrayAccess
 {
