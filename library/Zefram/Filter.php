@@ -11,11 +11,11 @@
  * - Multiple filters can be added in a single function call
  * - Filter can be specified either as string, array or a Zend_Filter instance
  *
+ * @category Zefram
+ * @package  Zefram_Filter
+ * @author   xemlock
  * @uses     Zend_Filter
  * @uses     Zend_Loader
- * @category Zefram
- * @package  Zefram_Uri
- * @author   xemlock
  */
 class Zefram_Filter implements Zend_Filter_Interface
 {

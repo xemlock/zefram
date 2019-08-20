@@ -9,9 +9,10 @@
  * bootstrapClass = className
  * </pre>
  *
- * @category   Zefram
- * @package    Zefram_Application
- * @author     xemlock
+ * @category Zefram
+ * @package  Zefram_Application
+ * @author   xemlock
+ * @uses     Zend_Application
  */
 class Zefram_Application extends Zend_Application
 {

@@ -12,10 +12,12 @@
  * isValid() call can accept context parameter that will be passed
  * to validators.
  *
- * @uses      Zend_Validate
- * @uses      Zend_Loader
- * @author    xemlock
- * @version   2015-06-27 / 2014-12-13 / 2013-10-18
+ * @category Zefram
+ * @package  Zefram_Validate
+ * @author   xemlock
+ * @version  2015-06-27 / 2014-12-13 / 2013-10-18
+ * @uses     Zend_Validate
+ * @uses     Zend_Loader
  *
  * 2015-11-26: Strict Standards conformance
  * 2015-06-27: added context parameter to isValid()

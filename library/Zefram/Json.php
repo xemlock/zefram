@@ -3,8 +3,9 @@
 /**
  * Wrapper around Zend_Json class for more flexible JSON encoding / decoding.
  *
- * @package Zefram_Json
- * @uses    Zend_Json
+ * @category Zefram
+ * @package  Zefram_Json
+ * @uses     Zend_Json
  */
 abstract class Zefram_Json extends Zend_Json
 {

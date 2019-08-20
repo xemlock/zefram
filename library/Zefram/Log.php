@@ -1,7 +1,9 @@
 <?php
 
 /**
- * @uses    Zend_Log
+ * @category Zefram
+ * @package  Zefram_Log
+ * @uses     Zend_Log
  */
 class Zefram_Log extends Zend_Log
 {

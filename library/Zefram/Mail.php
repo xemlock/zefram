@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @category Zefram
+ * @package  Zefram_Mail
+ * @uses     Zend_Mail
+ */
 class Zefram_Mail extends Zend_Mail
 {
     /**

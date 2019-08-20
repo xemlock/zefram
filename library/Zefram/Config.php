@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @category Zefram
+ * @package  Zefram_Config
+ * @uses     Zend_Config
+ */
 class Zefram_Config extends Zend_Config
 {
     /**

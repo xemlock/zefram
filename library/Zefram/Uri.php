@@ -14,6 +14,7 @@
  * @category Zefram
  * @package  Zefram_Uri
  * @author   xemlock
+ * @uses     Zend_Uri
  */
 class Zefram_Uri extends Zend_Uri_Http
 {

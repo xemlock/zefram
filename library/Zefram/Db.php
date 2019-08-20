@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @category Zefram
+ * @package  Zefram_Db
+ * @uses     Zend_Db
+ */
 class Zefram_Db implements Zefram_Db_TransactionManager
 {
     /**
