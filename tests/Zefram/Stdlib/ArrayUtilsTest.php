@@ -90,4 +90,41 @@ class Zefram_Stdlib_ArrayUtilsTest extends PHPUnit_Framework_TestCase
             Zefram_Stdlib_ArrayUtils::merge($a, $b, true)
         );
     }
+
+    public function testReduce()
+    {
+        $input = array(
+            'foo' => 1,
+            'bar' => 2,
+            'baz' => 3,
+            'qux' => 4,
+        );
+
+        $this->assertEquals(
+            10,
+            Zefram_Stdlib_ArrayUtils::reduce(
+                $input,
+                array(__CLASS__, 'reduceCallbackSumValues'),
+                0
+            )
+        );
+
+        $this->assertEquals(
+            'foo,bar,baz,qux',
+            Zefram_Stdlib_ArrayUtils::reduce(
+                $input,
+                array(__CLASS__, 'reduceCallbackJoinKeys')
+            )
+        );
+    }
+
+    public static function reduceCallbackSumValues($acc, $value)
+    {
+        return $acc + $value;
+    }
+
+    public static function reduceCallbackJoinKeys($acc, $value, $key)
+    {
+        return strlen($acc) ? $acc . ',' . $key : $key;
+    }
 }

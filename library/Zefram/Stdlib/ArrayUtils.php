@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @category Zefram
+ * @package  Zefram_Stdlib
+ */
 abstract class Zefram_Stdlib_ArrayUtils
 {
     /**
@@ -29,6 +33,35 @@ abstract class Zefram_Stdlib_ArrayUtils
             }
         }
         return $a;
+    }
+
+    /**
+     * Reduce the array to a single value using a callback function applied
+     * for each array value (from left to right).
+     *
+     * The built-in {@link array_reduce()} does not provide key to the
+     * callback function, which limits its usage.
+     *
+     * The callback function is expected to have the following signature:
+     *
+     * <pre>
+     *   mixed callback ( mixed $result , mixed $item [ , int|string $key ] )
+     * </pre>
+     *
+     * @param array $array
+     * @param callable $callback
+     * @param mixed $initial OPTIONAL
+     * @return mixed
+     */
+    public static function reduce(array $array, $callback, $initial = null)
+    {
+        if (!is_callable($callback)) {
+            throw new Zend_Stdlib_Exception_InvalidCallbackException('Invalid callback provided');
+        }
+        foreach ($array as $key => $value) {
+            $initial = call_user_func($callback, $initial, $value, $key);
+        }
+        return $initial;
     }
 
     public static function first(array $a)
