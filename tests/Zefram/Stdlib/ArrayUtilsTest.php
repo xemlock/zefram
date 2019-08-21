@@ -45,6 +45,8 @@ class Zefram_Stdlib_ArrayUtilsTest extends PHPUnit_Framework_TestCase
             ),
             Zefram_Stdlib_ArrayUtils::merge($a, $b)
         );
+
+        $this->assertSame($a, Zefram_Stdlib_ArrayUtils::merge($a, 'Foo'));
     }
 
     public function testMergePreserveNumericKeys()

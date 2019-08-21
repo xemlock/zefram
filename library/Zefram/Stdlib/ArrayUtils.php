@@ -14,10 +14,10 @@ abstract class Zefram_Stdlib_ArrayUtils
      * instead of overwriting them with the values from the seconda array.
      *
      * @param array $a
-     * @param array $b
+     * @param mixed $b
      * @param bool $preserveNumericKeys
      */
-    public static function merge(array $a, array $b, $preserveNumericKeys = false)
+    public static function merge(array $a, $b, $preserveNumericKeys = false)
     {
         if (is_array($b)) {
             foreach ($b as $key => $value) {
