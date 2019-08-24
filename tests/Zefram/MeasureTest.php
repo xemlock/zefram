@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @category   Zefram
+ * @package    Zefram_Measure
+ * @subpackage UnitTests
+ */
 class Zefram_MeasureTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
