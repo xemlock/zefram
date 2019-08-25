@@ -265,6 +265,28 @@ class Zefram_Validate implements Zend_Validate_Interface
     }
 
     /**
+     * Get single validator by name
+     *
+     * @param string $name
+     * @return Zend_Validate_Interface|null
+     */
+    public function getValidator($name)
+    {
+        $len = strlen($name);
+        foreach ($this->_validators as $key => $validator) {
+            $validatorClass = get_class($validator['instance']);
+            if ($len > strlen($validatorClass)) {
+                continue;
+            }
+            // substr_compare($haystack, $needle, $offset, $length, $case_insensitive)
+            if (0 === substr_compare($validatorClass, $name, -$len, $len, true)) {
+                return $validator['instance'];
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return Zefram_Validate
      */
     public function clearValidators()
