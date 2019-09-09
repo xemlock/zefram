@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @category Zefram
+ * @package  Zefram_Mail
+ * @author   xemlock
+ */
+class Zefram_Mail_Protocol_Smtp_Auth_Crammd5 extends Zend_Mail_Protocol_Smtp_Auth_Crammd5
+{
+    /**
+     * @var array|resource
+     */
+    protected $_context;
+
+    public function __construct($host = '127.0.0.1', $port = null, array $config = array())
+    {
+        parent::__construct($host, $port, $config);
+
+        if (isset($config['stream_context'])) {
+            $this->_context = $config['stream_context'];
+        }
+    }
+
+    protected function _connect($remote)
+    {
+        $this->_socket = Zefram_Mail_Protocol_Abstract::_connectStatic($remote, $this->_context);
+        return true;
+    }
+}

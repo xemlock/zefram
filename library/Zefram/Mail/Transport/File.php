@@ -8,7 +8,10 @@
  * or callback provided. This could result in invalid (or unexpected)
  * directory/callback to be used when writing file.
  *
- * @uses Zend_Mail
+ * @category Zefram
+ * @package  Zefram_Mail
+ * @author   xemlock
+ * @uses     Zend_Mail
  */
 class Zefram_Mail_Transport_File extends Zend_Mail_Transport_File
 {
