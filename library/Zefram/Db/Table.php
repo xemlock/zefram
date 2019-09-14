@@ -298,6 +298,37 @@ class Zefram_Db_Table extends Zend_Db_Table
         return 0;
     }
 
+    public function find()
+    {
+        // PHP 7.2:
+        // count(): Parameter must be an array or an object that implements Countable in
+        // vendor/zendframework/zendframework1/library/Zend/Db/Table/Abstract.php on line 1307
+        $args = func_get_args();
+
+        // Find a single row with a compound primary key
+        // $table->find(1234, 'ABC');
+
+        // Find multiple rows with compound primary keys
+        // $table->find(array(1234, 5678), array('ABC', 'DEF'));
+
+        // Don't simply typecast to array, because the values
+        // might be Zend_Db_Expr objects.
+        foreach ($args as $key => $value) {
+            $args[$key] = is_object($value) ? array($value) : (array) $value;
+        }
+
+        switch (count($args)) {
+            case 1:
+                return parent::find($args[0]);
+            case 2:
+                return parent::find($args[0], $args[1]);
+            case 3:
+                return parent::find($args[0], $args[1], $args[2]);
+        }
+
+        return call_user_func_array('parent::find', $args);
+    }
+
     /**
      * Proxy to {@see count()}.
      *
@@ -317,7 +348,7 @@ class Zefram_Db_Table extends Zend_Db_Table
      *     OPTIONAL flags
      * @return mixed
      *     Zend_Db_Table_Row or false if no result
-     * @throws Exception
+     * @throws Zend_Db_Table_Exception
      *     when incomplete primary key values given or if column does not
      *     belong to primary key
      */

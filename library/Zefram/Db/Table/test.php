@@ -110,6 +110,18 @@ $a2->save();
 $b = $bTable->createRow();
 $b->A = $a;
 
+assertTrue($a->toArray() === $aTable->find($a->a_id)->current()->toArray(), 'Test find');
+assertTrue($a->toArray() === $aTable->find(array($a->a_id))->current()->toArray(), 'Test find');
+
+assertTrue(
+    $a->toArray() === $aTable->find(array($a->a_id, $a2->a_id))->offsetGet(0)->toArray(),
+    'Test find array($a->a_id, $a2->a_id)[0]'
+);
+assertTrue(
+    $a2->toArray() === $aTable->find(array($a->a_id, $a2->a_id))->offsetGet(1)->toArray(),
+    'Test find array($a->a_id, $a2->a_id)[1]'
+);
+
 assertTrue($b->A === $a,         'Parent row assignment ($b->A === $a)');
 assertTrue($b->a_id == $a->a_id, 'Reference columns must match ($b->a_id == $a->a_id)');
 
