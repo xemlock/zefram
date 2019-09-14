@@ -15,15 +15,12 @@ class Zefram_Mail_Protocol_Smtp_Auth_Crammd5 extends Zend_Mail_Protocol_Smtp_Aut
     public function __construct($host = '127.0.0.1', $port = null, array $config = array())
     {
         parent::__construct($host, $port, $config);
-
-        if (isset($config['stream_context'])) {
-            $this->_context = $config['stream_context'];
-        }
+        $this->_context = Zefram_Mail_Protocol_Trait::extractStreamContext($config);
     }
 
     protected function _connect($remote)
     {
-        $this->_socket = Zefram_Mail_Protocol_Abstract::_connectStatic($remote, $this->_context);
+        $this->_socket = Zefram_Mail_Protocol_Trait::connect($remote, $this->_context);
         return true;
     }
 }
