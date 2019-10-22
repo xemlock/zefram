@@ -16,7 +16,7 @@ class Zefram_Db_Select extends Zend_Db_Select
      *     The columns to select from the joined table
      * @param  string $schema
      *     The database name to specify, if any.
-     * @return Zefram_Db_Select
+     * @return $this
      *     This object
      * @throws Zend_Db_Select_Exception
      */
@@ -38,7 +38,7 @@ class Zefram_Db_Select extends Zend_Db_Select
      *     is not an array
      * @param int $type OPTIONAL
      *     The type of the given value, used when condition is not an array
-     * @return Zefram_Db_Select
+     * @return $this
      *     This select object
      */
     public function where($cond, $value = null, $type = null)
@@ -71,7 +71,7 @@ class Zefram_Db_Select extends Zend_Db_Select
      *     is not an array
      * @param int $type OPTIONAL
      *     The type of the given value, used when condition is not an array
-     * @return Zefram_Db_Select
+     * @return $this
      *     This select object
      */
     public function orWhere($cond, $value = null, $type = null)
@@ -97,7 +97,7 @@ class Zefram_Db_Select extends Zend_Db_Select
     /**
      * @param  string $cond
      * @param  array $params
-     * @return Zefram_Db_Select
+     * @return $this
      */
     public function whereParams($cond, array $params)
     {
@@ -112,7 +112,7 @@ class Zefram_Db_Select extends Zend_Db_Select
     /**
      * @param  string $cond
      * @param  array $params
-     * @return Zefram_Db_Select
+     * @return $this
      */
     public function orWhereParams($cond, array $params)
     {

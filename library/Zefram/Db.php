@@ -29,11 +29,11 @@ class Zefram_Db implements Zefram_Db_TransactionManager
      * @param  array|Zend_Config $config OPTIONAL
      * @return Zefram_Db
      */
-    public static function factory($adapter, $config = array()) // {{{
+    public static function factory($adapter, $config = array())
     {
         $adapter = Zend_Db::factory($adapter, $config);
         return new self($adapter);
-    } // }}}
+    }
 
     /**
      * Constructor.
@@ -90,6 +90,15 @@ class Zefram_Db implements Zefram_Db_TransactionManager
     public function quote($value, $type = null)
     {
         return $this->_adapter->quote($value, $type);
+    }
+
+    /**
+     * Proxy to adapter's quote() method.
+     * See {@link Zend_Db_Adapter_Abstract::quoteIdentifier()} for details.
+     */
+    public function quoteIdentifier($ident, $auto = false)
+    {
+        return $this->_adapter->quoteIdentifier($ident, $auto);
     }
 
     /**
