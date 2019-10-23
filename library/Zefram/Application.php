@@ -46,7 +46,7 @@ class Zefram_Application extends Zend_Application
     {
         $class = (string) $class;
         if (!is_subclass_of($class, 'Zend_Application_Bootstrap_BootstrapAbstract')) {
-            throw new Zend_Application_Resource_Exception(
+            throw new Zend_Application_Exception(
                 'Bootstrap class class must inherit from Zend_Application_Bootstrap_BootstrapAbstract'
             );
         }
@@ -69,5 +69,24 @@ class Zefram_Application extends Zend_Application
             $this->_bootstrap = new $bootstrapClass($this);
         }
         return $this->_bootstrap;
+    }
+
+    /**
+     * Load configuration file of options
+     *
+     * @param  string $file
+     * @throws Zend_Application_Exception When invalid configuration file is provided
+     * @return array
+     */
+    protected function _loadConfig($file)
+    {
+        // Use Zefram_Config::factory instead of parent implementation, because
+        // upon failure to load a config array from .php file, the path to this
+        // file is included in the error message
+        try {
+            return Zefram_Config::factory($file, $this->getEnvironment())->toArray();
+        } catch (Exception $e) {
+            throw new Zend_Application_Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }
