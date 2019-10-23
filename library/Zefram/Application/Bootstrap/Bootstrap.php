@@ -49,7 +49,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      * container is present.
      *
      * @param  object|string $container
-     * @return Zend_Application_Bootstrap_BootstrapAbstract
+     * @return $this
      * @throws Zend_Application_Bootstrap_Exception
      */
     public function setContainer($container = null)
@@ -88,7 +88,7 @@ class Zefram_Application_Bootstrap_Bootstrap
      *
      * @param  string $name
      * @param  mixed $value
-     * @return Zefram_Application_Bootstrap_Bootstrap
+     * @return $this
      */
     public function setResource($name, $value)
     {
@@ -108,59 +108,6 @@ class Zefram_Application_Bootstrap_Bootstrap
         return method_exists($this, '_init' . $resource);
     }
 
-    protected $_rawResources = array();
-
-
-    /**
-     * Register a new resource plugin
-     *
-     * If resource name is not a valid plugin resource and a 'class' option is
-     * provided, resource will be copied as is to resource container. It is
-     * up to Resource Container to process such a resource accordingly.
-     *
-     * @param  string|Zend_Application_Resource_Resource $resource
-     * @param  mixed $options
-     * @return Zefram_Application_Bootstrap_Bootstrap
-     * @throws Zend_Application_Bootstrap_Exception When invalid resource is provided
-     */
-    public function registerPluginResource($resource, $options = null)
-    {
-        if (!is_string($resource)) {
-            return parent::registerPluginResource($resource, $options);
-        }
-
-        $resource = strtolower($resource);
-
-        // Check whether to use plugin resource or to put the resource
-        // directly in the container for deferred instantiation.
-
-        // Resources that are not recognized are inserted to container as-is
-        // upon resource registration
-
-        if (($pluginClass = $this->getPluginLoader()->load($resource, false))
-            && (!isset($options['plugin']) || $options['plugin'])
-        ) {
-            unset($options['plugin']);
-            parent::registerPluginResource($resource, $options);
-
-        } elseif (!in_array($resource, $this->getClassResourceNames())) {
-            // these are not plugin resources
-            // don't add if overwriting _init method exists
-            // otherwise add to rawResources array
-            $this->_rawResources[$resource] = $options;
-        }
-
-        return $this;
-    }
-
-    protected function _executeRawResources()
-    {
-        foreach ($this->_rawResources as $res => $value) {
-            $this->getContainer()->{$res} = $value;
-            unset($this->_rawResources[$res]);
-        }
-    }
-
     /**
      * Bootstrap and return one or more resources
      *
@@ -171,9 +118,6 @@ class Zefram_Application_Bootstrap_Bootstrap
      */
     protected function _bootstrap($resource = null)
     {
-        if ($resource === null) {
-            $this->_executeRawResources();
-        }
         parent::_bootstrap($resource);
 
         if ($resource !== null) {

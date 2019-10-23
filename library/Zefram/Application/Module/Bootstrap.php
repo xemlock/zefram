@@ -10,7 +10,7 @@
  *   Consequently, {@link getApplication()} always returns an instance of
  *   Zend_Application_Bootstrap_BootstrapAbstract
  * - plugin loader and resource loader are set whenever application is set, not
- *   only in constructor, preventing bootstrap from falling into and incoherent
+ *   only in constructor, preventing bootstrap from falling into an incoherent
  *   state
  * - bootstrap options are extracted from application options, but the key name
  *   is case-insensitively matched. All keys that match module name are merged
@@ -80,7 +80,7 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
      * Set parent bootstrap
      *
      * @param  Zend_Application_Bootstrap_BootstrapAbstract $application
-     * @return Zefram_Application_Module_Bootstrap
+     * @return $this
      * @throws Zend_Application_Bootstrap_Exception
      */
     public function setApplication($application)
