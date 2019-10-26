@@ -38,6 +38,7 @@
  * @author     xemlock
  *
  * @method Zend_Application_Bootstrap_BootstrapAbstract getApplication()
+ * @method $this bootstrap(string|string[] $resource = null)
  */
 abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Module_Bootstrap
     implements Zefram_Application_Bootstrap_Bootstrapper

@@ -5,6 +5,8 @@
  * @package    Zefram_Application
  * @subpackage Bootstrap
  * @author     xemlock <xemlock@gmail.com>
+ *
+ * @method $this bootstrap(string|string[] $resource = null)
  */
 class Zefram_Application_Bootstrap_Bootstrap
     extends Zend_Application_Bootstrap_Bootstrap
