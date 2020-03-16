@@ -44,6 +44,13 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
     implements Zefram_Application_Bootstrap_Bootstrapper
 {
     /**
+     * Path to directory this module resides in. Set it explicitly to reduce
+     * impact of determining it.
+     * @var string
+     */
+    protected $_moduleDirectory;
+
+    /**
      * @param Zend_Application|Zend_Application_Bootstrap_BootstrapAbstract $application
      */
     public function __construct($application)
@@ -118,5 +125,19 @@ abstract class Zefram_Application_Module_Bootstrap extends Zend_Application_Modu
     {
         $resource = strtolower($resource);
         return array_key_exists($resource, $this->getClassResources());
+    }
+
+    /**
+     * Retrieve path to directory this module resides in
+     *
+     * @return string
+     */
+    public function getModuleDirectory()
+    {
+        if (null === $this->_moduleDirectory) {
+            $reflectionClass = new ReflectionClass($this);
+            $this->_moduleDirectory = dirname($reflectionClass->getFileName());
+        }
+        return $this->_moduleDirectory;
     }
 }

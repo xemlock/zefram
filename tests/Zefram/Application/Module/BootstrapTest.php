@@ -36,6 +36,12 @@ class Zefram_Application_Module_BootstrapTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($moduleBootstrap->hasClassResource('qux'));
     }
 
+    public function testGetModuleDirectory()
+    {
+        $moduleBootstrap = $this->_moduleBootstrap;
+        $this->assertEquals(dirname(__FILE__), $moduleBootstrap->getModuleDirectory());
+    }
+
     public function testOptions()
     {
         $application = new Zefram_Application('test', array(
