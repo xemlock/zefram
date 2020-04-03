@@ -181,10 +181,6 @@ class Zefram_Controller_Action extends Zend_Controller_Action
 
     // all below methods are now deprecated
 
-    protected $_ajaxResponseClass = 'Zefram_Controller_Action_AjaxResponse';
-
-    protected $_ajaxResponse;
-
     /**
      * @return Zend_Application_Bootstrap_BootstrapAbstract
      * @throws Exception
@@ -211,22 +207,6 @@ class Zefram_Controller_Action extends Zend_Controller_Action
     public function getBootstrapResource($name)
     {
         return $this->getResource($name);
-    }
-
-
-    public function getAjaxResponse()
-    {
-        if (null === $this->_ajaxResponse) {
-            $ajaxResponseClass = $this->_ajaxResponseClass;
-            $this->setAjaxResponse(new $ajaxResponseClass);
-        }
-        return $this->_ajaxResponse;
-    }
-
-    public function setAjaxResponse(Zefram_Controller_Action_AjaxResponse_Abstract $ajaxResponse)
-    {
-        $this->_ajaxResponse = $ajaxResponse;
-        return $this;
     }
 
     // additional proxies to helpers
