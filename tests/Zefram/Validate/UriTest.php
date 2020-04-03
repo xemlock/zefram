@@ -66,4 +66,10 @@ class Zefram_Validate_UriTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($validator->isValid('file:///c|/WINDOWS/clock.avi'));
         $this->assertTrue($validator->isValid('file://localhost/c:/WINDOWS/clock.avi'));
     }
+
+    public function testHostnameValidator()
+    {
+        $validator = new Zefram_Validate_EmailAddress();
+        $this->assertInstanceOf('Zefram_Validate_Hostname', $validator->getHostnameValidator());
+    }
 }

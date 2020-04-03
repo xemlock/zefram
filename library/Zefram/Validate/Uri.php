@@ -171,7 +171,7 @@ class Zefram_Validate_Uri extends Zend_Validate_Abstract
     public function getHostnameValidator()
     {
         if (!isset($this->_options['hostname'])) {
-            $this->_options['hostname'] = new Zend_Validate_Hostname($this->getAllow());
+            $this->_options['hostname'] = new Zefram_Validate_Hostname($this->getAllow());
         }
         return $this->_options['hostname'];
     }
