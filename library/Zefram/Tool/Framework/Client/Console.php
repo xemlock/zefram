@@ -38,6 +38,11 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
     protected $_allowRemainingArgs = false;
 
     /**
+     * @var Zefram_Tool_Framework_Client_Console_ArgumentParser
+     */
+    protected $_argumentParser;
+
+    /**
      * This is typically called as a main function of a cli script.
      *
      * @param array $options
@@ -168,6 +173,17 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
     }
 
     /**
+     * @return Zefram_Tool_Framework_Client_Console_ArgumentParser
+     */
+    public function getArgumentParser()
+    {
+        if (!$this->_argumentParser) {
+            $this->_argumentParser = new Zefram_Tool_Framework_Client_Console_ArgumentParser();
+        }
+        return $this->_argumentParser;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function handleInteractiveInputRequest(Zend_Tool_Framework_Client_Interactive_InputRequest $inputRequest)
@@ -196,9 +212,9 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
         $response->addContentDecorator(new Zend_Tool_Framework_Client_Response_ContentDecorator_Separator());
         $response->setDefaultDecoratorOptions(array('separator' => true, 'commandName' => $this->getCommandName()));
 
-        $optParser = new Zefram_Tool_Framework_Client_Console_ArgumentParser();
-        $optParser->setHelpSystem($this->_createHelpSystem());
-        $optParser->setArguments($_SERVER['argv'])
+        $this->getArgumentParser()
+            ->setHelpSystem($this->_createHelpSystem())
+            ->setArguments($_SERVER['argv'])
             ->setAllowRemainingArgs($this->_allowRemainingArgs)
             ->setRegistry($this->_registry)
             ->parse();
