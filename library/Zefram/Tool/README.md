@@ -22,7 +22,7 @@ header:
 $console = new Zefram_Tool_Framework_Client_Console(array(
     'commandName'   => 'cli-tool',
     'helpHeader'    => array(
-        array('CLI Tool', array('color' => array('hiWhite'), 'separator' => false))),
+        array('CLI Tool', array('color' => array('hiWhite'), 'separator' => false)),
         ' Version ' . CLI_TOOL_VERSION,
     ),
     'classesToLoad' => '...',
@@ -33,8 +33,8 @@ $console->dispatch();
 ### Notes
 
 Because of how the hardcoded `zf` command name is handled, to display
-a `zf` string in the output one need to append content using a disabled
-`commandName` decorator:
+a `zf` string in the output one need to append content with `commandName`
+decorator disabled:
 
 ```php
 /** @var Zend_Tool_Framework_Client_Response $response */
