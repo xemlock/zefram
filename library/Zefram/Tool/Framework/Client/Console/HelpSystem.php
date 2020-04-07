@@ -28,7 +28,7 @@ class Zefram_Tool_Framework_Client_Console_HelpSystem extends Zend_Tool_Framewor
      * @param bool|string|array $header     Set TRUE to show the default Zend Tool header,
      *                                      FALSE to disable header, a string or an array
      *                                      of strings for custom header
-     * @return Zefram_Tool_Framework_Client_Console_HelpSystem
+     * @return $this
      * @throws Zend_Tool_Framework_Client_Exception
      */
     public function setHeader($header)

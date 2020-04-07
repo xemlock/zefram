@@ -28,6 +28,16 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
     protected $_exitCode = 0;
 
     /**
+     * Whether to allow remaining args when parsing arguments
+     *
+     * See {@link Zefram_Tool_Framework_Client_Console_ArgumentParser::setAllowRemainingArgs()}
+     * for details.
+     *
+     * @var boolean
+     */
+    protected $_allowRemainingArgs = false;
+
+    /**
      * This is typically called as a main function of a cli script.
      *
      * @param array $options
@@ -43,7 +53,7 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
 
     /**
      * @param string $name
-     * @return Zefram_Tool_Framework_Client_Console
+     * @return $this
      */
     public function setName($name)
     {
@@ -61,7 +71,7 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
 
     /**
      * @param string $commandName
-     * @return Zefram_Tool_Framework_Client_Console
+     * @return $this
      */
     public function setCommandName($commandName)
     {
@@ -82,7 +92,7 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
      *
      * @param mixed $helpHeader See {@link Zefram_Tool_Framework_Client_Console_HelpSystem::setHeader()}
      *                          for details
-     * @return Zefram_Tool_Framework_Client_Console
+     * @return $this
      */
     public function setHelpHeader($helpHeader)
     {
@@ -131,11 +141,29 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
 
     /**
      * @param int $exitCode
-     * @return Zefram_Tool_Framework_Client_Console
+     * @return $this
      */
     public function setExitCode($exitCode)
     {
         $this->_exitCode = (int) $exitCode;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAllowRemainingArgs()
+    {
+        return $this->_allowRemainingArgs;
+    }
+
+    /**
+     * @param bool $allowRemainingArgs
+     * @return $this
+     */
+    public function setAllowRemainingArgs($allowRemainingArgs)
+    {
+        $this->_allowRemainingArgs = (bool) $allowRemainingArgs;
         return $this;
     }
 
@@ -171,6 +199,7 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
         $optParser = new Zefram_Tool_Framework_Client_Console_ArgumentParser();
         $optParser->setHelpSystem($this->_createHelpSystem());
         $optParser->setArguments($_SERVER['argv'])
+            ->setAllowRemainingArgs($this->_allowRemainingArgs)
             ->setRegistry($this->_registry)
             ->parse();
     }
