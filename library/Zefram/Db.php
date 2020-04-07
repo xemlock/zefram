@@ -182,6 +182,85 @@ class Zefram_Db implements Zefram_Db_TransactionManager
         return $this->getTableFactory()->getTablePrefix();
     } // }}}
 
+    /**
+     * Proxy to adapter's fetchAll() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchAll()} for details.
+     *
+     * @param string|Zend_Db_Select $sql  An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @param mixed                 $fetchMode Override current fetch mode.
+     * @return array
+     */
+    public function fetchAll($sql, $bind = array(), $fetchMode = null)
+    {
+        return $this->getAdapter()->fetchAll($sql, $bind, $fetchMode);
+    }
+
+    /**
+     * Proxy to adapter's fetchRow() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchRow()} for details.
+     *
+     * @param string|Zend_Db_Select $sql An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @param mixed                 $fetchMode Override current fetch mode.
+     * @return mixed Array, object, or scalar depending on fetch mode.
+     */
+    public function fetchRow($sql, $bind = array(), $fetchMode = null)
+    {
+        return $this->getAdapter()->fetchRow($sql, $bind, $fetchMode);
+    }
+
+    /**
+     * Proxy to adapter's fetchAssoc() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchAssoc()} for details.
+     *
+     * @param string|Zend_Db_Select $sql An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @return array
+     */
+    public function fetchAssoc($sql, $bind = array())
+    {
+        return $this->getAdapter()->fetchAssoc($sql, $bind);
+    }
+
+    /**
+     * Proxy to adapter's fetchCol() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchCol()} for details.
+     *
+     * @param string|Zend_Db_Select $sql An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @return array
+     */
+    public function fetchCol($sql, $bind = array())
+    {
+        return $this->getAdapter()->fetchCol($sql, $bind);
+    }
+
+    /**
+     * Proxy to adapter's fetchPairs() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchPairs()} for details.
+     *
+     * @param string|Zend_Db_Select $sql An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @return array
+     */
+    public function fetchPairs($sql, $bind = array())
+    {
+        return $this->getAdapter()->fetchPairs($sql, $bind);
+    }
+
+    /**
+     * Proxy to adapter's fetchOne() method.
+     * See {@link Zend_Db_Adapter_Abstract::fetchOne()} for details.
+     *
+     * @param string|Zend_Db_Select $sql An SQL SELECT statement.
+     * @param mixed                 $bind Data to bind into SELECT placeholders.
+     * @return mixed
+     */
+    public function fetchOne($sql, $bind = array())
+    {
+        return $this->getAdapter()->fetchOne($sql, $bind);
+    }
 
     protected static $_tableRegistry;
 
@@ -189,7 +268,6 @@ class Zefram_Db implements Zefram_Db_TransactionManager
      * Quote parameters into given string using named parameters notation,
      * regardless of whether database adapter supports named parameters or not.
      *
-     * Named parameters 
      * @param  Zend_Db_Adapter_Abstract $db
      * @param  string $string
      * @param  array $params
@@ -295,8 +373,8 @@ class Zefram_Db implements Zefram_Db_TransactionManager
     public static function classToTable($className)
     {
         return strtolower(
-            substr($className, 0, 1) . 
+            substr($className, 0, 1) .
             preg_replace('/([A-Z])/', '_$1', substr($className, 1))
-        );    
+        );
     }
 }
