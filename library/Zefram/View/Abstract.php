@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This interface exists only for PHPDoc-based autocompletion purposes.
+ * This class exists only for PHPDoc-based autocompletion purposes. Don't use it directly.
  *
  * @method string baseUrl(string $file = null)
  * @method string serverUrl(string|boolean $requestUri = null)
@@ -14,5 +14,5 @@
  * @method Zend_View_Helper_HeadTitle headTitle($title = null, $setType = null)
  * @method Zefram_View_Helper_Gravatar gravatar(string $email = null, array $options = null, array $attribs = null)
  */
-interface Zefram_View_Interface extends Zend_View_Interface
+abstract class Zefram_View_Abstract extends Zend_View_Abstract
 {}
