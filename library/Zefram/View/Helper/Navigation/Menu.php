@@ -74,21 +74,14 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
                 continue;
             }
 
-            $liClass = '';
-            if ($subPage->isActive(true) && $addPageClassToLi) {
-                $liClass = $this->_htmlAttribs(
-                    array('class' => $activeClass . ' ' . $subPage->getClass())
-                );
-            } else if ($subPage->isActive(true)) {
-                $liClass = $this->_htmlAttribs(array('class' => $activeClass));
-            } else if ($addPageClassToLi) {
-                $liClass = $this->_htmlAttribs(
-                    array('class' => $subPage->getClass())
-                );
+            $liClass = array();
+            if ($subPage->isActive(true)) {
+                $liClass[] = $activeClass;
             }
-            $html .= $indent . $innerIndent . '<li' . $liClass . '>' . $this->getEOL();
-            $html .= $indent . str_repeat($innerIndent, 2) . $this->htmlify($subPage)
-                . $this->getEOL();
+            if ($addPageClassToLi && $subPage->getClass()) {
+                $liClass[] = $subPage->getClass();
+            }
+            $html .= $this->_renderListItem($subPage, $liClass, $indent, $innerIndent);
             $html .= $indent . $innerIndent . '</li>' . $this->getEOL();
         }
 
@@ -244,7 +237,7 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
                 $liClasses[] = $activeClass;
             }
             // Add CSS class from page to LI?
-            if ($addPageClassToLi) {
+            if ($addPageClassToLi && $page->getClass()) {
                 $liClasses[] = $page->getClass();
             }
             // Add CSS class for parents to LI?
@@ -257,12 +250,7 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
                 }
             }
 
-            $html .= $myIndent . $innerIndent . '<li'
-                . $this->_htmlAttribs(array('class' => implode(' ', $liClasses)))
-                . '>' . $this->getEOL()
-                . $myIndent . str_repeat($innerIndent, 2)
-                . $this->htmlify($page)
-                . $this->getEOL();
+            $html .= $this->_renderListItem($page, $liClasses, $myIndent, $innerIndent);
 
             // store as previous depth for next iteration
             $prevDepth = $depth;
@@ -277,6 +265,29 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
             }
             $html = rtrim($html, $this->getEOL());
         }
+
+        return $html;
+    }
+
+    /**
+     * Renders menu list item
+     *
+     * Duplicate code extracted from {@link _renderDeepestMenu()} and {@link _renderMenu()}.
+     *
+     * @param Zend_Navigation_Page $page
+     * @param array $liClasses
+     * @param string $indent
+     * @param string $innerIndent
+     * @return string
+     */
+    protected function _renderListItem(Zend_Navigation_Page $page, array $liClasses, $indent, $innerIndent)
+    {
+        $html = $indent . $innerIndent . '<li'
+            . $this->_htmlAttribs(array('class' => implode(' ', $liClasses)))
+            . '>' . $this->getEOL()
+            . $indent . str_repeat($innerIndent, 2)
+            . $this->htmlify($page)
+            . $this->getEOL();
 
         return $html;
     }
