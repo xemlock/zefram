@@ -13,6 +13,7 @@
  * @method Zend_View_Helper_HeadStyle headStyle()
  * @method Zend_View_Helper_HeadTitle headTitle($title = null, $setType = null)
  * @method Zefram_View_Helper_Gravatar gravatar(string $email = null, array $options = null, array $attribs = null)
+ * @method Zefram_View_Helper_Navigation navigation(Zend_Navigation_Container $container = null)
  */
 abstract class Zefram_View_Abstract extends Zend_View_Abstract
 {}
