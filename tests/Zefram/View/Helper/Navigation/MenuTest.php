@@ -48,4 +48,32 @@ class Zefram_View_Helper_Navigation_MenuTest extends PHPUnit_Framework_TestCase
             $this->_helper->setOnlyActiveBranch(true)->setRenderParents(false)->render()
         );
     }
+
+    public function testHtmlAttribs()
+    {
+        // create menu separator and insert it after the first page
+        $pages = array();
+        foreach ($this->_navigation->getPages() as $page) {
+            $pages[] = $page;
+        }
+
+        $separator = new Zend_Navigation_Page_Uri();
+        $separator->set('liClass', 'separator');
+        $separator->set('liHtmlAttribs', array('role' => 'separator'));
+        $this->_navigation->addPage($separator);
+
+        array_splice($pages, 1, 0, array($separator));
+
+        foreach ($pages as $order => $page) {
+            $page->setOrder($order);
+        }
+
+        $this->assertSame(
+            $this->_getExpected('menu/htmlattribs.html'),
+            $this->_helper->setUlHtmlAttribs(array(
+                'role' => 'navigation',
+                'aria-label' => 'Main',
+            ))->render()
+        );
+    }
 }

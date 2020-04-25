@@ -1,7 +1,57 @@
 <?php
 
+/**
+ * Enhanced implementation of Navigation Menu view helper.
+ *
+ * The helper implementation provided by the Zend Framework {@link Zend_View_Helper_Navigation}
+ * offers no way of managing custom HTML attributes on the menu LI elements.
+ * This limitation was partially fixed in 1.12.1 when 'addPageClassToLi' option
+ * was added. This however still does not allow to set 'class' attributes on A
+ * and LI elements at the same time. There is also no possibility to add other
+ * HTML attributes on LI and UL elements, which limits the usefulness of the
+ * helper.
+ *
+ * This implementation adds support for the following page properties that will
+ * be used when rendering LI elements:
+ * - liClass - string to be added as 'class' attribute to LI element regardless
+ *   of the 'addPageClassToLi' option
+ * - liHtmlAttribs - array of custom HTML attributes to be added to LI element
+ *
+ * The following new property has been added to the helper:
+ * - ulHtmlAttribs - array of custom HTML attributes to be added to the
+ *   top-level UL element
+ *
+ * @package    Zefram_View
+ * @subpackage Helper
+ * @author     xemlock
+ *
+ * @property Zend_View_Abstract|Zefram_View_Abstract $view
+ */
 class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Menu
 {
+    /**
+     * @var array
+     */
+    protected $_ulHtmlAttribs = array();
+
+    /**
+     * @return array
+     */
+    public function getUlHtmlAttribs()
+    {
+        return $this->_ulHtmlAttribs;
+    }
+
+    /**
+     * @param array $ulHtmlAttribs
+     * @return $this
+     */
+    public function setUlHtmlAttribs(array $ulHtmlAttribs = array())
+    {
+        $this->_ulHtmlAttribs = $ulHtmlAttribs;
+        return $this;
+    }
+
     /**
      * Renders the deepest active menu within [$minDepth, $maxDeth], (called
      * from {@link renderMenu()})
@@ -52,10 +102,10 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
             $active['page'] = $active['page']->getParent();
         }
 
-        $attribs = array(
+        $attribs = array_merge($this->_ulHtmlAttribs, array(
             'class' => $ulClass,
             'id'    => $ulId,
-        );
+        ));
 
         // We don't need a prefix for the menu ID (backup)
         $skipValue = $this->_skipPrefixForId;
@@ -199,10 +249,10 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
 
                 // start new ul tag
                 if (0 == $depth) {
-                    $attribs = array(
+                    $attribs = array_merge($this->_ulHtmlAttribs, array(
                         'class' => $ulClass,
                         'id'    => $ulId,
-                    );
+                    ));
                 }
 
                 // We don't need a prefix for the menu ID (backup)
@@ -282,12 +332,23 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
      */
     protected function _renderListItem(Zend_Navigation_Page $page, array $liClasses, $indent, $innerIndent)
     {
+        if ($page->get('liClass')) {
+            $liClasses[] = $page->get('liClass');
+        }
+
+        $liHtmlAttribs = is_array($page->get('liHtmlAttribs')) ? $page->get('liHtmlAttribs') : array();
+        $liHtmlAttribs['class'] = implode(' ', $liClasses);
+
         $html = $indent . $innerIndent . '<li'
-            . $this->_htmlAttribs(array('class' => implode(' ', $liClasses)))
-            . '>' . $this->getEOL()
-            . $indent . str_repeat($innerIndent, 2)
-            . $this->htmlify($page)
-            . $this->getEOL();
+            . $this->_htmlAttribs($liHtmlAttribs)
+            . '>' . $this->getEOL();
+
+        $pageHtml = $this->htmlify($page);
+        if (strlen($pageHtml)) {
+            $html .= $indent . str_repeat($innerIndent, 2)
+                . $pageHtml
+                . $this->getEOL();
+        }
 
         return $html;
     }
