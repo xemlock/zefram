@@ -26,6 +26,11 @@
  * - ulId - string to be used as 'id' attribute of the UL with subpages UL
  * - ulHtmlAttribs - array of custom HTML attributes to be added to the
  *   subpages UL
+ * - partial - view script to use for rendering content of page LI element
+ *
+ * Additionally if a page instance implements a render() method, it will be
+ * used for rendering content of page LI element, regardless if the 'partial'
+ * property is provided.
  *
  * The following new property has been added to the helper:
  * - ulHtmlAttribs - array of custom HTML attributes to be added to the
@@ -385,7 +390,7 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
             . $this->_htmlAttribs($liHtmlAttribs)
             . '>' . $this->getEOL();
 
-        $pageHtml = trim($this->htmlify($page));
+        $pageHtml = trim($this->_renderPage($page));
         if (strlen($pageHtml)) {
             $html .= $indent . str_repeat($innerIndent, 2)
                 . $pageHtml
@@ -409,10 +414,6 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
      */
     public function htmlify(Zend_Navigation_Page $page)
     {
-        if ($partial = $page->get('partial')) {
-            return $this->_renderPagePartial($page, $partial);
-        }
-
         // get attribs for element
         $attribs = array(
             'id'     => $page->getId(),
@@ -452,6 +453,21 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
 
         $html .= '</' . $element . '>';
         return $html;
+    }
+
+    /**
+     * @param Zend_Navigation_Page $page
+     * @return string
+     */
+    protected function _renderPage(Zend_Navigation_Page $page)
+    {
+        if (method_exists($page, 'render') && is_callable(array($page, 'render'))) {
+            return $page->render($this->view);
+        }
+        if ($partial = $page->get('partial')) {
+            return $this->_renderPagePartial($page, $partial);
+        }
+        return $this->htmlify($page);
     }
 
     /**

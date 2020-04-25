@@ -132,4 +132,26 @@ class Zefram_View_Helper_Navigation_MenuTest extends PHPUnit_Framework_TestCase
             $this->_helper->render($navigation)
         );
     }
+
+    public function testPageRender()
+    {
+        $navigation = new Zend_Navigation(array(
+            new Zefram_View_Helper_Navigation_MenuTest_Page(),
+        ));
+
+        $this->_helper->view->addScriptPath(dirname(__FILE__) . '/_files/views');
+
+        $this->assertSame(
+            $this->_getExpected('menu/page_render.html'),
+            $this->_helper->render($navigation)
+        );
+    }
+}
+
+class Zefram_View_Helper_Navigation_MenuTest_Page extends Zend_Navigation_Page_Uri
+{
+    public function render(Zend_View_Abstract $view)
+    {
+        return '<div><img src="https://www.gravatar.com/avatar?d=mm"> John Doe</div>';
+    }
 }
