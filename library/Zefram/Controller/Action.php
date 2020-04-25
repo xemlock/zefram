@@ -2,7 +2,7 @@
 
 /**
  * @property Zefram_Controller_Action_HelperBroker $_helper
- * @property Zefram_View_Interface $view
+ * @property Zend_View_Abstract|Zefram_View_Abstract $view
  * @version 2014-09-25
  */
 class Zefram_Controller_Action extends Zend_Controller_Action

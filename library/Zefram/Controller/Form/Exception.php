@@ -1,13 +1,15 @@
 <?php
 
-// FIXME Przenazwac do MultiException
+/**
+ * @deprecated
+ */
 class Zefram_Controller_Form_Exception extends Exception
 {
     const DEFAULT_KEY = '__DEFAULT__';
 
     protected $_messages = array(self::DEFAULT_KEY => null);
-    
-    public function getMessages() 
+
+    public function getMessages()
     {
         return $this->_messages;
     }
@@ -18,7 +20,7 @@ class Zefram_Controller_Form_Exception extends Exception
             $this->_messages[$key] = array($this->_messages[$key]);
         }
         $this->_messages[$key] = array_merge(
-            isset($this->_messages[$key]) ? (array) $this->_messages[$key] : array(), 
+            isset($this->_messages[$key]) ? (array) $this->_messages[$key] : array(),
             $messages
         );
     }

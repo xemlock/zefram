@@ -6,6 +6,7 @@
  *
  * @version 2014-10-01
  * @author xemlock
+ * @deprecated
  */
 class Zefram_Controller_Action_Helper_EventManager
     extends Zend_Controller_Action_Helper_Abstract

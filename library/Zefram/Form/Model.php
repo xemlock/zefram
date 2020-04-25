@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @deprecated
+ */
 class Zefram_Form_Model extends Zefram_Form
 {
     const CREATE = 'CREATE';
@@ -15,7 +18,7 @@ class Zefram_Form_Model extends Zefram_Form
     protected $_types = array();
     protected $_id;
 
-    public function __construct($modelName, $mode, $id = null) 
+    public function __construct($modelName, $mode, $id = null)
     {
         $this->_driver = Zefram_Db_Driver::get($modelName);
 
@@ -29,11 +32,11 @@ class Zefram_Form_Model extends Zefram_Form
         $this->_modelName = $modelName;
         $this->_record = $record;
         $this->_spec = $this->buildElementsSpec($modelName, $mode, $record);
- 
+
         parent::__construct(array('elements' => $this->_spec['elements']));
     }
 
-    public function render() 
+    public function render()
     {
         // move hidden fields to the beggining of the form
         $index = 0;
@@ -50,14 +53,14 @@ class Zefram_Form_Model extends Zefram_Form
         return parent::render();
     }
 
-    public function getRecord() 
+    public function getRecord()
     {
         return $this->_record;
     }
 
     // simulate 'reference' inheritance (Django, not Doctrine)
     // visited - zeby sie nie petlic, bo ktos moze zrobic psikusa w definicji tabeli
-    public static function inheritance($modelName, $row = null, $visited = array()) 
+    public static function inheritance($modelName, $row = null, $visited = array())
     {
         // This is no more valid - Zend_Db rows can easily be Zend_Db_Table_Row
         //if (is_object($row) && get_class($row) != $modelName) {
@@ -74,7 +77,7 @@ class Zefram_Form_Model extends Zefram_Form
         $parent = $driver->getParent($row);
         if ($parent) {
             $inh = self::inheritance(
-                $parent['model'], 
+                $parent['model'],
                 $parent['record'],
                 $visited
             );
@@ -87,7 +90,7 @@ class Zefram_Form_Model extends Zefram_Form
         return array(array('DRIVER' => $driver, 'CLASS' => $modelName, 'PRIMARY' => $primary, 'RECORD' => $row, 'IDENTITY' => $autoinc));
     }
 
-    public function updateRecord() 
+    public function updateRecord()
     {
         $conn = $this->_driver->getConnection();
         try {
@@ -103,16 +106,16 @@ class Zefram_Form_Model extends Zefram_Form
         }
     }
 
-    protected function afterSave() 
+    protected function afterSave()
     {
-          
+
 
 
     }
 
     protected function onUpdate() {}
 
-    protected function _updateRecord() 
+    protected function _updateRecord()
     {
         $formData = $this->getValues();
         // nullify empty strings
@@ -121,7 +124,7 @@ class Zefram_Form_Model extends Zefram_Form
                 $formData[$key] = null;
             }
         }
-        
+
         $rows = $this->_spec['parents'];
         // save
         // TODO owinac to w funkcje i zrobic rollback!!!
@@ -244,7 +247,7 @@ class Zefram_Form_Model extends Zefram_Form
             if (isset($this->_types[$name])) {
                 $fields[$name]['type'] = $this->_types[$name];
                 if ($fields[$name]['type'] == 'hidden') {
-                    $fields[$name]['options']['label'] = null;                    
+                    $fields[$name]['options']['label'] = null;
                     $fields[$name]['options']['decorators'] = array('ViewHelper');
                 }
             }

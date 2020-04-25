@@ -2,6 +2,9 @@
 
 require_once 'Zend/Validate/Abstract.php';
 
+/**
+ * @deprecated
+ */
 class Zefram_Controller_Form_NoRecord extends Zend_Validate_Abstract
 {
     const RECORD_EXISTS = 'recordExists';
@@ -9,7 +12,7 @@ class Zefram_Controller_Form_NoRecord extends Zend_Validate_Abstract
     protected $_messageTemplates = array(
         self::RECORD_EXISTS => "Record with this identifier already exists in database",
     );
-    
+
     protected $exists;
 
     public function __construct($record)

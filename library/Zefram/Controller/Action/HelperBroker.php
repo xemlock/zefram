@@ -21,5 +21,5 @@
  * @package    Zefram_Controller
  * @author     xemlock <xemlock@gmail.com>
  */
-class Zefram_Controller_Action_HelperBroker extends Zend_Controller_Action_HelperBroker
+abstract class Zefram_Controller_Action_HelperBroker extends Zend_Controller_Action_HelperBroker
 {}
