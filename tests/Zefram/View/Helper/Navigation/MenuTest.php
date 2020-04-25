@@ -76,4 +76,42 @@ class Zefram_View_Helper_Navigation_MenuTest extends PHPUnit_Framework_TestCase
             ))->render()
         );
     }
+
+    public function testDropdown()
+    {
+        $navigation = new Zend_Navigation(array(
+            array(
+                'uri'         => '',
+                'element'     => 'button',
+                'label'       => 'Dropdown <i class="caret"></i>',
+                'id'          => 'dropdownMenuLink',
+                'class'       => 'dropdown-toggle',
+                'liClass'     => 'dropdown',
+                'escapeLabel' => false,
+                'customHtmlAttribs' => array(
+                    'data-toggle' => 'dropdown',
+                ),
+                'ulClass' => 'dropdown-menu',
+                'ulId'    => 'dropdownMenu',
+                'ulHtmlAttribs' => array(
+                    'aria-labelledby' => 'dropdownMenuLink',
+                ),
+                'pages'   => array(
+                    array(
+                        'label' => 'Page 1',
+                        'uri'   => 'page1',
+                    ),
+                    array(
+                        'label' => 'Page 2',
+                        'uri'   => 'page2',
+                    ),
+                ),
+            ),
+        ));
+
+        $this->assertSame(
+            $this->_getExpected('menu/dropdown.html'),
+            $this->_helper->skipPrefixForId(true)->render($navigation)
+        );
+    }
 }

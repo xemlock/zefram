@@ -9,13 +9,23 @@
  * was added. This however still does not allow to set 'class' attributes on A
  * and LI elements at the same time. There is also no possibility to add other
  * HTML attributes on LI and UL elements, which limits the usefulness of the
- * helper.
+ * helper in real-world applications. And the most striking proof of that is
+ * that there is no way of producing a Bootstrap-compatible, or an a11y
+ * compliant dropdown menu.
  *
  * This implementation adds support for the following page properties that will
  * be used when rendering LI elements:
  * - liClass - string to be added as 'class' attribute to LI element regardless
  *   of the 'addPageClassToLi' option
  * - liHtmlAttribs - array of custom HTML attributes to be added to LI element
+ * - element - string with HTML tag name to be used for rendering menu item, if
+ *   not provided, it will use 'a' when page returns non-empty href or 'span'
+ *   otherwise
+ * - escapeLabel - a boolean indicating whether to escape menu item label text
+ * - ulClass - string to be used as 'class' attribute of the subpages UL
+ * - ulId - string to be used as 'id' attribute of the UL with subpages UL
+ * - ulHtmlAttribs - array of custom HTML attributes to be added to the
+ *   subpages UL
  *
  * The following new property has been added to the helper:
  * - ulHtmlAttribs - array of custom HTML attributes to be added to the
@@ -30,9 +40,30 @@
 class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Menu
 {
     /**
+     * Whether labels should be escaped.
+     *
+     * @var bool
+     */
+    protected $_escapeLabels = true;
+
+    /**
+     * Custom HTML attributes to use for the top-level UL element.
+     *
      * @var array
      */
     protected $_ulHtmlAttribs = array();
+
+    /**
+     * Sets a flag indicating whether labels should be escaped.
+     *
+     * @param  bool $flag OPTIONAL escape labels
+     * @return $this
+     */
+    public function escapeLabels($flag = true)
+    {
+        $this->_escapeLabels = (bool) $flag;
+        return $this;
+    }
 
     /**
      * @return array
@@ -102,10 +133,10 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
             $active['page'] = $active['page']->getParent();
         }
 
-        $attribs = array_merge($this->_ulHtmlAttribs, array(
+        $attribs = array(
             'class' => $ulClass,
             'id'    => $ulId,
-        ));
+        ) + $this->_ulHtmlAttribs;
 
         // We don't need a prefix for the menu ID (backup)
         $skipValue = $this->_skipPrefixForId;
@@ -249,10 +280,21 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
 
                 // start new ul tag
                 if (0 == $depth) {
-                    $attribs = array_merge($this->_ulHtmlAttribs, array(
+                    $attribs = array(
                         'class' => $ulClass,
                         'id'    => $ulId,
-                    ));
+                    ) + $this->_ulHtmlAttribs;
+                } else {
+                    $parentPage = $page->getParent();
+                    if ($parentPage->get('ulClass')) {
+                        $attribs['class'] = $parentPage->get('ulClass');
+                    }
+                    if ($parentPage->get('ulId')) {
+                        $attribs['id'] = $this->_normalizeId($parentPage->get('ulId'));
+                    }
+                    if (is_array($parentPage->get('ulHtmlAttribs'))) {
+                        $attribs += $parentPage->get('ulHtmlAttribs');
+                    }
                 }
 
                 // We don't need a prefix for the menu ID (backup)
@@ -351,5 +393,67 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
         }
 
         return $html;
+    }
+
+    /**
+     * Returns an HTML string containing an 'a' element for the given page if
+     * the page's href is not empty, and a 'span' element if it is empty.
+     *
+     * If the page provides a boolean 'escapeLabel' property, then its value
+     * will be used for determining whether page label should be escaped.
+     *
+     * Overrides {@link Zend_View_Helper_Navigation_Menu::htmlify()}.
+     *
+     * @param  Zend_Navigation_Page $page  page to generate HTML for
+     * @return string                      HTML string for the given page
+     */
+    public function htmlify(Zend_Navigation_Page $page)
+    {
+        $escapeLabel = is_bool($page->get('escapeLabel')) ? $page->get('escapeLabel') : $this->_escapeLabels;
+
+        // get label and title for translating
+        $label = $page->getLabel();
+        $title = $page->getTitle();
+
+        // translate label and title?
+        if ($this->getUseTranslator() && $t = $this->getTranslator()) {
+            if (is_string($label) && !empty($label)) {
+                $label = $t->translate($label);
+            }
+            if (is_string($title) && !empty($title)) {
+                $title = $t->translate($title);
+            }
+        }
+
+        // get attribs for element
+        $attribs = array(
+            'id'     => $page->getId(),
+            'title'  => $title,
+        );
+
+        if (false === $this->getAddPageClassToLi()) {
+            $attribs['class'] = $page->getClass();
+        }
+
+        if ($page->get('element')) {
+            $element = $page->get('element');
+        } elseif ($page->getHref()) {
+            $element = 'a';
+        } else {
+            $element = 'span';
+        }
+
+        if ($element === 'a') {
+            $attribs['href']      = $page->getHref();
+            $attribs['target']    = $page->getTarget();
+            $attribs['accesskey'] = $page->getAccessKey();
+        }
+
+        // Add custom HTML attributes
+        $attribs = array_merge($attribs, $page->getCustomHtmlAttribs());
+
+        return '<' . $element . $this->_htmlAttribs($attribs) . '>'
+            . ($escapeLabel ? $this->view->escape($label) : $label)
+            . '</' . $element . '>';
     }
 }
