@@ -114,4 +114,22 @@ class Zefram_View_Helper_Navigation_MenuTest extends PHPUnit_Framework_TestCase
             $this->_helper->skipPrefixForId(true)->render($navigation)
         );
     }
+
+    public function testPagePartial()
+    {
+        $navigation = new Zend_Navigation(array(
+            array(
+                'partial' => 'menu/page_partial.phtml',
+                'label'   => 'Partial',
+                'uri'     => '',
+            ),
+        ));
+
+        $this->_helper->view->addScriptPath(dirname(__FILE__) . '/_files/views');
+
+        $this->assertSame(
+            $this->_getExpected('menu/page_partial.html'),
+            $this->_helper->render($navigation)
+        );
+    }
 }

@@ -385,7 +385,7 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
             . $this->_htmlAttribs($liHtmlAttribs)
             . '>' . $this->getEOL();
 
-        $pageHtml = $this->htmlify($page);
+        $pageHtml = trim($this->htmlify($page));
         if (strlen($pageHtml)) {
             $html .= $indent . str_repeat($innerIndent, 2)
                 . $pageHtml
@@ -409,26 +409,14 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
      */
     public function htmlify(Zend_Navigation_Page $page)
     {
-        $escapeLabel = is_bool($page->get('escapeLabel')) ? $page->get('escapeLabel') : $this->_escapeLabels;
-
-        // get label and title for translating
-        $label = $page->getLabel();
-        $title = $page->getTitle();
-
-        // translate label and title?
-        if ($this->getUseTranslator() && $t = $this->getTranslator()) {
-            if (is_string($label) && !empty($label)) {
-                $label = $t->translate($label);
-            }
-            if (is_string($title) && !empty($title)) {
-                $title = $t->translate($title);
-            }
+        if ($partial = $page->get('partial')) {
+            return $this->_renderPagePartial($page, $partial);
         }
 
         // get attribs for element
         $attribs = array(
             'id'     => $page->getId(),
-            'title'  => $title,
+            'title'  => $this->_translate($page->getTitle()),
         );
 
         if (false === $this->getAddPageClassToLi()) {
@@ -452,8 +440,56 @@ class Zefram_View_Helper_Navigation_Menu extends Zend_View_Helper_Navigation_Men
         // Add custom HTML attributes
         $attribs = array_merge($attribs, $page->getCustomHtmlAttribs());
 
-        return '<' . $element . $this->_htmlAttribs($attribs) . '>'
-            . ($escapeLabel ? $this->view->escape($label) : $label)
-            . '</' . $element . '>';
+        $html = '<' . $element . $this->_htmlAttribs($attribs) . '>';
+        $label = $this->_translate($page->getLabel());
+
+        $escapeLabel = is_bool($page->get('escapeLabel')) ? $page->get('escapeLabel') : $this->_escapeLabels;
+        if ($escapeLabel) {
+            $html .= $this->view->escape($label);
+        } else {
+            $html .= $label;
+        }
+
+        $html .= '</' . $element . '>';
+        return $html;
+    }
+
+    /**
+     * @param Zend_Navigation_Page $page
+     * @param string|string[] $partial
+     * @return mixed
+     * @throws Zend_View_Exception
+     */
+    protected function _renderPagePartial(Zend_Navigation_Page $page, $partial)
+    {
+        $model = array('page' => $page);
+
+        if (is_array($partial)) {
+            if (count($partial) != 2) {
+                $e = new Zend_View_Exception(
+                    'Unable to render menu: A view partial supplied as '
+                    . 'an array must contain two values: partial view '
+                    . 'script and module where script can be found'
+                );
+                $e->setView($this->view);
+                throw $e;
+            }
+
+            return $this->view->partial($partial[0], $partial[1], $model);
+        }
+
+        return $this->view->partial($partial, null, $model);
+    }
+
+    /**
+     * Translate a message (for label, title, ...)
+     *
+     * @param  string $message  ID of the message to translate
+     * @return string           Translated message
+     */
+    protected function _translate($message)
+    {
+        $translator = $this->getUseTranslator() ? $this->getTranslator() : null;
+        return $translator ? $translator->translate($message) : $message;
     }
 }
