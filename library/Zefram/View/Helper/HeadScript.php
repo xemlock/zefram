@@ -46,8 +46,9 @@ class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
         $item = (object) $item;
         $source = isset($item->source) ? $item->source : null;
 
-        if (!empty($source)) {
-            $item->source = $source . PHP_EOL;
+        $item->source = (string) $source;
+        if (strlen($item->source)) {
+            $item->source .= PHP_EOL;
         }
 
         $string = parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
