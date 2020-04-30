@@ -28,7 +28,7 @@
  *
  * Moreover in original impl input value whitespaces are not ignored, which
  * can lead to messy indents (contrary to HeadStyle which has proper indent
- * and newline handling)
+ * and newline handling).
  */
 class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
 {
