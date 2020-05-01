@@ -20,4 +20,25 @@ class Zefram_View_Helper_HeadLinkTest extends PHPUnit_Framework_TestCase
         $this->_helper->appendStylesheet('foo.css');
         $this->assertEquals('<link href="foo.css" media="all" rel="stylesheet" type="text/css">', $this->_helper->toString());
     }
+
+    public function testToStringWithInvalidItems()
+    {
+        $this->_helper->appendStylesheet('foo.css');
+        $this->_helper->getContainer()->append((object) array('foo' => 'bar'));
+        $this->_helper->appendAlternate(array('href' => 'http://example.com/', 'hreflang' => 'x-default'));
+        $this->assertEquals(
+            '<link href="foo.css" media="all" rel="stylesheet" type="text/css">'
+            . PHP_EOL
+            . '<link href="http://example.com/" hreflang="x-default">',
+            $this->_helper->toString()
+        );
+
+        $indent = '    ';
+        $this->assertEquals(
+            $indent . '<link href="foo.css" media="all" rel="stylesheet" type="text/css">'
+            . PHP_EOL
+            . $indent . '<link href="http://example.com/" hreflang="x-default">',
+            $this->_helper->toString($indent)
+        );
+    }
 }
