@@ -6,6 +6,10 @@
  *
  * Default value of 'media' attribute has been set to 'all', as 'screen' is
  * not a sensible default.
+ *
+ * Empty styles are not rendered.
+ *
+ * String <code></style></code> if present in the content is properly escaped.
  */
 class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
 {
@@ -19,13 +23,27 @@ class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
 
     public function itemToString(stdClass $item, $indent)
     {
+        $content = isset($item->content) ? $item->content : null;
+
+        if (stripos($content, '</style>') !== false) {
+            $content = str_replace('</style>', '<\\/style>', $content);
+        }
+        $content = trim($content);
+
+        if (!strlen($content)) {
+            return '';
+        }
+
         $noescape = null;
         if (isset($item->attributes['noescape'])) {
             $noescape = $item->attributes['noescape'];
             unset($item->attributes['noescape']);
         }
 
+        $originalContent = $item->content;
+        $item->content = $content;
         $string = parent::itemToString($item, $indent);
+        $item->content = $originalContent;
 
         if ($noescape !== null) {
             if ($noescape) {
@@ -38,6 +56,18 @@ class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
             $item->attributes['noescape'] = $noescape;
         }
 
+        return $string;
+    }
+
+    public function toString($indent = null)
+    {
+        $indent = (null !== $indent)
+            ? $this->getWhitespace($indent)
+            : $this->getIndent();
+
+        $string = parent::toString($indent);
+        // normalize newlines, in case there are empty or invalid styles in the container
+        $string = preg_replace('/<\/style>\s+<style/', '</style>' . PHP_EOL . $indent . '<style', $string);
         return $string;
     }
 }
