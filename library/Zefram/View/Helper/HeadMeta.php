@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Fixed support for META properties - they are valid in all doctypes, not only
- * in RDFa.
+ * Fixed support for <code><meta property= ... /></code> - they are valid in all doctypes,
+ * not only in RDFa.
  */
 class Zefram_View_Helper_HeadMeta extends Zend_View_Helper_HeadMeta
 {
