@@ -24,6 +24,12 @@ class Zefram_View_Helper_HeadMeta extends Zend_View_Helper_HeadMeta
     public function itemToString(stdClass $item)
     {
         $string = parent::itemToString($item);
+
+        // Unify XHTML tag endings
+        if ($this->view instanceof Zend_View_Abstract && $this->view->doctype()->isXhtml()) {
+            $string = str_replace('" />', '"/>', $string);
+        }
+
         $string = str_replace(' >', '>', $string); // Remove extra space before end bracket
         return $string;
     }

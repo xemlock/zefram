@@ -42,7 +42,13 @@ class Zefram_View_Helper_HeadLink extends Zend_View_Helper_HeadLink
             : $this->getIndent();
 
         $string = parent::toString($indent);
-        // normalize newlines, in case there are invalid items in the container
+
+        // Unify XHTML tag endings
+        if ($this->view instanceof Zend_View_Abstract && $this->view->doctype()->isXhtml()) {
+            $string = str_replace('" />', '"/>', $string);
+        }
+
+        // Normalize newlines, in case there are invalid items in the container
         $string = preg_replace('/>\s+<link/', '>' . PHP_EOL . $indent . '<link', $string);
         return $string;
     }
