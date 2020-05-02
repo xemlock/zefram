@@ -2,6 +2,7 @@
 
 /**
  * @version 2014-04-30
+ * @deprecated
  */
 abstract class Zefram_Form_Element_Array extends Zend_Form_Element
 {

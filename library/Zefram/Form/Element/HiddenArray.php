@@ -2,6 +2,7 @@
 
 /**
  * @version 2014-04-30
+ * @deprecated
  */
 class Zefram_Form_Element_HiddenArray extends Zefram_Form_Element_Array
 {

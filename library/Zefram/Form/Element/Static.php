@@ -6,6 +6,7 @@
  * @category    Zefram
  * @package     Zefram_Form
  * @uses        Zend_Form_Element
+ * @deprecated  Use {@link Note} instead
  */
 class Zefram_Form_Element_Static extends Zend_Form_Element
 {
