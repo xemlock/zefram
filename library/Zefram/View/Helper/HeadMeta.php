@@ -3,6 +3,8 @@
 /**
  * Fixed support for <code><meta property= ... /></code> - they are valid in all doctypes,
  * not only in RDFa.
+ *
+ * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
  */
 class Zefram_View_Helper_HeadMeta extends Zend_View_Helper_HeadMeta
 {

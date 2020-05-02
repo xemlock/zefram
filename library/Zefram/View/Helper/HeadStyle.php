@@ -10,6 +10,8 @@
  * Empty styles are not rendered.
  *
  * String <code></style></code> if present in the content is properly escaped.
+ *
+ * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
  */
 class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
 {

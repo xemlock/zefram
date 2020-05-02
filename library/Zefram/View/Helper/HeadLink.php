@@ -7,6 +7,7 @@
  *
  * Fixed rendering when there are invalid items in the container.
  *
+ * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
  * @method $this appendStylesheet($href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
  * @method $this offsetSetStylesheet($index, $href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
  * @method $this prependStylesheet($href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
