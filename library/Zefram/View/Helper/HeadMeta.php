@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Fixed support for <code><meta property= ... /></code> - they are valid in all doctypes,
- * not only in RDFa.
+ * Fixed support for <code><meta property= ... /></code> - they are valid in
+ * (X)HTML5 doctype, not only in RDFa.
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
  * @method $this setIndent(string $indent)
@@ -15,7 +15,9 @@ class Zefram_View_Helper_HeadMeta extends Zend_View_Helper_HeadMeta
 {
     protected function _isValid($item)
     {
-        if ($item instanceof stdClass && isset($item->type) && $item->type === 'property') {
+        if ($item instanceof stdClass && isset($item->type) && $item->type === 'property'
+            && ($this->view instanceof Zend_View_Abstract && $this->view->doctype()->isHtml5())
+        ) {
             return true;
         }
         return parent::_isValid($item);

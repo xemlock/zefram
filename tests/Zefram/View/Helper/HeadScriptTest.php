@@ -9,6 +9,7 @@ class Zefram_View_Helper_HeadScriptTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        Zend_Registry::_unsetInstance();
         Zend_View_Helper_Placeholder_Registry::getRegistry()->deleteContainer('Zend_View_Helper_HeadScript');
 
         $this->_helper = new Zefram_View_Helper_HeadScript();
