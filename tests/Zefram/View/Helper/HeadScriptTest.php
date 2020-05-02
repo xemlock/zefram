@@ -66,6 +66,44 @@ END;
         $this->_helper->appendFile('foo.js');
         $this->assertEquals('<script type="text/javascript" src="foo.js"></script>', $this->_helper->toString());
     }
+
+    public function testItemToStringEscapeScriptEndTag()
+    {
+        $this->_helper->appendScript("console.log('</script>');", null, array('noescape' => true));
+
+        $expected =<<<END
+<script type="text/javascript">
+    console.log('<\/script>');
+</script>
+END;
+        $this->assertEquals($expected, $this->_helper->toString());
+    }
+
+    public function testToStringWithEmptyScripts()
+    {
+        $this->_helper->appendFile('foo.js');
+        $this->_helper->appendScript('');
+        $this->_helper->appendFile('bar.js');
+
+        $this->assertEquals(
+            '<script type="text/javascript" src="foo.js"></script>' . PHP_EOL
+            . '<script type="text/javascript" src="bar.js"></script>',
+            $this->_helper->toString()
+        );
+    }
+
+    public function testDefaultNoEcapeInHtml5()
+    {
+        $this->_helper->appendScript('Foo');
+        $this->_helper->view->doctype()->setDoctype(Zend_View_Helper_Doctype::HTML5);
+
+        $expected =<<<END
+<script type="text/javascript">
+    Foo
+</script>
+END;
+        $this->assertEquals($expected, $this->_helper->toString());
+    }
 }
 
 class Zefram_View_Helper_HeadScriptTest_StringWrapper
