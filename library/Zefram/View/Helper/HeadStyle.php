@@ -25,8 +25,8 @@ class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
     {
         $content = isset($item->content) ? $item->content : null;
 
-        if (stripos($content, '</style>') !== false) {
-            $content = str_replace('</style>', '<\\/style>', $content);
+        if (stripos($content, '</style') !== false) {
+            $content = preg_replace('/<\/(style[\s>])/i', '<\\/$1', $content);
         }
         $content = trim($content);
 
