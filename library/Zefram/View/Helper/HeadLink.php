@@ -12,6 +12,11 @@
  * @method $this offsetSetStylesheet($index, $href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
  * @method $this prependStylesheet($href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
  * @method $this setStylesheet($href, $media = 'all', $conditionalStylesheet = false, array $extras = array())
+ * @method $this setIndent(string $indent)
+ * @method $this setSeparator(string $separator)
+ * @method string getIndent()
+ * @method string getSeparator()
+ * @method string getWhitespace(int|string $indent)
  */
 class Zefram_View_Helper_HeadLink extends Zend_View_Helper_HeadLink
 {

@@ -12,6 +12,11 @@
  * String <code></style></code> if present in the content is properly escaped.
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
+ * @method $this setIndent(string $indent)
+ * @method $this setSeparator(string $separator)
+ * @method string getIndent()
+ * @method string getSeparator()
+ * @method string getWhitespace(int|string $indent)
  */
 class Zefram_View_Helper_HeadStyle extends Zend_View_Helper_HeadStyle
 {

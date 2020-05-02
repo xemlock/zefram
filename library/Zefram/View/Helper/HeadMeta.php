@@ -5,6 +5,11 @@
  * not only in RDFa.
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
+ * @method $this setIndent(string $indent)
+ * @method $this setSeparator(string $separator)
+ * @method string getIndent()
+ * @method string getSeparator()
+ * @method string getWhitespace(int|string $indent)
  */
 class Zefram_View_Helper_HeadMeta extends Zend_View_Helper_HeadMeta
 {

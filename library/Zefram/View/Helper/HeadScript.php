@@ -37,6 +37,11 @@
  * - Fix: If no type is given or the type is empty, a default 'text/javascript' is used
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
+ * @method $this setIndent(string $indent)
+ * @method $this setSeparator(string $separator)
+ * @method string getIndent()
+ * @method string getSeparator()
+ * @method string getWhitespace(int|string $indent)
  */
 class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
 {
