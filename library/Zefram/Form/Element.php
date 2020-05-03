@@ -90,11 +90,16 @@ abstract class Zefram_Form_Element extends Zend_Form_Element
     }
 
     /**
-     * @param array $decorators
+     * @param string|array $type
+     * @param array $decorators OPTIONAL
      * @param string $type OPTIONAL
      */
-    public static function setDefaultDecorators(array $decorators, $type = 'Zend_Form_Element')
+    public static function setDefaultDecorators($type, array $decorators = array())
     {
+        if (is_array($type)) {
+            $decorators = $type;
+            $type = 'Zend_Form_Element';
+        }
         self::$_defaultDecorators[$type] = $decorators;
     }
 }
