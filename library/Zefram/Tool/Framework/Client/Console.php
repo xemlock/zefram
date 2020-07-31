@@ -245,6 +245,27 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
         echo PHP_EOL;
     }
 
+    protected function _preInit()
+    {
+        parent::_preInit();
+
+        /** @var Zend_Tool_Framework_Loader_BasicLoader $loader */
+        $loader = $this->_registry->getLoader();
+
+        // Access protected property $_classesToLoad of loader object
+        // https://ocramius.github.io/blog/fast-php-object-to-array-conversion/
+        $loaderAsArray = (array) $loader;
+        $classesToLoad = $loaderAsArray["\0*\0" . '_classesToLoad'];
+
+        foreach ($classesToLoad as $key => $value) {
+            if ($value === 'Zend_Tool_Framework_Client_Console_Manifest') {
+                $classesToLoad[$key] = 'Zefram_Tool_Framework_Client_Console_Manifest';
+            }
+        }
+
+        $loader->setClassesToLoad($classesToLoad);
+    }
+
     /**
      * @return Zefram_Tool_Framework_Client_Console_HelpSystem
      */
@@ -254,5 +275,48 @@ class Zefram_Tool_Framework_Client_Console extends Zend_Tool_Framework_Client_Co
         $helpSystem->setHeader($this->getHelpHeader());
 
         return $helpSystem;
+    }
+
+    /**
+     * Initialize the client for use
+     *
+     * This is an almost exact copy of {@link Zend_Tool_Framework_Client_Console::initialize()}
+     * but it uses an instance of {@link Zefram_Tool_Framework_Client_Manifest} as the base
+     * manifest, because the original one is incapable of dealing with parameter names starting
+     * with the same letter.
+     */
+    public function initialize()
+    {
+        // if its already initialized, no need to initialize again
+        if ($this->_isInitialized) {
+            return;
+        }
+
+        // run any preInit
+        $this->_preInit();
+
+        $manifest = $this->_registry->getManifestRepository();
+        $manifest->addManifest(new Zefram_Tool_Framework_Client_Manifest());
+
+        // setup the debug log
+        if (!$this->_debugLogger instanceof Zend_Log) {
+            $this->_debugLogger = new Zend_Log(new Zend_Log_Writer_Null());
+        }
+
+        // let the loader load, then the repositories process whats been loaded
+        $this->_registry->getLoader()->load();
+
+        // process the action repository
+        $this->_registry->getActionRepository()->process();
+
+        // process the provider repository
+        $this->_registry->getProviderRepository()->process();
+
+        // process the manifest repository
+        $this->_registry->getManifestRepository()->process();
+
+        if ($this instanceof Zend_Tool_Framework_Client_Interactive_OutputInterface) {
+            $this->_registry->getResponse()->setContentCallback(array($this, 'handleInteractiveOutput'));
+        }
     }
 }

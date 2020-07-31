@@ -4,10 +4,13 @@
  * Abstract provider with built-in name resolver.
  *
  * Implementation rationale: Provider name retrieval algorithm in
- * {@link Zend_Tool_Framework_Provider_Signature::_processName()}
- * can't properly handle namespaces (they are not stripped), as well as
- * class names which, after PSR-0 path part removed, are either 'Provider'
+ * {@link Zend_Tool_Framework_Provider_Signature::_processName()} can't
+ * properly handle namespaces (they are not stripped), as well as class
+ * names which, after PSR-0 path part removed, are either 'Provider'
  * or 'Manifest'.
+ *
+ * @category   Zefram
+ * @package    Zefram_Tool
  */
 class Zefram_Tool_Framework_Provider_Abstract extends Zend_Tool_Framework_Provider_Abstract
 {

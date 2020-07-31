@@ -6,6 +6,7 @@
  * - Allows controlling how to behave when remaining arguments are detected
  * - Overrides an argument parsing bug in
  *   {@link Zend_Tool_Framework_Client_Console_ArgumentParser::_parseProviderOptionsPart()}
+ * - Supports actions without short params defined
  *
  * Zend implementation reports failure when there are remaining arguments,
  * which affects usefulness of the parser in more general use cases.
@@ -119,7 +120,7 @@ class Zefram_Tool_Framework_Client_Console_ArgumentParser
             return;
         }
 
-        parent::_parseProviderOptionsPart();
+        $this->_parentParseProviderOptionsPart();
 
         $this->_remainingArgs = $this->_argumentsWorking;
 
@@ -128,6 +129,127 @@ class Zefram_Tool_Framework_Client_Console_ArgumentParser
         if (count($this->_argumentsWorking) && $this->_allowRemainingArgs) {
             $this->_argumentsWorking = array();
         }
+    }
+
+    /**
+     * Reimplementation of {@link Zend_Tool_Framework_Client_Console_ArgumentParser::_parseProviderOptionsPart()}
+     * that gracefully handles actions without short params defined.
+     *
+     * The original implementation hasn't changed since ZF 1.10.0alpha1 (2009-12-21).
+     * The key difference is the added check for existence of
+     * <code>$paramNameShortValues[$parameterNameLong]</code> before adding it to
+     * getopt options. Rest of the code remains unchanged.
+     *
+     * @return void
+     */
+    protected function _parentParseProviderOptionsPart()
+    {
+        if (current($this->_argumentsWorking) == '?') {
+            $this->_help = true;
+            return;
+        }
+
+        $searchParams = array(
+            'type'          => 'Tool',
+            'providerName'  => $this->_request->getProviderName(),
+            'actionName'    => $this->_request->getActionName(),
+            'specialtyName' => $this->_request->getSpecialtyName(),
+            'clientName'    => 'console'
+        );
+
+        $actionableMethodLongParamsMetadata = $this->_manifestRepository->getMetadata(
+            array_merge($searchParams, array('name' => 'actionableMethodLongParams'))
+        );
+
+        $actionableMethodShortParamsMetadata = $this->_manifestRepository->getMetadata(
+            array_merge($searchParams, array('name' => 'actionableMethodShortParams'))
+        );
+
+        $paramNameShortValues = $actionableMethodShortParamsMetadata->getValue();
+
+        $getoptOptions = array();
+        $wordArguments = array();
+        $longParamCanonicalNames = array();
+
+        $actionableMethodLongParamsMetadataReference = $actionableMethodLongParamsMetadata->getReference();
+        foreach ($actionableMethodLongParamsMetadata->getValue() as $parameterNameLong => $consoleParameterNameLong) {
+            $optionConfig = $consoleParameterNameLong;
+
+            $parameterInfo = $actionableMethodLongParamsMetadataReference['parameterInfo'][$parameterNameLong];
+
+            if (isset($paramNameShortValues[$parameterNameLong])) {
+                $optionConfig .= '|';
+
+                // process ParameterInfo into array for command line option matching
+                if ($parameterInfo['type'] == 'string' || $parameterInfo['type'] == 'bool') {
+                    $optionConfig .= $paramNameShortValues[$parameterNameLong]
+                        . (($parameterInfo['optional']) ? '-' : '=') . 's';
+                } elseif (in_array($parameterInfo['type'], array('int', 'integer', 'float'))) {
+                    $optionConfig .= $paramNameShortValues[$parameterNameLong]
+                        . (($parameterInfo['optional']) ? '-' : '=') . 'i';
+                } else {
+                    $optionConfig .= $paramNameShortValues[$parameterNameLong] . '-s';
+                }
+            }
+
+            $getoptOptions[$optionConfig] = ($parameterInfo['description'] != '') ? $parameterInfo['description'] : 'No description available.';
+
+
+            // process ParameterInfo into array for command line WORD (argument) matching
+            $wordArguments[$parameterInfo['position']]['parameterName'] = $parameterInfo['name'];
+            $wordArguments[$parameterInfo['position']]['optional']      = $parameterInfo['optional'];
+            $wordArguments[$parameterInfo['position']]['type']          = $parameterInfo['type'];
+
+            // keep a translation of console to canonical names
+            $longParamCanonicalNames[$consoleParameterNameLong] = $parameterNameLong;
+        }
+
+
+        if (!$getoptOptions) {
+            // no options to parse here, return
+            return;
+        }
+
+        // if non-option arguments exist, attempt to process them before processing options
+        $wordStack = array();
+        while (($wordOnTop = array_shift($this->_argumentsWorking))) {
+            if (substr($wordOnTop, 0, 1) != '-') {
+                array_push($wordStack, $wordOnTop);
+            } else {
+                // put word back on stack and move on
+                array_unshift($this->_argumentsWorking, $wordOnTop);
+                break;
+            }
+
+            if (count($wordStack) == count($wordArguments)) {
+                // when we get at most the number of arguments we are expecting
+                // then break out.
+                break;
+            }
+
+        }
+
+        if ($wordStack && $wordArguments) {
+            for ($wordIndex = 1; $wordIndex <= count($wordArguments); $wordIndex++) {
+                if (!array_key_exists($wordIndex-1, $wordStack) || !array_key_exists($wordIndex, $wordArguments)) {
+                    break;
+                }
+                $this->_request->setProviderParameter($wordArguments[$wordIndex]['parameterName'], $wordStack[$wordIndex-1]);
+                unset($wordStack[$wordIndex-1]);
+            }
+        }
+
+        $getoptParser = new Zend_Console_Getopt($getoptOptions, $this->_argumentsWorking, array('parseAll' => false));
+        $getoptParser->parse();
+        foreach ($getoptParser->getOptions() as $option) {
+            $value = $getoptParser->getOption($option);
+            $providerParamOption = $longParamCanonicalNames[$option];
+            $this->_request->setProviderParameter($providerParamOption, $value);
+        }
+
+        $this->_argumentsWorking = $getoptParser->getRemainingArgs();
+
+        return;
     }
 
     /**
