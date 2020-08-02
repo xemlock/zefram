@@ -7,12 +7,7 @@ class Zefram_Form_Element_Select extends Zend_Form_Element_Select
 {
     public function loadDefaultDecorators()
     {
-        if ($this->loadDefaultDecoratorsIsDisabled()) {
-            return $this;
-        }
-
         Zefram_Form_Element::_loadDefaultDecorators($this);
-
         return $this;
     }
 }

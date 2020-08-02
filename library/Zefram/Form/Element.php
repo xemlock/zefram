@@ -44,7 +44,7 @@ abstract class Zefram_Form_Element extends Zend_Form_Element
      */
     public static function _loadDefaultDecorators(Zend_Form_Element $element, $htmlTagId = null)
     {
-        if ($element->loadDefaultDecoratorsIsDisabled()) {
+        if ($element->loadDefaultDecoratorsIsDisabled() || $element->getDecorators()) {
             return;
         }
 

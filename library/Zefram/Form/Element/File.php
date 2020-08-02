@@ -7,10 +7,6 @@ class Zefram_Form_Element_File extends Zend_Form_Element_File
 {
     public function loadDefaultDecorators()
     {
-        if ($this->loadDefaultDecoratorsIsDisabled()) {
-            return $this;
-        }
-
         Zefram_Form_Element::_loadDefaultDecorators($this);
 
         // This element needs the File decorator and not the ViewHelper decorator
