@@ -8,6 +8,11 @@
 class Zefram_Db implements Zefram_Db_TransactionManager
 {
     /**
+     * @var Zefram_Db[]
+     */
+    protected static $_registry = array();
+
+    /**
      * @var Zend_Db_Adapter_Abstract
      */
     protected $_adapter;
@@ -36,13 +41,28 @@ class Zefram_Db implements Zefram_Db_TransactionManager
     }
 
     /**
+     * Utility method for retrieving Zefram_Db instance for given adapter.
+     *
+     * @param Zend_Db_Adapter_Abstract $adapter
+     * @return Zefram_Db
+     */
+    public static function getInstance(Zend_Db_Adapter_Abstract $adapter)
+    {
+        $hash = spl_object_hash($adapter);
+        if (isset(self::$_registry[$hash])) {
+            return self::$_registry[$hash];
+        }
+        return new self($adapter);
+    }
+
+    /**
      * Constructor.
      *
      * @param Zend_Db_Adapter_Abstract|Zefram_Db_Table_FactoryInterface $adapter
      * @return void
      * @throws InvalidArgumentException
      */
-    public function __construct($adapter) // {{{
+    public function __construct($adapter)
     {
         if ($adapter instanceof Zefram_Db_Table_FactoryInterface) {
             $this->_adapter = $adapter->getAdapter();
@@ -52,7 +72,9 @@ class Zefram_Db implements Zefram_Db_TransactionManager
         } else {
             throw new InvalidArgumentException('Adapter must be either an instance of Zend_Db_Adapter_Abstract or Zefram_Db_Table_FactoryInterface');
         }
-    } // }}}
+
+        self::$_registry[spl_object_hash($this->_adapter)] = $this;
+    }
 
     /**
      * @return Zend_Db_Adapter_Abstract
@@ -78,10 +100,26 @@ class Zefram_Db implements Zefram_Db_TransactionManager
      *
      * @return Zefram_Db_Select
      */
-    public function select() // {{{
+    public function select()
     {
         return new Zefram_Db_Select($this->_adapter);
-    } // }}}
+    }
+
+    /**
+     * Creates a {@link Zend_Db_Expr} instance with params quoted into the expression.
+     *
+     * @param string $expr
+     * @param array $params OPTIONAL
+     * @return Zend_Db_Expr
+     */
+    public function expr($expr, $params = null)
+    {
+        if (null !== $bind) {
+            $expr = Zefram_Db_Traits::bindParams($this, $expr, $params);
+        }
+
+        return new Zend_Db_Expr($expr);
+    }
 
     /**
      * Proxy to adapter's quote() method.

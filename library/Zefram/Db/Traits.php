@@ -2,6 +2,9 @@
 
 abstract class Zefram_Db_Traits
 {
+    /**
+     * @internal
+     */
     public static function bindParams(Zend_Db_Adapter_Abstract $db, $sql, $bind)
     {
         foreach ((array) $bind as $key => $value) {
