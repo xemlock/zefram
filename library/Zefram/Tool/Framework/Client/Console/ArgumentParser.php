@@ -4,7 +4,7 @@
  * Additional features:
  * - Allows customizing help system instance
  * - Allows controlling how to behave when remaining arguments are detected
- * - Overrides an argument parsing bug in
+ * - Overrides an argument parsing bugs in
  *   {@link Zend_Tool_Framework_Client_Console_ArgumentParser::_parseProviderOptionsPart()}
  * - Supports actions without short params defined
  *
@@ -138,7 +138,11 @@ class Zefram_Tool_Framework_Client_Console_ArgumentParser
      * The original implementation hasn't changed since ZF 1.10.0alpha1 (2009-12-21).
      * The key difference is the added check for existence of
      * <code>$paramNameShortValues[$parameterNameLong]</code> before adding it to
-     * getopt options. Rest of the code remains unchanged.
+     * getopt options.
+     *
+     * Also this implementation correctly handles situation when params metadata
+     * was not found. This fixes Uncaught Error when trying to run invalid action
+     * on a valid provider.
      *
      * @return void
      */
@@ -161,11 +165,20 @@ class Zefram_Tool_Framework_Client_Console_ArgumentParser
             array_merge($searchParams, array('name' => 'actionableMethodLongParams'))
         );
 
+        if (!$actionableMethodLongParamsMetadata) {
+            // missing params metadata
+            return;
+        }
+
         $actionableMethodShortParamsMetadata = $this->_manifestRepository->getMetadata(
             array_merge($searchParams, array('name' => 'actionableMethodShortParams'))
         );
 
-        $paramNameShortValues = $actionableMethodShortParamsMetadata->getValue();
+        if ($actionableMethodShortParamsMetadata) {
+            $paramNameShortValues = $actionableMethodShortParamsMetadata->getValue();
+        } else {
+            $paramNameShortValues = array();
+        }
 
         $getoptOptions = array();
         $wordArguments = array();
