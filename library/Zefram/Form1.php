@@ -9,6 +9,8 @@
  * - default element decorators - special decorators for hidden input
  * - TODO hidden input errors moved to general errors
  * - default form decorators -> show custom messages
+ *
+ * @deprecated
  */
 class Zefram_Form1 extends Zefram_Form2
 {
@@ -118,7 +120,7 @@ class Zefram_Form1 extends Zefram_Form2
                     if (!isset($options['decorators'])) {
                         $options['decorators'] = self::buttonDecorators();
                     }
-                    break;                    
+                    break;
 
                 case 'hidden':
                     // handle hidden field decorators
@@ -160,7 +162,7 @@ class Zefram_Form1 extends Zefram_Form2
             }
         }
         if ($element->isArray()) {
-            // if element expects an array value, remove filters that 
+            // if element expects an array value, remove filters that
             // convert value to string
             $element->removeFilter('Zefram_Filter_Scalar')
                     ->removeFilter('StringTrim');
@@ -169,7 +171,7 @@ class Zefram_Form1 extends Zefram_Form2
         return $this;
     }
 
-    static public function formDecorators() 
+    static public function formDecorators()
     {
         // <markupListStart>
         //   <markupListItemStart>
@@ -186,7 +188,7 @@ class Zefram_Form1 extends Zefram_Form2
             )),
             'FormElements',
             array(
-                'HtmlTag', 
+                'HtmlTag',
                 array('tag' => 'div', 'class' => 'form')
             ),
             'Form',
@@ -204,7 +206,7 @@ class Zefram_Form1 extends Zefram_Form2
     }
 
     public static function elementDecorators($opts = array())
-    {        
+    {
         return array_merge(array(
             'ViewHelper',
             array('Description', array(
@@ -223,7 +225,7 @@ class Zefram_Form1 extends Zefram_Form2
     }
 
     public static function buttonDecorators($opts = array())
-    {        
+    {
         return array_merge(array(
             'ViewHelper',
             array('Description', array(
@@ -285,7 +287,7 @@ class Zefram_Form1 extends Zefram_Form2
         );
     }
 
-    static public function hiddenDecorators() 
+    static public function hiddenDecorators()
     {
         return array(
             'ViewHelper',

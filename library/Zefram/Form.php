@@ -1,4 +1,4 @@
 <?php
 
-class Zefram_Form extends Zefram_Form1
+class Zefram_Form extends Zefram_Form2
 {}
