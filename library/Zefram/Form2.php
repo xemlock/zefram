@@ -44,6 +44,47 @@ class Zefram_Form2 extends Zend_Form
     protected function _init()
     {}
 
+    /**
+     * Create an element
+     *
+     * Acts as a factory for creating elements. Elements created with this
+     * method will not be attached to the form, but will contain element
+     * settings as specified in the form object (including plugin loader
+     * prefix paths, default decorators, etc.).
+     *
+     * Additionally, non-array elements have StringTrim and Null(string) filters
+     * added by default.
+     *
+     * @param  string            $type
+     * @param  string            $name
+     * @param  array|Zend_Config $options
+     * @throws Zend_Form_Exception
+     * @return Zend_Form_Element
+     */
+    public function createElement($type, $name, $options = null)
+    {
+        $element = parent::createElement($type, $name, $options);
+
+        if (!$element->isArray()) {
+            $filters = $element->getFilters();
+
+            // Ensure only scalar values are provided
+            array_unshift($filters, new Zefram_Filter_Scalar());
+            $element->setFilters($filters);
+
+            if (!$element->getFilter('StringTrim')) {
+                $element->addFilter('StringTrim');
+            }
+
+            // Convert empty strings to null
+            if (!$element->getFilter('Null')) {
+                $element->addFilter('Null', 'string');
+            }
+        }
+
+        return $element;
+    }
+
     public function addSubForm(Zend_Form $form, $name = null, $order = null)
     {
         // handle order if passed as the second param
