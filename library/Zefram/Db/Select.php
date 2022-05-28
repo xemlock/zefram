@@ -3,6 +3,26 @@
 class Zefram_Db_Select extends Zend_Db_Select
 {
     /**
+     * {@inheritDoc}
+     *
+     * This method is an enhancement for {@see Zend_Db_Select::from()} allowing
+     * Zend_Db_Table instances to be passed as the $name parameter.
+     *
+     * @param  array|string|Zend_Db_Expr|Zend_Db_Table_Abstract $name
+     *     The table name or an associative array relating correlation name to table name.
+     * @param  array|string|Zend_Db_Expr $cols
+     *     The columns to select from this table.
+     * @param  string $schema
+     *     The schema name to specify, if any.
+     * @return $this
+     *     This select object
+     */
+    public function from($name, $cols = '*', $schema = null)
+    {
+        return $this->_join(self::FROM, $name, null, $cols, $schema);
+    }
+
+    /**
      * Enhancement for {@see Zend_Db_Select::_join()} allowing Zend_Db_Table
      * instances to be passed as the $name parameter.
      *
@@ -56,7 +76,7 @@ class Zefram_Db_Select extends Zend_Db_Select
             }
         } else {
             $cond = Zefram_Db::quoteEmbeddedIdentifiers($db, $cond);
-            parent::where($cond, $value, $type); 
+            parent::where($cond, $value, $type);
         }
         return $this;
     }
@@ -89,7 +109,7 @@ class Zefram_Db_Select extends Zend_Db_Select
             }
         } else {
             $cond = Zefram_Db::quoteEmbeddedIdentifiers($db, $cond);
-            parent::orWhere($cond, $value, $type); 
+            parent::orWhere($cond, $value, $type);
         }
         return $this;
     }
@@ -190,7 +210,7 @@ class Zefram_Db_Select extends Zend_Db_Select
                     } catch (Exception $e) {
                         $trace = $e->getTrace();
 
-                        // skip frames with 
+                        // skip frames with
                         while ($frame = array_shift($trace)) {
                             if (isset($frame['class']) && $frame['class'] === 'Zefram_Db_Select') {
                                 continue;
