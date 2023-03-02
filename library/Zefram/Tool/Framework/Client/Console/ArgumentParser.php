@@ -133,7 +133,7 @@ class Zefram_Tool_Framework_Client_Console_ArgumentParser
 
     /**
      * Reimplementation of {@link Zend_Tool_Framework_Client_Console_ArgumentParser::_parseProviderOptionsPart()}
-     * that gracefully handles actions without short params defined.
+     * that gracefully handles actions that have no short params defined.
      *
      * The original implementation hasn't changed since ZF 1.10.0alpha1 (2009-12-21).
      * The key difference is the added check for existence of
