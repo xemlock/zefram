@@ -53,7 +53,6 @@ class Zefram_Log extends Zend_Log
      */
     public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
     {
-
         $errorLevel = error_reporting();
 
         if ($errorLevel & $errno) {
