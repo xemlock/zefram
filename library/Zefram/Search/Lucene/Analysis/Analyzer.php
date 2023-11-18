@@ -158,12 +158,13 @@ class Zefram_Search_Lucene_Analysis_Analyzer extends Zend_Search_Lucene_Analysis
                     if (isset($filterSpec['options'])) {
                         $options = $filterSpec['options'];
                     }
+                    $this->addFilter($filter, (array) $options);
                 } else {
                     $filter = null;
                     $argc = count($filterSpec);
                     switch ($argc) {
                         case 0:
-                            continue;
+                            break;
 
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case (1 <= $argc):
@@ -172,10 +173,11 @@ class Zefram_Search_Lucene_Analysis_Analyzer extends Zend_Search_Lucene_Analysis
                         /** @noinspection PhpMissingBreakStatementInspection */
                         case (2 <= $argc):
                             $options = array_shift($filterSpec);
+
+                        default:
+                            $this->addFilter($filter, (array) $options);
                     }
                 }
-                $this->addFilter($filter, (array) $options);
-
             } else {
                 $this->addFilter($filterSpec);
             }
