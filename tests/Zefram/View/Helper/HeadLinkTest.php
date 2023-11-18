@@ -22,6 +22,14 @@ class Zefram_View_Helper_HeadLinkTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('<link href="foo.css" media="all" rel="stylesheet" type="text/css">', $this->_helper->toString());
     }
 
+    public function testItemToStringXhtml()
+    {
+        $this->_helper->appendStylesheet('foo.css');
+        $this->_helper->view->doctype(Zend_View_Helper_Doctype::XHTML1_STRICT);
+
+        $this->assertEquals('<link href="foo.css" media="all" rel="stylesheet" type="text/css"/>', $this->_helper->toString());
+    }
+
     public function testToStringWithInvalidItems()
     {
         $this->_helper->appendStylesheet('foo.css');
@@ -40,6 +48,67 @@ class Zefram_View_Helper_HeadLinkTest extends PHPUnit_Framework_TestCase
             . PHP_EOL
             . $indent . '<link href="http://example.com/" hreflang="x-default">',
             $this->_helper->toString($indent)
+        );
+    }
+
+    public function testCreateDataStylesheet()
+    {
+        $this->assertEquals(
+            array(
+                'rel' => 'stylesheet',
+                'type' => 'text/css',
+                'href' => 'style.css',
+                'media' => 'all',
+                'conditionalStylesheet' => false,
+                'extras' => array(),
+            ),
+            get_object_vars(
+                $this->_helper->createDataStylesheet(array(
+                    'style.css',
+                ))
+            )
+        );
+
+        $this->assertEquals(
+            array(
+                'rel' => 'stylesheet',
+                'type' => 'text/css',
+                'href' => 'style.css',
+                'media' => 'screen',
+                'conditionalStylesheet' => 'IE 6',
+                'extras' => array(),
+            ),
+            get_object_vars(
+                $this->_helper->createDataStylesheet(array(
+                    'style.css',
+                    'screen',
+                    'IE 6',
+                    'extras',
+                ))
+            )
+        );
+
+        $this->assertEquals(
+            array(
+                'rel' => 'stylesheet',
+                'type' => 'text/css',
+                'href' => 'style.css',
+                'media' => 'screen',
+                'conditionalStylesheet' => 'IE 6',
+                'extras' => array(
+                    'id' => 'style-css',
+                ),
+            ),
+            get_object_vars(
+                $this->_helper->createDataStylesheet(array(
+                    'foo' => 'style.css',
+                    'bar' => 'screen',
+                    'baz' => 'IE 6',
+                    'qux' => array(
+                        'id' => 'style-css',
+                    ),
+                ))
+            )
         );
     }
 }
