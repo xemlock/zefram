@@ -1,21 +1,29 @@
 <?php
 
-// find autoload.php moving upwards, so that tests can be executed
-// even if the library itself lies in the vendor/ directory of another
-// project
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$dir = dirname(__FILE__);
-$autoload = null;
-
-while ($parent = realpath($dir . '/..')) {
-    if (file_exists($path = $parent . '/vendor/autoload.php')) {
-        $autoload = $path;
-        break;
-    }
-    $dir = $parent;
-}
-if (empty($autoload)) {
-    die('Unable to find autoload.php');
+// PHPUnit >= 6.0 compatibility
+if (!class_exists('PHPUnit_Framework_TestSuite') && class_exists('PHPUnit\Framework\TestSuite')) {
+    /** @noinspection PhpIgnoredClassAliasDeclaration */
+    class_alias('PHPUnit\Framework\TestSuite', 'PHPUnit_Framework_TestSuite');
 }
 
-require_once $autoload;
+if (!class_exists('PHPUnit_Framework_TestCase') && class_exists('PHPUnit\Framework\TestCase')) {
+    /** @noinspection PhpIgnoredClassAliasDeclaration */
+    class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
+if (!class_exists('PHPUnit_Framework_Error_Error') && class_exists('PHPUnit\Framework\Error\Error')) {
+    /** @noinspection PhpIgnoredClassAliasDeclaration */
+    class_alias('PHPUnit\Framework\Error\Error', 'PHPUnit_Framework_Error_Error');
+}
+
+if (!class_exists('PHPUnit_Framework_AssertionFailedError') && class_exists('PHPUnit\Framework\AssertionFailedError')) {
+    /** @noinspection PhpIgnoredClassAliasDeclaration */
+    class_alias('PHPUnit\Framework\AssertionFailedError', 'PHPUnit_Framework_AssertionFailedError');
+}
+
+echo "Zend Framework version: ", Zend_Version::VERSION, "\n";
+echo "PHP version:            ", PHP_VERSION, "\n";
+echo "PHP memory limit:       ", ini_get('memory_limit'), "\n";
+echo "\n";

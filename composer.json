@@ -13,15 +13,21 @@
         "zendframework/zendframework1": "^1.12.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.7.*|5.7.*"
+        "phpunit/phpunit": ">=4.7 <9.0"
     },
     "autoload": {
-        "psr-0": { "Zefram_": "library"}
+        "psr-0": { "Zefram_": "library" }
     },
     "include-path": [
         "library/"
     ],
     "scripts": {
-        "test": "phpunit"
+        "post-install-cmd": [
+            "@php bin/patch_phpunit.php"
+        ],
+        "post-update-cmd": [
+            "@php bin/patch_phpunit.php"
+        ],
+        "test": "phpunit --coverage-html build/coverage"
     }
 }

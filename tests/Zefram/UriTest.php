@@ -137,15 +137,31 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
         return $uri;
     }
 
+    /**
+     * @expectedException Zend_Uri_Exception
+     * @expectedExceptionMessage "This_Is_An_Unknown_Class" not found
+     */
     public function testFactoryWithUnExistingClassThrowException()
     {
-        $this->setExpectedException('Zend_Uri_Exception', '"This_Is_An_Unknown_Class" not found');
+        // setExpectedException() was removed in phpunit 6.x-8.x
+        if (method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException('Zend_Uri_Exception', '"This_Is_An_Unknown_Class" not found');
+        }
+
         Zefram_Uri::factory('http://example.net', 'This_Is_An_Unknown_Class');
     }
 
+    /**
+     * @expectedException Zend_Uri_Exception
+     * @expectedExceptionMessage "Fake_Zend_Uri" is not an instance of Zend_Uri
+     */
     public function testFactoryWithExistingClassButNotImplementingZendUriThrowException()
     {
-        $this->setExpectedException('Zend_Uri_Exception', '"Fake_Zend_Uri" is not an instance of Zend_Uri');
+        // setExpectedException() was removed in phpunit 6.x-8.x
+        if (method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException('Zend_Uri_Exception', '"Fake_Zend_Uri" is not an instance of Zend_Uri');
+        }
+
         Zefram_Uri::factory('http://example.net', 'Fake_Zend_Uri');
     }
 
@@ -154,14 +170,15 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
         $uri = $this->_testValidUri('http://example.net', 'Zend_Uri_Mock');
         $this->assertTrue($uri instanceof Zend_Uri_Mock, 'Zend_Uri_Mock object not returned.');
     }
-
 }
+
 class Zend_Uri_Mock extends Zend_Uri
 {
     protected function __construct($scheme, $schemeSpecific = '') { }
     public function getUri() { }
     public function valid() { }
 }
+
 class Zend_Uri_ExceptionCausing extends Zend_Uri
 {
     protected function __construct($scheme, $schemeSpecific = '') { }
@@ -171,6 +188,7 @@ class Zend_Uri_ExceptionCausing extends Zend_Uri
         throw new Exception('Exception in getUri()');
     }
 }
+
 class Fake_Zend_Uri
 {
 }

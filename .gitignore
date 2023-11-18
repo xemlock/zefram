@@ -1,5 +1,7 @@
 vendor
 composer.lock
 
+.phpunit.result.cache
+
 *.swp
 *.swo
