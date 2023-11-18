@@ -29,5 +29,8 @@
             "@php bin/patch_phpunit.php"
         ],
         "test": "phpunit --coverage-html build/coverage"
+    },
+    "suggest": {
+        "zf1s/zf1": "Zend Framework version compatible with PHP >=7.3"
     }
 }

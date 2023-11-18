@@ -11,6 +11,8 @@ jobs:
             matrix:
                 operating-system: ['ubuntu-latest']
                 php-versions:
+                    - '7.4'
+                    - '7.3'
                     - '7.2'
                     - '7.1'
                     - '7.0'
@@ -38,6 +40,10 @@ jobs:
             - name: Install dependencies
               run: |
                   echo PHP_VERSION: ${{ env.PHP_VERSION }}
+                  if [[ $(echo "${{ env.PHP_VERSION }} >= 7.3" | bc) -eq 1 ]]; then
+                    composer remove --no-update zendframework/zendframework1
+                    composer require --no-update zf1s/zf1
+                  fi
                   composer install
 
             - name: Run tests
