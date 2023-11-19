@@ -6,7 +6,7 @@
  * Supported configuration options:
  *
  *   resources.log.factoryClass = "Zend_Log"
- * 
+ *
  * A single logger:
  *
  *   resources.log.writerName = <WRITER>
@@ -36,7 +36,7 @@ class Zefram_Application_Resource_Log extends Zend_Application_Resource_Resource
     /**
      * @var string
      */
-    protected $_factoryClass = 'Zend_Log';
+    protected $_factoryClass = 'Zefram_Log';
 
     /**
      * @var Zend_Log

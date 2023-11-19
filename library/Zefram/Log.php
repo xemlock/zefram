@@ -51,7 +51,7 @@ class Zefram_Log extends Zend_Log
      * @param  array $errcontext
      * @return bool
      */
-    public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = array())
     {
         $errorLevel = error_reporting();
 
