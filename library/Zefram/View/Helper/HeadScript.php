@@ -31,9 +31,9 @@
  * and newline handling).
  *
  * Changes overview:
- * - Feature: Empty scripts are not rendered
+ * - Feature: Empty scripts (no content or empty 'src' attribute) are not rendered
  * - Feature: SCRIPT closing tag is properly escaped if present in the source
- * - Feature: In HTML5 doctype source is not escaped by default
+ * - Feature: In HTML5 doctype script source is not escaped by default
  * - Fix: If no type is given or the type is empty, a default 'text/javascript' is used
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
@@ -82,7 +82,7 @@ class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
         $item = (object) $item;
         $source = isset($item->source) ? $item->source : null;
 
-        $item->source = trim($source);
+        $item->source = trim((string) $source);
         if (stripos($item->source, '</script') !== false) {
             $item->source = preg_replace('/<\/(script[\s>])/i', '<\\/$1', $item->source);
         }

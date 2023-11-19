@@ -40,7 +40,7 @@ abstract class Zefram_Stdlib_ArrayUtils
      * for each array value (from left to right).
      *
      * The built-in {@link array_reduce()} does not provide key to the
-     * callback function, which limits its usage.
+     * callback function, which may limit its usage.
      *
      * The callback function is expected to have the following signature:
      *

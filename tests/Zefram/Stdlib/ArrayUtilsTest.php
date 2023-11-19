@@ -115,7 +115,8 @@ class Zefram_Stdlib_ArrayUtilsTest extends PHPUnit_Framework_TestCase
             'foo,bar,baz,qux',
             Zefram_Stdlib_ArrayUtils::reduce(
                 $input,
-                array(__CLASS__, 'reduceCallbackJoinKeys')
+                array(__CLASS__, 'reduceCallbackJoinKeys'),
+                ''
             )
         );
     }

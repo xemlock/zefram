@@ -80,13 +80,6 @@ abstract class Zefram_Measure
                     break;
                 }
             }
-
-            if ($type !== null) {
-                $instance->setType($type);
-            }
-            $instance->setValue($value);
-
-            return $instance;
         }
 
         return new $measureClass($value, $type, $locale);
