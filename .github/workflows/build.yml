@@ -46,6 +46,10 @@ jobs:
                     composer remove --no-update zendframework/zendframework1
                     composer require --no-update zf1s/zf1
                   fi
+                  if [[ $(echo "${{ env.PHP_VERSION }} >= 8.2" | bc) -eq 1 ]]; then
+                    composer remove --no-update zf1s/zf1
+                    composer require --no-update shardj/zf1-future
+                  fi
                   composer install
 
             - name: Run tests

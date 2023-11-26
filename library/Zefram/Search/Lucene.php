@@ -16,12 +16,18 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
     protected $_analyzer;
 
     /**
+     * @var ReflectionClass
+     */
+    protected $_lucene;
+
+    /**
      * @param  string $directory
      * @param  bool $create
      */
     public function __construct($directory = null, $create = false)
     {
         $this->_analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
+        $this->_lucene = new ReflectionClass('Zend_Search_Lucene');
 
         parent::__construct($directory, $create);
     }
@@ -45,9 +51,7 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
      */
     public function find($query)
     {
-        // calling parent method using call_user_func via 'parent::method'
-        // works since PHP 5.1.2
-        return $this->_runWithAnalyzer('parent::find', $query);
+        return $this->_runWithAnalyzer($this->_lucene->getMethod('find'), $query);
     }
 
     /**
@@ -57,12 +61,12 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
      */
     public function addDocument(Zend_Search_Lucene_Document $document)
     {
-        return $this->_runWithAnalyzer('parent::addDocument', $document);
+        return $this->_runWithAnalyzer($this->_lucene->getMethod('addDocument'), $document);
     }
 
     /**
      * @internal
-     * @param  string $method
+     * @param  string|ReflectionMethod $method
      * @return mixed
      */
     protected function _runWithAnalyzer($method)
@@ -78,7 +82,11 @@ class Zefram_Search_Lucene extends Zend_Search_Lucene
         $args = func_get_args();
         array_shift($args);
 
-        $result = call_user_func_array(array($this, $method), $args);
+        if ($method instanceof ReflectionMethod) {
+            $result = $method->invokeArgs($this, $args);
+        } else {
+            $result = call_user_func_array(array($this, $method), $args);
+        }
 
         if ($analyzer) {
             Zend_Search_Lucene_Analysis_Analyzer::setDefault($prevAnalyzer);

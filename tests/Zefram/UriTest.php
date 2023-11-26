@@ -2,6 +2,11 @@
 
 class Zefram_UriTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var string|null
+     */
+    protected $error;
+
     public function testSchemeEmpty()
     {
         $this->_testInvalidUri('', '/empty/i');

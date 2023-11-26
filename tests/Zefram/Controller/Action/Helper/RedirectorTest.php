@@ -23,9 +23,19 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
     public $response;
 
     /**
+     * #var Zend_Controller_Router_Interface
+     */
+    public $router;
+
+    /**
      * @var Zend_Controller_Action
      */
     public $controller;
+
+    /**
+     * @var array
+     */
+    private $_server;
 
     /**
      * Set up redirector
