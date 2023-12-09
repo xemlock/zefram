@@ -23,9 +23,19 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
     public $response;
 
     /**
+     * @var Zend_Controller_Router_Interface
+     */
+    public $router;
+
+    /**
      * @var Zend_Controller_Action
      */
     public $controller;
+
+    /**
+     * @var array
+     */
+    private $_server;
 
     /**
      * Set up redirector
@@ -118,11 +128,14 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
             $this->fail('Invalid redirect code should throw exception');
         } catch (Zend_Controller_Action_Exception $e) {
         }
+        $this->assertEquals(302, $this->redirector->getCode());
+
         try {
             $this->redirector->setCode('304');
             $this->fail('Invalid redirect code should throw exception');
         } catch (Zend_Controller_Action_Exception $e) {
         }
+        $this->assertEquals(302, $this->redirector->getCode());
     }
 
     public function testExit()
