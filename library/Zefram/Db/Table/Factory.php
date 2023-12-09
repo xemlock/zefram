@@ -104,7 +104,7 @@ class Zefram_Db_Table_Factory implements Zefram_Db_Table_FactoryInterface
         return $this;
     }
 
-    /** 
+    /**
      * @return string
      */
     public function getTablePrefix()
@@ -162,7 +162,7 @@ class Zefram_Db_Table_Factory implements Zefram_Db_Table_FactoryInterface
             $table->setTableFactory($this);
         }
 
-        if (strlen($this->_tablePrefix)) {
+        if (strlen((string) $this->_tablePrefix)) {
             if ($table instanceof Zefram_Db_Table) {
                 $name = $table->getName();
             } else {
