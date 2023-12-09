@@ -99,7 +99,7 @@ END;
         $this->_helper->view->doctype()->setDoctype(Zend_View_Helper_Doctype::HTML5);
 
         $expected =<<<END
-<script type="text/javascript">
+<script>
     Foo
 </script>
 END;

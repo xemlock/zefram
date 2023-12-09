@@ -34,7 +34,8 @@
  * - Feature: Empty scripts (no content or empty 'src' attribute) are not rendered
  * - Feature: SCRIPT closing tag is properly escaped if present in the source
  * - Feature: In HTML5 doctype script source is not escaped by default
- * - Fix: If no type is given or the type is empty, a default 'text/javascript' is used
+ * - Feature: If no type is given or the type is empty, a default 'text/javascript'
+ *   is used. In HTML5 mode 'text/javascript' type is omitted as per spec recommendations.
  *
  * @property Zend_View|Zend_View_Abstract|Zend_View_Interface $view
  * @method $this setIndent(string $indent)
@@ -46,7 +47,7 @@
 class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
 {
     /**
-     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#JavaScript_types
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#textjavascript
      * @var string[]
      */
     protected $_javaScriptTypes = array(
@@ -80,37 +81,88 @@ class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
     public function itemToString($item, $indent, $escapeStart, $escapeEnd)
     {
         $item = (object) $item;
-        $source = isset($item->source) ? $item->source : null;
+        $source = isset($item->source) ? trim((string) $item->source) : '';
 
-        $item->source = trim((string) $source);
-        if (stripos($item->source, '</script') !== false) {
-            $item->source = preg_replace('/<\/(script[\s>])/i', '<\\/$1', $item->source);
-        }
-
-        if (empty($item->type)) {
-            $item->type = 'text/javascript';
-        }
-
-        if (empty($item->source) && empty($item->attributes['src'])
-            && in_array(strtolower($item->type), $this->_javaScriptTypes, true)
+        if (empty($source) && empty($item->attributes['src']) &&
+            (empty($item->type) || in_array(strtolower($item->type), $this->_javaScriptTypes, true))
         ) {
             return '';
         }
 
-        if (strlen($item->source)) {
-            $item->source .= PHP_EOL;
+        $isHtml5 = $this->view instanceof Zend_View_Abstract && $this->view->doctype()->isHtml5();
+
+        $noEscape = isset($item->attributes['noescape'])
+            ? filter_var($item->attributes['noescape'], FILTER_VALIDATE_BOOLEAN)
+            : $isHtml5;
+
+        // Ensure there is no unescaped script closing tag
+        if ($noEscape && stripos($source, '</script') !== false) {
+            $source = preg_replace('/<\/(script[\s>])/i', '<\\/$1', $source);
         }
 
-        $noescape = isset($item->attributes['noescape']) ? $item->attributes['noescape'] : null;
-        if ($noescape === null && $this->view instanceof Zend_View_Abstract && $this->view->doctype()->isHtml5()) {
-            $item->attributes['noescape'] = true;
+        $attrString = '';
+        if (!empty($item->attributes)) {
+            foreach ($item->attributes as $key => $value) {
+                if ((!$this->arbitraryAttributesAllowed() && !in_array($key, $this->_optionalAttributes))
+                    || in_array($key, array('conditional', 'noescape')))
+                {
+                    continue;
+                }
+                if ($key === 'defer' && !$isHtml5) {
+                    $value = 'defer';
+                }
+                if ($isHtml5 && empty($value)) {
+                    $attrString .= sprintf(' %s', $key);
+                } else {
+                    $attrString .= sprintf(' %s="%s"', $key, $this->_autoEscape ? $this->_escape($value) : $value);
+                }
+            }
         }
 
-        $string = parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
-        $item->source = $source;
-        $item->attributes['noescape'] = $noescape;
+        $addScriptEscape = !$noEscape;
 
-        return $string;
+        $type = $this->_autoEscape ? $this->_escape($item->type) : $item->type;
+
+        // The HTML5 specification urges authors to omit the attribute rather
+        // than provide a redundant MIME type. Read more:
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#javascript_types
+        if ($isHtml5 && (empty($type) || $type === 'text/javascript')) {
+            $html  = '<script' . $attrString . '>';
+        } else {
+            $html  = '<script type="' . $type . '"' . $attrString . '>';
+        }
+
+        if (!empty($source)) {
+            $html .= PHP_EOL;
+
+            if ($addScriptEscape) {
+                $html .= $indent . '    ' . $escapeStart . PHP_EOL;
+            }
+
+            $html .= $indent . '    ' . $source . PHP_EOL;
+
+            if ($addScriptEscape) {
+                $html .= $indent . '    ' . $escapeEnd . PHP_EOL;
+            }
+
+            $html .= $indent;
+        }
+        $html .= '</script>';
+
+        if (isset($item->attributes['conditional'])
+            && !empty($item->attributes['conditional'])
+            && is_string($item->attributes['conditional']))
+        {
+            // inner wrap with comment end and start if !IE
+            if (str_replace(' ', '', $item->attributes['conditional']) === '!IE') {
+                $html = '<!-->' . $html . '<!--';
+            }
+            $html = $indent . '<!--[if ' . $item->attributes['conditional'] . ']>' . $html . '<![endif]-->';
+        } else {
+            $html = $indent . $html;
+        }
+
+        return $html;
     }
 
     public function toString($indent = null)
@@ -120,6 +172,8 @@ class Zefram_View_Helper_HeadScript extends Zend_View_Helper_HeadScript
             : $this->getIndent();
 
         $string = parent::toString($indent);
+
+        // Remove empty lines corresponding to empty (invalid) items
         $string = preg_replace('/<\/script>\s+<script/', '</script>' . PHP_EOL . $indent . '<script', $string);
 
         return $string;
