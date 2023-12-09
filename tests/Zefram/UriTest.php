@@ -2,6 +2,11 @@
 
 class Zefram_UriTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var string|null
+     */
+    protected $error;
+
     public function testSchemeEmpty()
     {
         $this->_testInvalidUri('', '/empty/i');
@@ -40,7 +45,7 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests that Zend_Uri::setConfig() allows Zend_Config
+     * Tests that Zefram_Uri::setConfig() allows Array
      *
      * @group ZF-5578
      */
@@ -50,7 +55,7 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests that Zend_Uri::setConfig() allows Array
+     * Tests that Zefram_Uri::setConfig() allows Zend_Config
      *
      * @group ZF-5578
      */
@@ -91,7 +96,6 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(empty($text));
         $this->assertTrue(isset($this->error));
         $this->assertContains('Exception in getUri()', $this->error);
-
     }
 
     /**
