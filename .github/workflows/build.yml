@@ -45,11 +45,11 @@ jobs:
                   echo PHP_VERSION: ${{ env.PHP_VERSION }}
                   if [[ $(echo "${{ env.PHP_VERSION }} >= 7.3" | bc) -eq 1 ]]; then
                     composer remove --no-update zendframework/zendframework1
-                    composer require --no-update zf1s/zf1
-                  fi
-                  if [[ $(echo "${{ env.PHP_VERSION }} >= 8.2" | bc) -eq 1 ]]; then
-                    composer remove --no-update zf1s/zf1
-                    composer require --no-update shardj/zf1-future
+                    if [[ $(echo "${{ env.PHP_VERSION }} >= 8.2" | bc) -eq 1 ]]; then
+                      composer require --no-update shardj/zf1-future
+                    else
+                      composer require --no-update zf1s/zf1
+                    fi
                   fi
                   composer install
 
