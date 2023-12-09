@@ -14,9 +14,8 @@ class Zefram_Search_LuceneTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test for demonstration of Zend_Search_Lucene design flaw, a singleton
-     * default analyzer.
-     *
-     * @expectedException PHPUnit_Framework_AssertionFailedError
+     * default analyzer. Default analyzer should be referenced only upon object
+     * creation and be immutable, otherwise changing it may lead to index corruption.
      */
     public function testZFLuceneDesignFlaw()
     {
@@ -43,10 +42,9 @@ class Zefram_Search_LuceneTest extends PHPUnit_Framework_TestCase
         $doc2 = new Zend_Search_Lucene_Document();
         $doc2->addField(Zend_Search_Lucene_Field::text('text', '1024 2048', 'utf-8'));
 
-        // Both documents should be present in query results, but because of
-        // switching of the default analyzer only the first document is returned.
-
-        $this->assertEquals(2, count($index->find('1024')));
+        // Both documents should be present in query results, but because of the
+        // change of the default analyzer only the first document is returned.
+        $this->assertEquals(1, count($index->find('1024')));
     }
 
     public function testIndexAnalyzer()
