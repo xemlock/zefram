@@ -11,6 +11,7 @@ jobs:
             matrix:
                 operating-system: ['ubuntu-latest']
                 php-versions:
+                    - '8.2'
                     - '8.1'
                     - '8.0'
                     - '7.4'
@@ -45,6 +46,10 @@ jobs:
                   if [[ $(echo "${{ env.PHP_VERSION }} >= 7.3" | bc) -eq 1 ]]; then
                     composer remove --no-update zendframework/zendframework1
                     composer require --no-update zf1s/zf1
+                  fi
+                  if [[ $(echo "${{ env.PHP_VERSION }} >= 8.2" | bc) -eq 1 ]]; then
+                    composer remove --no-update zf1s/zf1
+                    composer require --no-update shardj/zf1-future
                   fi
                   composer install
 
