@@ -11,7 +11,7 @@
  */
 class Zefram_Config_Ini extends Zend_Config_Ini
 {
-    public function __construct($filename, $section = null, $options = false) 
+    public function __construct($filename, $section = null, $options = false)
     {
         // allow config modifications during initialization
         if (is_bool($options)) {
@@ -25,8 +25,8 @@ class Zefram_Config_Ini extends Zend_Config_Ini
 
         parent::__construct($filename, null, $options);
 
-        // if section's name contains dots, move this section to the 
-        // corrseponding position in the tree, e.g.
+        // if section's name contains dots, move this section to the
+        // corresponding position in the tree, e.g.
         //      "a.b.c"
         // will be expanded to
         //      "a"->"b"->"c"
