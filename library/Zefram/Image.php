@@ -3,15 +3,19 @@
 /**
  * GD based image manipulation class.
  *
- * @version 2014-12-03
  * @author xemlock
  */
 class Zefram_Image
 {
-    const PNG  = IMAGETYPE_PNG;
-    const GIF  = IMAGETYPE_GIF;
-    const JPEG = IMAGETYPE_JPEG;
-    const WBMP = IMAGETYPE_WBMP;
+    /** @deprecated  */ const PNG  = IMAGETYPE_PNG;
+    /** @deprecated  */ const GIF  = IMAGETYPE_GIF;
+    /** @deprecated  */ const JPEG = IMAGETYPE_JPEG;
+    /** @deprecated  */ const WBMP = IMAGETYPE_WBMP;
+
+    const TYPE_PNG  = IMAGETYPE_PNG;
+    const TYPE_GIF  = IMAGETYPE_GIF;
+    const TYPE_JPEG = IMAGETYPE_JPEG;
+    const TYPE_WBMP = IMAGETYPE_WBMP;
 
     const GRAYSCALE_AVG        = 0; // averaging (aka quick and dirty)
     const GRAYSCALE_LUMA       = 1; // correcting for the human eye
@@ -25,7 +29,12 @@ class Zefram_Image
     const INFO_EXTENSION = 'extension';
 
     protected $_refcount; // reference counter for image resource (_handle)
+
+    /**
+     * @var string|null
+     */
     protected $_filename;
+
     protected $_handle;
     protected $_width;
     protected $_height;
@@ -34,13 +43,14 @@ class Zefram_Image
     /**
      * @param string|resource|Image $image
      */
-    public function __construct($image) // {{{
+    public function __construct($image)
     {
         if (!extension_loaded('gd')) {
             throw new Zefram_Image_Exception('Zefram_Image requires GD extension to be enabled.');
         }
 
-        if (is_resource($image)) {
+        // GdImage class replaces gd resources as of PHP 8.0.0
+        if (is_resource($image) || (class_exists('GDImage', false) && $image instanceof GDImage)) {
             $this->_initFromResource($image);
             return;
         }
@@ -58,7 +68,7 @@ class Zefram_Image
             return;
         }
 
-        $attr = getimagesize($image);
+        $attr = getimagesize((string) $image);
 
         if (empty($attr)) {
             throw new Zefram_Image_Exception('Unable to open image: ' . $image);
@@ -69,19 +79,19 @@ class Zefram_Image
         $type   = $attr[2];
 
         switch ($type) {
-            case self::GIF:
+            case self::TYPE_GIF:
                 $handle = @imagecreatefromgif($image);
                 break;
 
-            case self::JPEG:
+            case self::TYPE_JPEG:
                 $handle = @imagecreatefromjpeg($image);
                 break;
 
-            case self::PNG:
+            case self::TYPE_PNG:
                 $handle = @imagecreatefrompng($image);
                 break;
 
-            case self::WBMP:
+            case self::TYPE_WBMP:
                 $handle = @imagecreatefromwbmp($image);
                 break;
         }
@@ -92,29 +102,29 @@ class Zefram_Image
 
         $this->_handle   = $handle;
         $this->_refcount = 1;
-        $this->_filename = realpath($image);
+        $this->_filename = (string) realpath($image);
         $this->_width    = $width;
         $this->_height   = $height;
         $this->_type     = $type;
-    } // }}}
+    }
 
-    public function __destruct() // {{{
+    public function __destruct()
     {
         --$this->_refcount;
         if (0 == $this->_refcount) {
             imagedestroy($this->_handle);
         }
-    } // }}}
+    }
 
     /**
      * @return resource
      */
-    public function getHandle() // {{{
+    public function getHandle()
     {
         return $this->_handle;
-    } // }}}
+    }
 
-    public function save($filename = null, $type = null, $quality = 90) // {{{
+    public function save($filename = null, $type = null, $quality = 90)
     {
         if (null === $filename) {
             $filename = $this->_filename;
@@ -137,15 +147,15 @@ class Zefram_Image
                 case 'jpg':
                 case 'jpe':
                 case 'jpeg':
-                    $type = self::JPEG;
+                    $type = self::TYPE_JPEG;
                     break;
 
                 case 'gif':
-                    $type = self::GIF;
+                    $type = self::TYPE_GIF;
                     break;
 
                 case 'png':
-                    $type = self::PNG;
+                    $type = self::TYPE_PNG;
                     break;
 
                 default:
@@ -155,21 +165,21 @@ class Zefram_Image
         }
 
         switch ($type) {
-            case self::GIF:
+            case self::TYPE_GIF:
                 return imagegif($this->_handle, $filename);
 
-            case self::JPEG:
+            case self::TYPE_JPEG:
                 return imagejpeg($this->_handle, $filename, $quality);
 
-            case self::PNG:
+            case self::TYPE_PNG:
                 return imagepng($this->_handle, $filename);
 
             default:
                 throw new Zefram_Image_Exception('Unsupported image type: ' . $type);
         }
-    } // }}}
+    }
 
-    public function grayscale($method = self::GRAYSCALE_LUMA) // {{{
+    public function grayscale($method = self::GRAYSCALE_LUMA)
     {
         // create paletted based image
         $handle = imagecreate($this->_width, $this->_height);
@@ -206,22 +216,22 @@ class Zefram_Image
         }
 
         return new self($handle);
-    } // }}}
+    }
 
-    public function crop($x, $y, $width, $height) // {{{
+    public function crop($x, $y, $width, $height)
     {
         $x = intval($x);
         $y = intval($y);
         $width = intval($width);
         $height = intval($height);
 
-        if ($x < 0 
-            || $y < 0 
+        if ($x < 0
+            || $y < 0
             || $width <= 0
             || $height <= 0
             || ($this->_width < $x + $width)
-            || ($this->_height < $y + $height)) 
-        {
+            || ($this->_height < $y + $height)
+        ) {
             throw new Zefram_Image_Exception('Invalid crop coordinates');
         }
 
@@ -234,12 +244,13 @@ class Zefram_Image
         // )
         imagecopyresampled($handle, $this->_handle,
             0, 0, $x, $y,
-            $width, $height, $width, $height);
+            $width, $height, $width, $height
+        );
 
         return new self($handle);
-    } // }}}
+    }
 
-    public function resize($width = 0, $height = 0) // {{{
+    public function resize($width = 0, $height = 0)
     {
         $width  = max(0, (int) $width);
         $height = max(0, (int) $height);
@@ -262,17 +273,18 @@ class Zefram_Image
 
         imagecopyresampled($handle, $this->_handle,
             0, 0, 0, 0,
-            $width, $height, $this->_width, $this->_height);
+            $width, $height, $this->_width, $this->_height
+        );
 
         return new self($handle);
-    } // }}}
+    }
 
     /**
      * @param int $width
      * @param int $height
      * @param bool $crop OPTIONAL
      */
-    public function scale($width = 0, $height = 0, $crop = false) // {{{
+    public function scale($width = 0, $height = 0, $crop = false)
     {
         $width  = max(0, (int) $width);
         $height = max(0, (int) $height);
@@ -341,9 +353,9 @@ class Zefram_Image
             $dst_w, $dst_h, $src_w, $src_h);
 
         return new self($handle);
-    } // }}}
+    }
 
-    protected function _initFromResource($resource) // {{{
+    protected function _initFromResource($resource)
     {
         $this->_width    = imagesx($resource);
         $this->_height   = imagesy($resource);
@@ -351,9 +363,29 @@ class Zefram_Image
         $this->_type     = null;
         $this->_filename = null;
         $this->_refcount = 1; // set this object as owner of resource
-    } // }}}
+    }
 
-    public function __get($property) // {{{
+    public function getType()
+    {
+        return $this->_type;
+    }
+
+    public function getWidth()
+    {
+        return $this->_width;
+    }
+
+    public function getHeight()
+    {
+        return $this->_height;
+    }
+
+    public function getFilename()
+    {
+        return $this->_filename;
+    }
+
+    public function __get($property)
     {
         switch ($property) {
             case 'type':
@@ -368,9 +400,9 @@ class Zefram_Image
             case 'filename':
                 return $this->_filename;
         }
-    } // }}}
+    }
 
-    protected function _createImage($width, $height) // {{{
+    protected function _createImage($width, $height)
     {
         $handle = imagecreatetruecolor($width, $height);
 
@@ -380,10 +412,10 @@ class Zefram_Image
         $transparent = imagecolorallocatealpha($handle, 255, 255, 255, 127);
         imagecolortransparent($handle, $transparent);
 
-        imagefilledrectangle($handle, 0, 0, $width, $height, $transparent); 
+        imagefilledrectangle($handle, 0, 0, $width, $height, $transparent);
 
         return $handle;
-    } // }}}
+    }
 
     /**
      * @param string $path
@@ -391,7 +423,7 @@ class Zefram_Image
      * @return mixed
      * @throws Zefram_Image_Exception
      */
-    public static function getInfo($path, $property = null) // {{{
+    public static function getInfo($path, $property = null)
     {
         if (false === ($info = @getimagesize($path))) {
             throw new Zefram_Image_Exception('Unable to get image information');
@@ -426,5 +458,5 @@ class Zefram_Image
         $info[self::INFO_EXTENSION] = substr(image_type_to_extension($info[2]), 1);
 
         return $info;
-    } // }}}
+    }
 }
