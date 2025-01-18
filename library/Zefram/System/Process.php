@@ -114,7 +114,7 @@ class Zefram_System_Process
     public function run()
     {
         if ($this->_isRunning) {
-            throw new Zefram_System_Exception('run() cannot be called an an already running process');
+            throw new Zefram_System_Exception('run() cannot be called on an already running process');
         }
 
         $command[] = escapeshellcmd($this->_command);
@@ -177,7 +177,7 @@ class Zefram_System_Process
             }
 
             // Block until io becomes possible
-            stream_select($readPipes, $writePipes, $exceptPipes, null, self::SELECT_TIMEOUT);
+            stream_select($readPipes, $writePipes, $exceptPipes, 0, self::SELECT_TIMEOUT);
 
             // Write data to stdin
             if (!empty($writePipes)) {
