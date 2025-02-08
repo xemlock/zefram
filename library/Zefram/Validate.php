@@ -28,7 +28,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     /**
      * Validator chain
      *
-     * @var array
+     * @var array{instance: Zend_Validate_Interface, breakChainOnFailure: bool}[]
      */
     protected $_validators = array();
 
@@ -54,6 +54,10 @@ class Zefram_Validate implements Zend_Validate_Interface
      */
     protected $_pluginLoader;
 
+    /**
+     * Translation object
+     * @var Zend_Translate
+     */
     protected $_translator;
 
     /**
@@ -151,7 +155,7 @@ class Zefram_Validate implements Zend_Validate_Interface
      * pass validation.
      *
      * @param  bool $flag
-     * @return Zefram_Validate
+     * @return $this
      */
     public function setAllowEmpty($flag)
     {
@@ -173,7 +177,7 @@ class Zefram_Validate implements Zend_Validate_Interface
      * @param string|array|Zend_Validate_Interface $validator
      * @param bool $breakChainOnFailure
      * @param array $options
-     * @return Zefram_Validate
+     * @return $this
      * @throws Zend_Validate_Exception
      */
     public function addValidator($validator, $breakChainOnFailure = false, array $options = null)
@@ -253,7 +257,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     }
 
     /**
-     * @return array
+     * @return Zend_Validate_Interface[]
      */
     public function getValidators()
     {
@@ -287,7 +291,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     }
 
     /**
-     * @return Zefram_Validate
+     * @return $this
      */
     public function clearValidators()
     {
@@ -297,7 +301,7 @@ class Zefram_Validate implements Zend_Validate_Interface
 
     /**
      * @param  array $validators
-     * @return Zefram_Validate
+     * @return $this
      */
     public function addValidators(array $validators)
     {
@@ -309,7 +313,7 @@ class Zefram_Validate implements Zend_Validate_Interface
 
     /**
      * @param  array $validators
-     * @return Zefram_Validate
+     * @return $this
      */
     public function setValidators(array $validators)
     {
@@ -320,7 +324,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     /**
      * Remove a single validator by name
      *
-     * @return Zefram_Validate
+     * @return $this
      */
     public function removeValidator($name)
     {
@@ -341,7 +345,7 @@ class Zefram_Validate implements Zend_Validate_Interface
 
     /**
      * @param  bool $breakChainOnFailure
-     * @return Zefram_Validate
+     * @return $this
      */
     public function setBreakChainOnFailure($breakChainOnFailure)
     {
@@ -349,11 +353,19 @@ class Zefram_Validate implements Zend_Validate_Interface
         return $this;
     }
 
+    /**
+     * Set translation object
+     *
+     * @param  Zend_Translate|Zend_Translate_Adapter|null $translator
+     * @return $this
+     */
     public function setTranslator($translator = null)
     {
-        foreach ($this->_validators as $validator) {
+        foreach ($this->_validators as $element) {
+            /** @var Zend_Validate_Interface $validator */
+            $validator = $element['instance'];
             if (method_exists($validator, 'setTranslator')) {
-                /** @noinspection PhpUndefinedMethodInspection */
+                /** @var Zend_Validate_Abstract $validator */
                 $validator->setTranslator($translator);
             }
         }
@@ -361,6 +373,11 @@ class Zefram_Validate implements Zend_Validate_Interface
         return $this;
     }
 
+    /**
+     * Return translation object
+     *
+     * @return Zend_Translate_Adapter|null
+     */
     public function getTranslator()
     {
         return $this->_translator;
@@ -382,7 +399,7 @@ class Zefram_Validate implements Zend_Validate_Interface
 
     /**
      * @param  Zend_Loader_PluginLoader_Interface $loader
-     * @return Zefram_Validate
+     * @return $this
      */
     public function setPluginLoader(Zend_Loader_PluginLoader_Interface $loader)
     {
@@ -393,7 +410,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     /**
      * @param  string $prefix
      * @param  string $path
-     * @return Zefram_Validate
+     * @return $this
      */
     public function addPrefixPath($prefix, $path)
     {
@@ -403,7 +420,7 @@ class Zefram_Validate implements Zend_Validate_Interface
 
     /**
      * @param  array $spec
-     * @return Zefram_Validate
+     * @return $this
      */
     public function addPrefixPaths(array $spec)
     {
@@ -451,7 +468,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     /**
      * Returns the maximum allowed message length
      *
-     * @return integer
+     * @return int
      */
     public static function getMessageLength()
     {
@@ -461,7 +478,7 @@ class Zefram_Validate implements Zend_Validate_Interface
     /**
      * Sets the maximum allowed message length
      *
-     * @param integer $length
+     * @param int $length
      */
     public static function setMessageLength($length = -1)
     {
