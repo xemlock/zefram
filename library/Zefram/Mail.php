@@ -71,6 +71,10 @@ class Zefram_Mail extends Zend_Mail
         if ($transport !== null) {
             $this->setTransport($transport);
         }
+        // Ensure Message-ID is present; its absence increases spam score
+        if (!$this->getMessageId()) {
+            $this->setMessageId(true);
+        }
         return parent::send($this->_transport);
     }
 
@@ -185,7 +189,7 @@ class Zefram_Mail extends Zend_Mail
         return self::$_defaultHeaderEncoding;
     }
 
-    /** 
+    /**
      * @return void
      */
     public static function clearDefaultHeaderEncoding()
