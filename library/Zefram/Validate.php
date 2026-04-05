@@ -228,7 +228,7 @@ class Zefram_Validate implements Zend_Validate_Interface
                 if ($ref->hasMethod('__construct')) {
                     reset($options);
                     if (is_int(key($options))) {
-                        $validator = $ref->newInstanceArgs($options);
+                        $validator = $ref->newInstanceArgs(array_values($options));
                     } else {
                         $validator = $ref->newInstance($options);
                     }
