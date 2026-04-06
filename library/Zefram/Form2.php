@@ -134,6 +134,44 @@ class Zefram_Form2 extends Zend_Form
     }
 
     /**
+     * Add prefix paths for all elements.
+     *
+     * Unlike {@link Zend_Form::addElementPrefixPath()}, keys in the spec array don't
+     * have to be explicitly defined, and numeric keys don't have to be unique.
+     *
+     * @param array $spec
+     * @return $this
+     */
+    public function addElementPrefixPaths(array $spec)
+    {
+        // The original implementation uses + to merge the spec into _elementPrefixPaths,
+        // which requires all keys - including numeric ones - to be unique. This behavior
+        // is counter-intuitive and inconsistent with Zend_Form_Element::addPrefixPaths().
+        if (isset($spec['prefix']) && isset($spec['path'])) {
+            $this->_elementPrefixPaths[] = $spec;
+        } else {
+            foreach ($spec as $type => $paths) {
+                /** @type array{prefix: string, path: string, type?: string} $paths */
+                if (is_int($type)) {
+                    $this->_elementPrefixPaths[] = $paths;
+                } else {
+                    $this->_elementPrefixPaths[] = array_merge(
+                        (array) $paths,
+                        array('type' => isset($paths['type']) ? $paths['type'] : $type)
+                    );
+                }
+            }
+        }
+
+        /** @var Zend_Form_Element $element */
+        foreach ($this->getElements() as $element) {
+            $element->addPrefixPaths($spec);
+        }
+
+        return $this;
+    }
+
+    /**
      * Add default prefix path for given type
      *
      * @param  string $prefix
