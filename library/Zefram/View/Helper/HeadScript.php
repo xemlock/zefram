@@ -5,26 +5,30 @@
  * when escaping script contents:
  *
  * Original impl of toString() when escaping is on:
- * <script>
- *     //<!--
- *     CONTENT    //-->
- * </script>
+ *
+ *     <script>
+ *         //<!--
+ *         CONTENT    //-->
+ *     </script>
  *
  * Desired output:
- * <script>
- *     //<!--
- *     CONTENT
- *     //-->
- * </script>
+ *
+ *     <script>
+ *         //<!--
+ *         CONTENT
+ *         //-->
+ *     </script>
  *
  * When escaping is off (noescape attribute present and equal FALSE):
- * <script>
- *     SCRIPT</script>
+ *
+ *     <script>
+ *         SCRIPT</script>
  *
  * Desired output:
- * <script>
- *     SCRIPT
- * </script>
+ *
+ *     <script>
+ *         SCRIPT
+ *     </script>
  *
  * Moreover in original impl input value whitespaces are not ignored, which
  * can lead to messy indents (contrary to HeadStyle which has proper indent
