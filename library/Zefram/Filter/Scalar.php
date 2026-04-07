@@ -7,7 +7,6 @@ class Zefram_Filter_Scalar implements Zend_Filter_Interface
         if (is_scalar($value)) {
             return $value;
         }
-
-        return '';
+        return null;
     }
 }

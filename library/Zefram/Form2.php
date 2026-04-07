@@ -66,20 +66,25 @@ class Zefram_Form2 extends Zend_Form
         $element = parent::createElement($type, $name, $options);
 
         if (!$element->isArray()) {
-            $filters = $element->getFilters();
+            $extraFilters = array(
+                // Ensure only scalar values are provided for non-array elements
+                new Zefram_Filter_Scalar(),
+            );
 
-            // Ensure only scalar values are provided
-            array_unshift($filters, new Zefram_Filter_Scalar());
-            $element->setFilters($filters);
-
+            // Trim string values
             if (!$element->getFilter('StringTrim')) {
-                $element->addFilter('StringTrim');
+                $extraFilters[] = 'StringTrim';
             }
 
             // Convert empty strings to null
             if (!$element->getFilter('Null')) {
-                $element->addFilter('Null', 'string');
+                $extraFilters[] = array('Null', 'string');
             }
+
+            $element->setFilters(array_merge(
+                $extraFilters,
+                $element->getFilters()
+            ));
         }
 
         return $element;
