@@ -1,6 +1,12 @@
+#!/usr/bin/env php
 <?php
 
 require __DIR__ . '/../vendor/autoload.php';
+
+if (!function_exists('idn_to_utf8')) {
+    echo 'The intl extension is required to run this script.', PHP_EOL;
+    exit(1);
+}
 
 $validator = new Zefram_Validate_Hostname();
 $validatorClass = new ReflectionClass($validator);
