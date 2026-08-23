@@ -1,7 +1,15 @@
+# dependencies
 vendor
 composer.lock
 
+# testing
 .phpunit.result.cache
 
+# Vim swap files
 *.swp
 *.swo
+
+# system files
+.DS_Store
+[Dd]esktop.ini
+Thumbs.db
