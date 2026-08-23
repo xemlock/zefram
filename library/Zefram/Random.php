@@ -1,61 +1,40 @@
 <?php
 
 /**
- * Pseudo-random generator
- *
- * @category Zefram
- * @package  Zefram_Uri
- * @author   xemlock
+ * @deprecated Use {@link Zefram_Crypt_Math} instead.
  */
 abstract class Zefram_Random
 {
-    const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const ALPHA_LOWER = 'abcdefghijklmnopqrstuvwxyz';
-    const ALPHA       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const ALNUM       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const DIGITS      = '0123456789';
-    const XDIGITS     = '0123456789ABCDEFabcdef';
-    const BASE64      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    const BASE64URL   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    const ALPHA_UPPER = Zefram_Crypt_Math::ALPHA_UPPER;
+    const ALPHA_LOWER = Zefram_Crypt_Math::ALPHA_LOWER;
+    const ALPHA       = Zefram_Crypt_Math::ALPHA;
+    const ALNUM       = Zefram_Crypt_Math::ALNUM;
+    const DIGITS      = Zefram_Crypt_Math::DIGITS;
+    const XDIGITS     = Zefram_Crypt_Math::XDIGITS;
+    const BASE64      = Zefram_Crypt_Math::BASE64;
+    const BASE64URL   = Zefram_Crypt_Math::BASE64URL;
 
     /**
-     * @param  int $min
-     * @param  int $max OPTIONAL
-     * @return int
+     * @deprecated Use {@link Zefram_Crypt_Math::randInteger()} instead
      */
-    public static function getInteger($min = 0, $max = null)
+    public static function getInteger($min, $max = null)
     {
-        if (null === $max) {
-            $max = mt_getrandmax();
-        }
-        return mt_rand($min, $max);
+        return Zefram_Crypt_Math::randInteger($min, $max);
     }
 
     /**
-     * @return float
+     * @deprecated Use {@link Zefram_Crypt_Math::randFloat()} instead
      */
     public static function getFloat()
     {
-        return mt_rand() / mt_getrandmax();
+        return Zefram_Crypt_Math::randFloat();
     }
 
     /**
-     * @param  int $length
-     * @param  string $chars OPTIONAL   if character list is not expicitly
-     *                                  given, use URL-safe Base64 alphabet
-     * @return string
+     * @deprecated Use {@link Zefram_Crypt_Math::randString()} instead
      */
     public static function getString($length, $chars = self::BASE64URL)
     {
-        $randmax = strlen($chars) - 1;
-
-        $length = max(0, $length);
-        $output = '';
-
-        while (strlen($output) < $length) {
-            $output .= substr($chars, self::getInteger(0, $randmax), 1);
-        }
-
-        return $output;
+        return Zefram_Crypt_Math::randString($length, $chars);
     }
 }
