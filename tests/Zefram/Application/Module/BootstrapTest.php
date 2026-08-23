@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Application_Module_BootstrapTest extends PHPUnit_Framework_TestCase
+class Zefram_Application_Module_BootstrapTest extends TestCase
 {
     /**
      * @var Zefram_Application

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_View_Helper_HeadLinkTest extends PHPUnit_Framework_TestCase
+class Zefram_View_Helper_HeadLinkTest extends TestCase
 {
     /**
      * @var Zefram_View_Helper_HeadLink

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Filter_RomanNumeralsTest extends PHPUnit_Framework_TestCase
+class Zefram_Filter_RomanNumeralsTest extends TestCase
 {
     public function testConvertsInteger()
     {

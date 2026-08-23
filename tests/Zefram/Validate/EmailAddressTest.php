@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Validate_EmailAddressTest extends PHPUnit_Framework_TestCase
+class Zefram_Validate_EmailAddressTest extends TestCase
 {
     public function testHostnameValidator()
     {

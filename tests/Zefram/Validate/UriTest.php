@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Validate_UriTest extends PHPUnit_Framework_TestCase
+class Zefram_Validate_UriTest extends TestCase
 {
     public function testDefaultSettings()
     {

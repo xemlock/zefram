@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Controller_Action_Helper_ViewRendererTest extends PHPUnit_Framework_TestCase
+class Zefram_Controller_Action_Helper_ViewRendererTest extends TestCase
 {
     public function testAddHelper()
     {

@@ -5,7 +5,7 @@
  * @package    Zefram_Measure
  * @subpackage UnitTests
  */
-class Zefram_Measure_TimeTest extends PHPUnit_Framework_TestCase
+class Zefram_Measure_TimeTest extends TestCase
 {
     protected function setUp()
     {

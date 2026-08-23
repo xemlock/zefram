@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Controller_ActionTest extends PHPUnit_Framework_TestCase
+class Zefram_Controller_ActionTest extends TestCase
 {
     /**
      * @var Zefram_Controller_Action

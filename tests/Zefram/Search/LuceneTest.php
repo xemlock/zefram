@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Search_LuceneTest extends PHPUnit_Framework_TestCase
+class Zefram_Search_LuceneTest extends TestCase
 {
     public function setUp()
     {

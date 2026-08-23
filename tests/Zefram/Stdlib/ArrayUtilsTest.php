@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Stdlib_ArrayUtilsTest extends PHPUnit_Framework_TestCase
+class Zefram_Stdlib_ArrayUtilsTest extends TestCase
 {
     public function testMerge()
     {

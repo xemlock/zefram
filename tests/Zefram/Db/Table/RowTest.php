@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Db_Table_RowTest extends PHPUnit_Framework_TestCase
+class Zefram_Db_Table_RowTest extends TestCase
 {
     /** @var Zend_Db */
     protected $db;

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_ConfigTest extends PHPUnit_Framework_TestCase
+class Zefram_ConfigTest extends TestCase
 {
     public function testFactory()
     {

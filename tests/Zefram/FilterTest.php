@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_FilterTest extends PHPUnit_Framework_TestCase
+class Zefram_FilterTest extends TestCase
 {
     public function testAddFilter()
     {

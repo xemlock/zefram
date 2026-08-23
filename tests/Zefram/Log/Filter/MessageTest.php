@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Log_Filter_MessageTest extends PHPUnit_Framework_TestCase
+class Zefram_Log_Filter_MessageTest extends TestCase
 {
     public function testInvalidRegularExpression()
     {

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Search_Lucene_Analysis_AnalyzerTest extends PHPUnit_Framework_TestCase
+class Zefram_Search_Lucene_Analysis_AnalyzerTest extends TestCase
 {
     public function testAddFiltersAsInstance()
     {

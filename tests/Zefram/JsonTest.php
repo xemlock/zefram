@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_JsonTest extends PHPUnit_Framework_TestCase
+class Zefram_JsonTest extends TestCase
 {
     public function testPrettyPrint()
     {

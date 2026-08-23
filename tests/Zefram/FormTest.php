@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_FormTest extends PHPUnit_Framework_TestCase
+class Zefram_FormTest extends TestCase
 {
     public function testCreateElement()
     {

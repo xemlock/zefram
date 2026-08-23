@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_ApplicationTest extends PHPUnit_Framework_TestCase
+class Zefram_ApplicationTest extends TestCase
 {
     public function testBootstrapClassWithSetter()
     {

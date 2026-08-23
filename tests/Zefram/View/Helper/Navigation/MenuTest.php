@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_View_Helper_Navigation_MenuTest extends PHPUnit_Framework_TestCase
+class Zefram_View_Helper_Navigation_MenuTest extends TestCase
 {
     /**
      * @var Zefram_View_Helper_Navigation_Menu

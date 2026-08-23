@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Stdlib_CallbackHandlerTest extends PHPUnit_Framework_TestCase
+class Zefram_Stdlib_CallbackHandlerTest extends TestCase
 {
     protected $_args;
 

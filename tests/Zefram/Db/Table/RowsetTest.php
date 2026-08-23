@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Db_Table_Rowset_Test extends PHPUnit_Framework_TestCase
+class Zefram_Db_Table_Rowset_Test extends TestCase
 {
     /**
      * @var Zefram_Db_Table_Rowset

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_ValidateTest extends PHPUnit_Framework_TestCase
+class Zefram_ValidateTest extends TestCase
 {
     public function testSetTranslator()
     {

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_ImageTest extends PHPUnit_Framework_TestCase
+class Zefram_ImageTest extends TestCase
 {
     function testCreateFromPath()
     {

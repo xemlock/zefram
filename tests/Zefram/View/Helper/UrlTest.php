@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_View_Helper_UrlTest extends PHPUnit_Framework_TestCase
+class Zefram_View_Helper_UrlTest extends TestCase
 {
     /**
      * @var Zend_Controller_Front

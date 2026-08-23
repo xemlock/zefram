@@ -3,7 +3,7 @@
 require_once __DIR__ . '/assets/providers.php';
 require_once __DIR__ . '/assets/namespaced_providers.php';
 
-class Zefram_Tool_Framework_Provider_AbstractTest extends PHPUnit_Framework_TestCase
+class Zefram_Tool_Framework_Provider_AbstractTest extends TestCase
 {
     /**
      * @param Zefram_Tool_Framework_Provider_Abstract $provider
