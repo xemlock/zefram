@@ -5,7 +5,7 @@
  * @package    Zefram_Measure
  * @subpackage UnitTests
  */
-class Zefram_MeasureTest extends PHPUnit_Framework_TestCase
+class Zefram_MeasureTest extends TestCase
 {
     protected function setUp()
     {
@@ -34,11 +34,10 @@ class Zefram_MeasureTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(100, $measure->getValue());
     }
 
-    /**
-     * @expectedException Zend_Loader_PluginLoader_Exception
-     */
     public function testFactoryInvalidType()
     {
+        $this->expectException('Zend_Loader_PluginLoader_Exception');
+
         Zefram_Measure::factory('Foo', 1024);
     }
 }

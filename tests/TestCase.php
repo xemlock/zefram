@@ -50,6 +50,24 @@ class TestCase extends PHPUnit_Framework_TestCase
         return self::assertNotContains($needle, $haystack, $message);
     }
 
+    public function expectException($exception)
+    {
+        // Since PHPUnit 5.2.0
+        if (method_exists(get_parent_class(__CLASS__), 'expectException')) {
+            return parent::expectException($exception);
+        }
+        $this->setExpectedException($exception);
+    }
+
+    public function expectExceptionMessage($message)
+    {
+        // Since PHPUnit 5.2.0
+        if (method_exists(get_parent_class(__CLASS__), 'expectExceptionMessage')) {
+            return parent::expectExceptionMessage($message);
+        }
+        $this->setExpectedException($this->getExpectedException(), $message);
+    }
+
     public function expectNotToPerformAssertions()
     {
         // Since PHPUnit 7.2

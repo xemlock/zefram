@@ -75,10 +75,11 @@ class Zefram_UriTest extends TestCase
      * nor Zend_Config is given as first parameter
      *
      * @group ZF-5578
-     * @expectedException Zend_Uri_Exception
      */
     public function testSetConfigInvalid()
     {
+        $this->expectException('Zend_Uri_Exception');
+
         Zefram_Uri::setConfig('This should cause an exception');
     }
 
@@ -147,30 +148,18 @@ class Zefram_UriTest extends TestCase
         return $uri;
     }
 
-    /**
-     * @expectedException Zend_Uri_Exception
-     * @expectedExceptionMessage "This_Is_An_Unknown_Class" not found
-     */
     public function testFactoryWithUnExistingClassThrowException()
     {
-        // setExpectedException() was removed in phpunit 6.x-8.x
-        if (method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('Zend_Uri_Exception', '"This_Is_An_Unknown_Class" not found');
-        }
+        $this->expectException('Zend_Uri_Exception');
+        $this->expectExceptionMessage('"This_Is_An_Unknown_Class" not found');
 
         Zefram_Uri::factory('http://example.net', 'This_Is_An_Unknown_Class');
     }
 
-    /**
-     * @expectedException Zend_Uri_Exception
-     * @expectedExceptionMessage "Fake_Zend_Uri" is not an instance of Zend_Uri
-     */
     public function testFactoryWithExistingClassButNotImplementingZendUriThrowException()
     {
-        // setExpectedException() was removed in phpunit 6.x-8.x
-        if (method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('Zend_Uri_Exception', '"Fake_Zend_Uri" is not an instance of Zend_Uri');
-        }
+        $this->expectException('Zend_Uri_Exception');
+        $this->expectExceptionMessage('"Fake_Zend_Uri" is not an instance of Zend_Uri');
 
         Zefram_Uri::factory('http://example.net', 'Fake_Zend_Uri');
     }

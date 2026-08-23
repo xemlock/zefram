@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Validate_GreaterThanContextTest extends PHPUnit_Framework_TestCase
+class Zefram_Validate_GreaterThanContextTest extends TestCase
 {
     public function setUp()
     {}
@@ -77,11 +77,11 @@ class Zefram_Validate_GreaterThanContextTest extends PHPUnit_Framework_TestCase
     /**
      * Tests if no context key provided to the constructor results in
      * an exception.
-     *
-     * @expectedException Zend_Validate_Exception
      */
     public function testEmptyContextKey()
     {
+        $this->expectException('Zend_Validate_Exception');
+
         $validator = new Zefram_Validate_GreaterThanContext();
     }
 

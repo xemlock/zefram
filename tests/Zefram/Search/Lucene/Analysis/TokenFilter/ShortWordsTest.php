@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_Search_Lucene_Analysis_TokenFilter_ShortWordsTest extends PHPUnit_Framework_TestCase
+class Zefram_Search_Lucene_Analysis_TokenFilter_ShortWordsTest extends TestCase
 {
     public function testConstructorOptions()
     {
@@ -23,11 +23,11 @@ class Zefram_Search_Lucene_Analysis_TokenFilter_ShortWordsTest extends PHPUnit_F
     /**
      * Test for demonstration of incorrect UTF-8 calculation of string length
      * done in Zend_Search_Lucene_Analysis_TokenFilter_ShortWords
-     *
-     * @expectedException PHPUnit_Framework_AssertionFailedError
      */
     public function testZendNormalizeUtf8()
     {
+        $this->expectException('PHPUnit_Framework_AssertionFailedError');
+
         // \xC5\xBC is Latin Small Letter Z with dot above (U+017C) in UTF-8
         $token = new Zend_Search_Lucene_Analysis_Token("a\xC5\xBC", 0, 3);
         $filter = new Zend_Search_Lucene_Analysis_TokenFilter_ShortWords(3);
