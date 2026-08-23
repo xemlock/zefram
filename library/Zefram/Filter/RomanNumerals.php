@@ -1,6 +1,13 @@
 <?php
 
-abstract class Zefram_Math_Roman
+/**
+ * Converts provided value to roman numerals.
+ *
+ * @category Zefram
+ * @package  Zefram_Filter
+ * @author   xemlock
+ */
+class Zefram_Filter_RomanNumerals implements Zend_Filter_Interface
 {
     protected static $_numerals = array(
         1000 => 'M',
@@ -18,11 +25,16 @@ abstract class Zefram_Math_Roman
         1    => 'I',
     );
 
+    public function filter($value)
+    {
+        return self::filterStatic($value);
+    }
+
     /**
      * @param int $value
      * @return string
      */
-    public static function toRoman($value = null)
+    public static function filterStatic($value)
     {
         $value = (int) $value;
 
