@@ -1,22 +1,33 @@
 #!/usr/bin/env php
 <?php
 
-$ROOT_DIR = realpath(__DIR__ . '/..');
-$TESTCASE_RELPATH = 'vendor/phpunit/phpunit/src/Framework/TestCase.php';
-$TESTCASE_PATH = $ROOT_DIR . '/' . $TESTCASE_RELPATH;
+chdir(__DIR__ . '/..');
 
-if (file_exists($TESTCASE_PATH)) {
+patch_file('vendor/phpunit/phpunit/src/Framework/TestCase.php', array(
     // Remove return type annotation from setUp() and tearDown(), to allow test cases
-    // to be executed in phpunit >= 8.* versions
-    $contents = file_get_contents($TESTCASE_PATH);
-    $patchedContents = preg_replace('/protected function (setUp|tearDown)\(\): void/', 'protected function $1()', $contents);
+    // to be executed across phpunit versions
+    '/protected function (setUp|tearDown)\(\): void/' => 'protected function $1()',
+));
 
-    if ($contents !== $patchedContents) {
-        file_put_contents($TESTCASE_PATH, $patchedContents);
-        echo "Patched file {$TESTCASE_RELPATH}\n";
+patch_file('vendor/phpunit/phpunit/src/Framework/Assert.php', array(
+    // Remove return void annotations
+    '/\):\s*void(\s*)\{/' => ')$1{',
+    // Remove type annotation from $message parameters
+    '/\bstring \$message/' => '$message',
+));
+
+function patch_file($file, array $replacements) {
+    if (file_exists($file)) {
+        $contents = file_get_contents($file);
+        $patchedContents = preg_replace(array_keys($replacements), array_values($replacements), $contents);
+
+        if ($contents !== $patchedContents) {
+            file_put_contents($file, $patchedContents);
+            echo "Patched file {$file}\n";
+        } else {
+            echo "No changes made\n";
+        }
     } else {
-        echo "No changes made\n";
+        echo "File not found: {$file}\n";
     }
-} else {
-    echo "File not found: {$TESTCASE_RELPATH}\n";
 }

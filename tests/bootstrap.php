@@ -23,6 +23,8 @@ if (!class_exists('PHPUnit_Framework_AssertionFailedError') && class_exists('PHP
     class_alias('PHPUnit\Framework\AssertionFailedError', 'PHPUnit_Framework_AssertionFailedError');
 }
 
+require __DIR__ . '/TestCase.php';
+
 function getZendFrameworkVersion() {
     // In some community maintained distributions Zend_Version class may not exist,
     // Zend_Config class however is widely used by the ZF internals.
