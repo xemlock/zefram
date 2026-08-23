@@ -11,8 +11,8 @@ patch_file('vendor/phpunit/phpunit/src/Framework/TestCase.php', array(
 patch_file('vendor/phpunit/phpunit/src/Framework/Assert.php', array(
     // Remove return void annotations
     '/\):\s*void(\s*)\{/' => ')$1{',
-    // Remove type annotation from $message parameters
-    '/\bstring \$message/' => '$message',
+    // Remove string type annotation from parameters
+    '/\bstring (\$[_A-Za-z][_A-Za-z0-9]*)\b/' => '$1',
 ));
 
 function patch_file($file, array $replacements) {
@@ -22,9 +22,9 @@ function patch_file($file, array $replacements) {
 
         if ($contents !== $patchedContents) {
             file_put_contents($file, $patchedContents);
-            echo "Patched file {$file}\n";
+            echo "Patched file: {$file}\n";
         } else {
-            echo "No changes made\n";
+            echo "No changes made: {$file}\n";
         }
     } else {
         echo "File not found: {$file}\n";

@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_LogTest extends PHPUnit_Framework_TestCase
+class Zefram_LogTest extends TestCase
 {
     public function testRegisterErrorHandler()
     {
@@ -25,6 +25,6 @@ class Zefram_LogTest extends PHPUnit_Framework_TestCase
         restore_error_handler(); // Pop off $logger error handler
 
         rewind($stream);
-        $this->assertContains('Notice triggered in test', stream_get_contents($stream));
+        $this->assertStringContainsString('Notice triggered in test', stream_get_contents($stream));
     }
 }

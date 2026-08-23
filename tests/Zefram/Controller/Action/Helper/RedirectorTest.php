@@ -5,7 +5,7 @@
  * @copyright  Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
-class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_TestCase
+class Zend_Controller_Action_Helper_RedirectorTest extends TestCase
 {
     /**
      * @var Zefram_Controller_Action_Helper_Redirector
@@ -449,7 +449,7 @@ class Zend_Controller_Action_Helper_RedirectorTest extends PHPUnit_Framework_Tes
         $this->redirector->gotoUrl('/bar/baz');
         $test = $this->redirector->getRedirectUrl();
 
-        $this->assertNotContains('https://', $test);
+        $this->assertStringNotContainsString('https://', $test);
         $this->assertEquals('http://localhost/bar/baz', $test);
     }
 

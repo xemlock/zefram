@@ -32,6 +32,24 @@ class TestCase extends PHPUnit_Framework_TestCase
         return self::assertInternalType('string', $actual, $message);
     }
 
+    public static function assertStringContainsString($needle, $haystack, $message = '')
+    {
+        // Since PHPUnit 7.5
+        if (method_exists(get_parent_class(__CLASS__), 'assertStringContainsString')) {
+            return parent::assertStringContainsString($needle, $haystack, $message);
+        }
+        return self::assertContains($needle, $haystack, $message);
+    }
+
+    public static function assertStringNotContainsString($needle, $haystack, $message = '')
+    {
+        // Since PHPUnit 7.5
+        if (method_exists(get_parent_class(__CLASS__), 'assertStringNotContainsString')) {
+            return parent::assertStringNotContainsString($needle, $haystack, $message);
+        }
+        return self::assertNotContains($needle, $haystack, $message);
+    }
+
     public function expectNotToPerformAssertions()
     {
         // Since PHPUnit 7.2

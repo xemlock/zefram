@@ -99,9 +99,9 @@ class Zefram_UriTest extends TestCase
 
         restore_error_handler();
 
-        $this->assertTrue(empty($text));
-        $this->assertTrue(isset($this->error));
-        $this->assertContains('Exception in getUri()', $this->error);
+        $this->assertEmpty($text);
+        $this->assertNotNull($this->error);
+        $this->assertStringContainsString('Exception in getUri()', $this->error);
     }
 
     /**
