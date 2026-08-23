@@ -31,4 +31,13 @@ class TestCase extends PHPUnit_Framework_TestCase
         }
         return self::assertInternalType('string', $actual, $message);
     }
+
+    public function expectNotToPerformAssertions()
+    {
+        // Since PHPUnit 7.2
+        if (method_exists(get_parent_class(__CLASS__), 'expectNotToPerformAssertions')) {
+            return parent::expectNotToPerformAssertions();
+        }
+        // For prior PHPUnit versions essentially it's a no-op
+    }
 }

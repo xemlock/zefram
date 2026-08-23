@@ -1,6 +1,6 @@
 <?php
 
-class Zefram_UriTest extends PHPUnit_Framework_TestCase
+class Zefram_UriTest extends TestCase
 {
     /**
      * @var string|null
@@ -47,20 +47,26 @@ class Zefram_UriTest extends PHPUnit_Framework_TestCase
     /**
      * Tests that Zefram_Uri::setConfig() allows Array
      *
+     * @doesNotPerformAssertions
      * @group ZF-5578
      */
     public function testSetConfigWithArray()
     {
+        $this->expectNotToPerformAssertions();
+
         Zefram_Uri::setConfig(array('allow_unwise' => true));
     }
 
     /**
      * Tests that Zefram_Uri::setConfig() allows Zend_Config
      *
+     * @doesNotPerformAssertions
      * @group ZF-5578
      */
     public function testSetConfigWithZendConfig()
     {
+        $this->expectNotToPerformAssertions();
+
         Zefram_Uri::setConfig(new Zend_Config(array('allow_unwise' => true)));
     }
 

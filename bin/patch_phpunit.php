@@ -4,9 +4,8 @@
 chdir(__DIR__ . '/..');
 
 patch_file('vendor/phpunit/phpunit/src/Framework/TestCase.php', array(
-    // Remove return type annotation from setUp() and tearDown(), to allow test cases
-    // to be executed across phpunit versions
-    '/protected function (setUp|tearDown)\(\): void/' => 'protected function $1()',
+    // Remove return void annotations
+    '/\):\s*void(\s*)\{/' => ')$1{',
 ));
 
 patch_file('vendor/phpunit/phpunit/src/Framework/Assert.php', array(
